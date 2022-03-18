@@ -1,4 +1,5 @@
 import time
+from typing import Callable, Optional
 
 import requests
 from jose import jwk, jwt
@@ -10,14 +11,20 @@ from flask_cognito_lib.exceptions import CognitoError, TokenVerifyError
 
 
 class TokenService:
-    def __init__(self, cfg: Config):
+    def __init__(self, cfg: Config, request_client: Optional[Callable] = None):
         self.cfg = cfg
         self.claims = None
+
+        if not request_client:
+            self.request_client = requests.get
+        else:
+            self.request_client = request_client
+
         self._load_jwk_keys()
 
     def _load_jwk_keys(self):
         try:
-            response = requests.get(self.cfg.jwk_endpoint)
+            response = self.request_client(self.cfg.jwk_endpoint)
             self.jwk_keys = response.json()["keys"]
         except requests.exceptions.RequestException as e:
             raise CognitoError(str(e)) from e
