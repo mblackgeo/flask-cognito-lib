@@ -1,4 +1,4 @@
-from base64 import b64encode
+from typing import Callable, List, Optional
 from urllib.parse import quote
 
 import requests
@@ -14,60 +14,106 @@ class CognitoService:
     ):
         self.cfg = cfg
 
-    def get_sign_in_url(self):
+    def get_sign_in_url(
+        self,
+        code_challenge: str,
+        nonce: str,
+        state: str,
+        scopes: Optional[List[str]] = None,
+    ) -> str:
+        """Generate a sign URL against the AUTHORIZE endpoint
+
+        Parameters
+        ----------
+        code_challenge : str
+            A SHA256 hash of the code verifier used for this request.
+            Note only S256 is support by AWS Cognito.
+        nonce : str
+            A random string used for this request to prevent replay attacks
+        state : str
+            A random state string used for to prevent cross site request forgery
+        scopes : Optional[List[str]]
+            An optional list of system-reserved scopes or custom scopes that
+            are associated with a client that can be requested.
+            If the client doesn't request any scopes, the authentication server
+            uses all scopes that are associated with the client.
+
+        Returns
+        -------
+        str
+            A front channel login URL for the AWS Cognito AUTHORIZE endpoint
+        """
         quoted_redirect_url = quote(self.cfg.redirect_url)
 
-        # TODO state
-        # os.urandom(16)
-        # state = get_state(self.cfg.user_pool_id, self.cfg.user_pool_client_id)
-        state = "asdf"
-
-        # TODO authorize endpoint
-        # TODO PKCE
         full_url = (
-            f"{self.cfg.domain}/login"
+            f"{self.cfg.authorize_endpoint}"
             f"?response_type=code"
             f"&client_id={self.cfg.user_pool_client_id}"
             f"&redirect_uri={quoted_redirect_url}"
             f"&state={state}"
+            f"&nonce={nonce}"
+            f"&code_challenge={code_challenge}"
+            "&code_challenge_method=S256"
         )
+
+        if scopes is not None:
+            full_url += f"&scopes={'+'.join(scopes)}"
+
         return full_url
 
-    def exchange_code_for_token(self, code, requests_client=None):
-        token_url = f"{self.cfg.domain}/oauth2/token"
+    def exchange_code_for_token(
+        self,
+        code: str,
+        code_verifier: str,
+        requests_client: Optional[Callable] = None,
+    ) -> str:
+        """Exchange a short lived authorisation code for an access token
+
+        Parameters
+        ----------
+        code : str
+            The authorisation code after the user has logged in at the Cognito UI
+        code_verifier : str
+            The plaintext code verification secret used as the code challenge
+            when logging in
+        requests_client : Optional[Callable], optional
+            A client used to make http request, by default uses request.post
+            Used for mocking real requests in the unit tests
+
+        Returns
+        -------
+        str
+            An access token
+
+        Raises
+        ------
+        CognitoError
+            If the request to the endpoint fails or the endpoint does not
+            return an access token
+        """
+        if not requests_client:
+            requests_client = requests.post
+
         data = {
-            "code": code,
-            "redirect_uri": self.cfg.redirect_url,
-            "client_id": self.cfg.user_pool_client_id,
             "grant_type": "authorization_code",
+            "client_id": self.cfg.user_pool_client_id,
+            "redirect_uri": self.cfg.redirect_url,
+            "code": code,
+            "code_verifier": code_verifier,
         }
-        headers = {}
-        if self.cfg.user_pool_client_secret:
-            secret = b64encode(
-                f"{self.cfg.user_pool_client_id}:{self.cfg.user_pool_client_secret}".encode(  # noqa: E501
-                    "utf-8"
-                )
-            ).decode("utf-8")
-            headers = {"Authorization": f"Basic {secret}"}
+
         try:
-            if not requests_client:
-                requests_client = requests.post
-            response = requests_client(token_url, data=data, headers=headers)
+            response = requests_client(
+                url=self.cfg.token_endpoint,
+                data=data,
+                auth=(self.cfg.user_pool_client_id, self.cfg.user_pool_client_secret),
+            )
             response_json = response.json()
+
         except requests.exceptions.RequestException as e:
             raise CognitoError(str(e)) from e
+
         if "access_token" not in response_json:
             raise CognitoError(f"no access token returned for code {response_json}")
-        access_token = response_json["access_token"]
-        return access_token
 
-    def get_user_info(self, access_token, requests_client=None):
-        header = {"Authorization": f"Bearer {access_token}"}
-        try:
-            if not requests_client:
-                requests_client = requests.post
-            response = requests_client(self.cfg.user_info_endpoint, headers=header)
-            response_json = response.json()
-        except requests.exceptions.RequestException as e:
-            raise CognitoError(str(e)) from e
-        return response_json
+        return response_json["access_token"]
