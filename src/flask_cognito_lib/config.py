@@ -15,7 +15,8 @@ def get(key: str, required: bool = False, default: Optional[Any] = None) -> Any:
     required : bool, optional
         Set whether it is required, by default False
     default : Optional[Any], optional
-        A default value for `required=False` keys, by default None
+        A default value for `required=False` keys that are not already in the
+        app config, by default None
 
     Returns
     -------
