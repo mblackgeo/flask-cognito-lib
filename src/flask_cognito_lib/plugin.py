@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Callable, Optional
 
 from flask import Flask
 from flask import _app_ctx_stack as ctx_stack
@@ -11,8 +11,8 @@ class CognitoAuth:
     def __init__(
         self,
         app: Optional[Flask] = None,
-        _token_service_factory=token_service_factory,
-        _cognito_service_factory=cognito_service_factory,
+        _token_service_factory: Callable = token_service_factory,
+        _cognito_service_factory: Callable = cognito_service_factory,
     ):
         """Instantiate the CognitoAuth manager
 
