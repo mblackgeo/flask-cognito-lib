@@ -47,11 +47,7 @@ class CognitoAuth:
         ctx = ctx_stack.top
         if ctx is not None:
             if not hasattr(ctx, self.cfg.CONTEXT_KEY_TOKEN_SERVICE):
-                token_service = self.token_service_factory(
-                    user_pool_id=self.cfg.user_pool_id,
-                    user_pool_client_id=self.cfg.user_pool_client_id,
-                    region=self.cfg.region,
-                )
+                token_service = self.token_service_factory(cfg=self.cfg)
                 setattr(ctx, self.cfg.CONTEXT_KEY_TOKEN_SERVICE, token_service)
             return getattr(ctx, self.cfg.CONTEXT_KEY_TOKEN_SERVICE)
 
@@ -60,14 +56,7 @@ class CognitoAuth:
         ctx = ctx_stack.top
         if ctx is not None:
             if not hasattr(ctx, self.cfg.CONTEXT_KEY_COGNITO_SERVICE):
-                cognito_service = self.cognito_service_factory(
-                    user_pool_id=self.cfg.user_pool_id,
-                    user_pool_client_id=self.cfg.user_pool_client_id,
-                    user_pool_client_secret=self.cfg.user_pool_client_secret,
-                    redirect_url=self.cfg.redirect_url,
-                    region=self.cfg.region,
-                    domain=self.cfg.domain,
-                )
+                cognito_service = self.cognito_service_factory(cfg=self.cfg)
                 setattr(ctx, self.cfg.CONTEXT_KEY_COGNITO_SERVICE, cognito_service)
             return getattr(ctx, self.cfg.CONTEXT_KEY_COGNITO_SERVICE)
 
