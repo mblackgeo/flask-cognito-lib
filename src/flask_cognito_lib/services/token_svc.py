@@ -118,8 +118,9 @@ class TokenService:
 
     def _check_nonce(self, claims: Dict[str, Any], nonce: Optional[str] = None) -> None:
         """Check if the JWT nonce value is correct"""
-        if nonce:
 
+        # TODO this is the ID token, need to check that separately
+        if nonce:
             try:
                 claimed_nonce = claims["nonce"]
             except KeyError as e:
