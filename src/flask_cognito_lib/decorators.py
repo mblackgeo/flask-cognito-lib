@@ -39,7 +39,7 @@ def cognito_login(fn):
         code_verifier = secure_random()
         cognito_session = {
             "code_verifier": code_verifier,
-            "code_challenge": sha256(code_verifier),
+            "code_challenge": sha256(code_verifier.encode("utf-8")).hexdigest(),
             "nonce": secure_random(),
             "state": secure_random(),
         }
@@ -48,7 +48,6 @@ def cognito_login(fn):
         # TODO add support for scopes
         res = redirect(
             _auth_cls.cognito_service.get_sign_in_url(
-                code_verifier=cognito_session["code_verifier"],
                 code_challenge=cognito_session["code_challenge"],
                 nonce=cognito_session["nonce"],
                 state=cognito_session["state"],
@@ -75,7 +74,7 @@ def cognito_login_callback(fn):
         nonce = session["nonce"]
 
         # exchange the code for an access token
-        access_token = _auth_cls.get_access_token(
+        access_token = _auth_cls.get_token(
             request_args=request.args,
             expected_state=state,
             code_verifier=code_verifier,
