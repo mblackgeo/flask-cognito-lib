@@ -1,12 +1,12 @@
 import pytest
 
 from flask_cognito_lib.config import Config
-from flask_cognito_lib.exceptions import CognitoConfigurationError
+from flask_cognito_lib.exceptions import ConfigurationError
 
 
 def test_missing_config(app):
     """No configuration has been set, should throw an error"""
-    with pytest.raises(CognitoConfigurationError):
+    with pytest.raises(ConfigurationError):
         # remove a required configuration parameter
         app.config.pop("AWS_REGION")
         cfg = Config()

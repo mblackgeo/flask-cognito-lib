@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 from flask import current_app
 
-from .exceptions import CognitoConfigurationError
+from .exceptions import ConfigurationError
 
 
 def get(key: str, required: bool = False, default: Optional[Any] = None) -> Any:
@@ -29,9 +29,7 @@ def get(key: str, required: bool = False, default: Optional[Any] = None) -> Any:
         If key is required but no in the current app configuration
     """
     if key not in current_app.config and required:
-        raise CognitoConfigurationError(
-            "Missing required configuration parameter: ", key
-        )
+        raise ConfigurationError("Missing required configuration parameter: ", key)
 
     if key not in current_app.config:
         return default
@@ -43,6 +41,11 @@ class Config:
     """
     Helper class to hold the congfiguration
     """
+
+    # Constants
+    APP_EXTENSION_KEY = "cognito_auth_lib"
+    CONTEXT_KEY_COGNITO_SERVICE = "aws_cognito_service"
+    CONTEXT_KEY_TOKEN_SERVICE = "aws_jwt_service"
 
     @property
     def user_pool_id(self) -> str:
