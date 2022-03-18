@@ -153,7 +153,7 @@ class TokenService:
         Raises
         ------
         TokenVerifyError
-            _description_
+            If not token is passed, or any checks fail
         """
         if not token:
             raise TokenVerifyError("No token provided")
