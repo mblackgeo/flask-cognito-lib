@@ -1,14 +1,37 @@
 [tool.poetry]
 name = "flask_cognito_lib"
 version = "0.1.0"
-description = ""
+description = " A Flask extension that supports protecting routes with AWS Cognito following OAuth 2.0 best practices"
+license = "MIT"
 authors = ["mblackgeo <18327836+mblackgeo@users.noreply.github.com>"]
+readme = "README.md"
+homepage = "https://github.com/mblackgeo/flask-cognito-lib"
+repository = "https://github.com/mblackgeo/flask-cognito-lib"
+keywords = ["Flask", "Extension", "OAuth", "Cognito"]
+classifiers = [
+    "Framework :: Flask",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+packages = [
+    { include = "flask_cognito_lib", from = "src"}
+]
 
 [tool.poetry.dependencies]
 python = "^3.8"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+mypy = "^0.941"
+black = "^22.1.0"
+flake8 = "^4.0.1"
+typed-ast = "^1.5.2"
+pylint = "^2.12.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
