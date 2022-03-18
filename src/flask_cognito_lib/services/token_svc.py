@@ -137,7 +137,7 @@ class TokenService:
     ) -> None:
         """Verify the content and signature of a JWT from Cognito
 
-        This will check the audience, issuer, expiry and validate the sigature
+        This will check the audience, issuer, expiry and validate the signature
         of the JWT matches the public keys from the user pool
 
         Parameters
