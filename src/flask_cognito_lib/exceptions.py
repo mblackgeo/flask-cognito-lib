@@ -1,2 +1,2 @@
-class FlaskCognitoLibConfigurationError(Exception):
+class CognitoConfigurationError(Exception):
     pass

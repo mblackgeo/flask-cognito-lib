@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 from flask import current_app
 
-from .exceptions import FlaskCognitoLibConfigurationError
+from .exceptions import CognitoConfigurationError
 
 
 def get(key: str, required: bool = False, default: Optional[Any] = None) -> Any:
@@ -24,11 +24,11 @@ def get(key: str, required: bool = False, default: Optional[Any] = None) -> Any:
 
     Raises
     ------
-    FlaskCognitoLibConfigurationError
+    CognitoConfigurationError
         If key is required but no in the current app configuration
     """
     if key not in current_app.config and required:
-        raise FlaskCognitoLibConfigurationError(
+        raise CognitoConfigurationError(
             "Missing required configuration parameter: ", key
         )
 
