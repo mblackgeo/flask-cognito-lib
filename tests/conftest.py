@@ -73,3 +73,11 @@ def jwks_endpoint_request(mocker, jwks):
 @pytest.fixture
 def cfg():
     return Config()
+
+
+@pytest.fixture
+def token_endpoint_request(mocker):
+    response = mocker.Mock()
+    response.json = mocker.Mock(return_value={"access_token": "test_access_token"})
+    request = mocker.Mock(return_value=response)
+    return request
