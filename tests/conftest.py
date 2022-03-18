@@ -2,6 +2,7 @@ import pytest
 from flask import Flask
 
 from flask_cognito_lib import CognitoAuth
+from flask_cognito_lib.config import Config
 
 
 @pytest.fixture(autouse=True)
@@ -67,3 +68,8 @@ def jwks_endpoint_request(mocker, jwks):
     response.json = mocker.Mock(return_value=jwks)
     request = mocker.Mock(return_value=response)
     return request
+
+
+@pytest.fixture
+def cfg():
+    return Config()
