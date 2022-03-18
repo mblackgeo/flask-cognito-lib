@@ -1,9 +1,10 @@
-from typing import Callable, Optional
+from typing import Callable, Dict, Optional
 
 from flask import Flask
 from flask import _app_ctx_stack as ctx_stack
 
 from flask_cognito_lib.config import Config
+from flask_cognito_lib.exceptions import CognitoError
 from flask_cognito_lib.services import cognito_service_factory, token_service_factory
 
 
@@ -69,3 +70,19 @@ class CognitoAuth:
                 )
                 setattr(ctx, self.cfg.CONTEXT_KEY_COGNITO_SERVICE, cognito_service)
             return getattr(ctx, self.cfg.CONTEXT_KEY_COGNITO_SERVICE)
+
+    def get_token(
+        self, request_args: Dict[str, str], expected_state: str, code_verifier: str
+    ) -> str:
+        """Get the token from the Cognito redirect after the user has logged in"""
+        code = request_args.get("code")
+        state = request_args.get("state")
+        if state != expected_state:
+            raise CognitoError("State for CSRF is not correct ")
+        return self.cognito_service.exchange_code_for_token(
+            code=code, code_verifier=code_verifier
+        )
+
+    def decode_and_verify_token(self, token: str) -> Dict[str, str]:
+        self.token_service.verify(token)
+        return self.token_service.claims
