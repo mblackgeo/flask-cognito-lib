@@ -1,7 +1,4 @@
-from base64 import urlsafe_b64encode
 from functools import wraps
-from hashlib import sha256
-from os import urandom
 from typing import Dict
 
 from flask import current_app, jsonify, redirect, request, session
@@ -14,14 +11,14 @@ from flask_jwt_extended import (
 from werkzeug.local import LocalProxy
 
 from flask_cognito_lib.config import Config
+from flask_cognito_lib.utils import (
+    generate_code_challenge,
+    generate_code_verifier,
+    secure_random,
+)
 
 cfg = Config()
 _auth_cls = LocalProxy(lambda: current_app.extensions[cfg.APP_EXTENSION_KEY])
-
-
-def secure_random(n_bytes: int = 16) -> str:
-    """Generate a secure URL-safe random string"""
-    return urlsafe_b64encode(urandom(n_bytes)).decode("utf-8")
 
 
 def update_session(state: Dict[str, str]):
@@ -36,10 +33,10 @@ def cognito_login(fn):
     def wrapper(*args, **kwargs):
         # store parameters in the session that are passed to Cognito
         # and required for JWT verification
-        code_verifier = secure_random()
+        code_verifier = generate_code_verifier()
         cognito_session = {
             "code_verifier": code_verifier,
-            "code_challenge": sha256(code_verifier.encode("utf-8")).hexdigest(),
+            "code_challenge": generate_code_challenge(code_verifier),
             "nonce": secure_random(),
             "state": secure_random(),
         }
