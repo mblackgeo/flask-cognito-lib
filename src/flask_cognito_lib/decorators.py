@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Dict, Iterable
+from typing import Dict, Iterable, Optional
 
 from flask import current_app as app
 from flask import redirect, request, session
@@ -115,7 +115,7 @@ def cognito_logout(fn):
     return wrapper
 
 
-def auth_required():
+def auth_required(groups: Optional[Iterable[str]] = None):
     """A decorator to protect a route with AWS Cognito"""
 
     def wrapper(fn):
@@ -125,9 +125,15 @@ def auth_required():
             # Try and validate the access token stored in the cookie
             try:
                 access_token = request.cookies.get(cfg.COOKIE_NAME)
-                _auth_cls.decode_and_verify_token(access_token)
+                claims = _auth_cls.decode_and_verify_token(access_token)
                 valid = True
-            except TokenVerifyError:
+
+                # Check for required group membership
+                # TODO implement this properly
+                if groups:
+                    valid = all(g in claims["groups"] for g in groups)
+
+            except (TokenVerifyError, KeyError):
                 valid = False
 
             if valid:
@@ -138,21 +144,3 @@ def auth_required():
         return decorator
 
     return wrapper
-
-
-# TODO implement these
-# def groups_required(groups: List[str]):
-#     """View decorator that requires a the user to in one or more Cognito groups."""
-
-#     def decorator(function):
-#         @wraps(function)
-#         def wrapper(*args, **kwargs):
-#             _check_groups(groups)
-#             return function(*args, **kwargs)
-
-#         return wrapper
-
-#     return decorator
-
-# def _check_groups(groups: List[str]):
-#     pass
