@@ -66,8 +66,10 @@ class CognitoAuth:
         """Get the token from the Cognito redirect after the user has logged in"""
         code = request_args.get("code")
         state = request_args.get("state")
+
         if state != expected_state:
-            raise CognitoError("State for CSRF is not correct ")
+            raise CognitoError("State for CSRF is not correct")
+
         return self.cognito_service.exchange_code_for_token(
             code=code, code_verifier=code_verifier
         )
