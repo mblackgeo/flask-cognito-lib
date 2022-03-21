@@ -66,30 +66,34 @@ def cognito_login_callback(fn):
         # Get the access token return after auth flow with Cognito
         code_verifier = session["code_verifier"]
         state = session["state"]
-        code_challenge = session["code_challenge"]
-        nonce = session["nonce"]
 
         # exchange the code for an access token
+        # also confirms the returned state is correct
         access_token = _auth_cls.get_token(
             request_args=request.args,
             expected_state=state,
             code_verifier=code_verifier,
         )
 
-        # validate the JWT
+        # validate the JWT and get the claims
         claims = _auth_cls.decode_and_verify_token(
             token=access_token,
-            code_verifier=code_verifier,
-            code_challenge=code_challenge,
-            nonce=nonce,
-            state=state,
         )
 
+        # Remove the code verifier and challenge now that this flow is complete
+        remove_from_session(("code_challenge", "code_verifier"))
         update_session({"claims": claims})
 
         # return and set the JWT as a http only cookie
         resp = fn(*args, **kwargs)
-        set_access_cookies(resp, access_token, max_age=30 * 60)  # TODO config
+
+        resp.set_cookie(
+            key=cfg.COOKIE_NAME,
+            value=access_token,
+            max_age=cfg.max_cookie_age_seconds,
+            httponly=True,
+            # secure=True,  # TODO require True in prod
+        )
         return resp
 
     return wrapper
