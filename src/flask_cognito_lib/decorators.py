@@ -6,7 +6,11 @@ from flask import redirect, request, session
 from werkzeug.local import LocalProxy
 
 from flask_cognito_lib.config import Config
-from flask_cognito_lib.exceptions import AuthorisationRequiredError, TokenVerifyError
+from flask_cognito_lib.exceptions import (
+    AuthorisationRequiredError,
+    CognitoGroupRequiredError,
+    TokenVerifyError,
+)
 from flask_cognito_lib.utils import (
     generate_code_challenge,
     generate_code_verifier,
@@ -129,9 +133,11 @@ def auth_required(groups: Optional[Iterable[str]] = None):
                 valid = True
 
                 # Check for required group membership
-                # TODO implement this properly
+                # TODO implement this properly including exception handling
                 if groups:
                     valid = all(g in claims["groups"] for g in groups)
+                    if not valid:
+                        raise CognitoGroupRequiredError
 
             except (TokenVerifyError, KeyError):
                 valid = False

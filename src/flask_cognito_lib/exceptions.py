@@ -15,3 +15,7 @@ class CognitoError(Exception):
 
 class AuthorisationRequiredError(HTTPException):
     code = 403
+
+
+class CognitoGroupRequiredError(HTTPException):
+    code = 403

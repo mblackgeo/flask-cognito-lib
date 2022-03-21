@@ -52,6 +52,14 @@ def claims():
     return jsonify(session)
 
 
+@app.route("/admin")
+@auth_required(groups=["admin"])
+def admin():
+    # TODO docs
+    # TODO exception handling here
+    return "User is in the admin group"
+
+
 @app.errorhandler(AuthorisationRequiredError)
 def login_redirect_handler(err):
     # Register an error handler if the user hits an "@auth_required" route
