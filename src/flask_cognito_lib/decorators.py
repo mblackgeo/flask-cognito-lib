@@ -121,11 +121,19 @@ def auth_required():
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
-            verify_jwt_in_request(optional=True)
-            if get_jwt_identity():
+
+            # Try and validate the access token stored in the cookie
+            try:
+                access_token = request.cookies.get(cfg.COOKIE_NAME)
+                _auth_cls.decode_and_verify_token(access_token)
+                valid = True
+            except TokenVerifyError:
+                valid = False
+
+            if valid:
                 return fn(*args, **kwargs)
-            else:
-                return jsonify("Not authorised"), 403
+
+            raise AuthorisationRequiredError
 
         return decorator
 
