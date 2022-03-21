@@ -104,21 +104,13 @@ def cognito_logout(fn):
 
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        # remove the congito vars from the session
-        update_session(
-            {
-                "code_verifier": None,
-                "code_challenge": None,
-                "nonce": None,
-                "state": None,
-                "claims": None,
-            }
-        )
-
         # logout at cognito and remove the cookies
-        res = redirect(cfg.logout_endpoint)
-        unset_jwt_cookies(res)
-        return res
+        resp = redirect(cfg.logout_endpoint)
+        resp.delete_cookie(key=cfg.COOKIE_NAME)
+
+        # Cognito will redirect to the sign-out URL (if set) or else use
+        # the callback URL
+        return resp
 
     return wrapper
 
