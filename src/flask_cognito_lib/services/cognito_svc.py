@@ -17,7 +17,6 @@ class CognitoService:
     def get_sign_in_url(
         self,
         code_challenge: str,
-        nonce: str,
         state: str,
         scopes: Optional[List[str]] = None,
     ) -> str:
@@ -28,8 +27,6 @@ class CognitoService:
         code_challenge : str
             A SHA256 hash of the code verifier used for this request.
             Note only S256 is support by AWS Cognito.
-        nonce : str
-            A random string used for this request to prevent replay attacks
         state : str
             A random state string used for to prevent cross site request forgery
         scopes : Optional[List[str]]
@@ -51,7 +48,6 @@ class CognitoService:
             f"&client_id={self.cfg.user_pool_client_id}"
             f"&redirect_uri={quoted_redirect_url}"
             f"&state={state}"
-            f"&nonce={nonce}"
             f"&code_challenge={code_challenge}"
             "&code_challenge_method=S256"
         )

@@ -116,23 +116,9 @@ class TokenService:
         if claims["iss"] != self.cfg.issuer:
             raise TokenVerifyError("Token was not issuer is not correct")
 
-    def _check_nonce(self, claims: Dict[str, Any], nonce: Optional[str] = None) -> None:
-        """Check if the JWT nonce value is correct"""
-
-        # TODO this is the ID token, need to check that separately
-        if nonce:
-            try:
-                claimed_nonce = claims["nonce"]
-            except KeyError as e:
-                raise TokenVerifyError("Token nonce is not present") from e
-
-            if claimed_nonce != nonce:
-                raise TokenVerifyError("Token nonce is not correct")
-
     def verify(
         self,
         token: str,
-        nonce: Optional[str] = None,
         current_time: Optional[int] = None,
     ) -> None:
         """Verify the content and signature of a JWT from Cognito
@@ -144,9 +130,6 @@ class TokenService:
         ----------
         token : str
             The encoded JWT
-        nonce : Optional[str]
-            The nonce value used when the token was requested. Used to prevent
-            replay attacks.
         current_time : Optional[int], optional
             Pass a unix time , by default None
 
@@ -167,6 +150,5 @@ class TokenService:
         self._check_issued_at(claims, current_time)
         self._check_audience(claims)
         self._check_issuer(claims)
-        self._check_nonce(claims, nonce)
 
         self.claims = claims

@@ -10,7 +10,6 @@ def test_sign_in_url(cfg):
     cognito = CognitoService(cfg)
     res = cognito.get_sign_in_url(
         code_challenge="asdf",
-        nonce="qwer",
         state="1234",
         scopes=["openid", "profile"],
     )
@@ -20,7 +19,6 @@ def test_sign_in_url(cfg):
         "&client_id=545isk1een1lvilb9en643g3vd"
         "&redirect_uri=http%3A//example.com/redirect"
         "&state=1234"
-        "&nonce=qwer"
         "&code_challenge=asdf"
         "&code_challenge_method=S256"
         "&scopes=openid+profile"
