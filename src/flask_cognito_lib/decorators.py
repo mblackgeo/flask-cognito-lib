@@ -40,21 +40,17 @@ def cognito_login(fn):
         cognito_session = {
             "code_verifier": code_verifier,
             "code_challenge": generate_code_challenge(code_verifier),
-            "nonce": secure_random(),
             "state": secure_random(),
         }
         update_session(cognito_session)
 
         # TODO add support for scopes
-        res = redirect(
-            _auth_cls.cognito_service.get_sign_in_url(
-                code_challenge=cognito_session["code_challenge"],
-                nonce=cognito_session["nonce"],
-                state=cognito_session["state"],
-            )
+        # TODO add suport for custom state values
+        login_url = _auth_cls.cognito_service.get_sign_in_url(
+            code_challenge=cognito_session["code_challenge"],
+            state=cognito_session["state"],
         )
-
-        return res
+        return redirect(login_url)
 
     return wrapper
 
