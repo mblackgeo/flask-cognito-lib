@@ -1,16 +1,12 @@
 from functools import wraps
-from typing import Dict
+from typing import Dict, Iterable
 
-from flask import current_app, jsonify, redirect, request, session
-from flask_jwt_extended import (
-    get_jwt_identity,
-    set_access_cookies,
-    unset_jwt_cookies,
-    verify_jwt_in_request,
-)
+from flask import current_app as app
+from flask import redirect, request, session
 from werkzeug.local import LocalProxy
 
 from flask_cognito_lib.config import Config
+from flask_cognito_lib.exceptions import AuthorisationRequiredError, TokenVerifyError
 from flask_cognito_lib.utils import (
     generate_code_challenge,
     generate_code_verifier,
@@ -18,12 +14,19 @@ from flask_cognito_lib.utils import (
 )
 
 cfg = Config()
-_auth_cls = LocalProxy(lambda: current_app.extensions[cfg.APP_EXTENSION_KEY])
+_auth_cls = LocalProxy(lambda: app.extensions[cfg.APP_EXTENSION_KEY])
 
 
 def update_session(state: Dict[str, str]):
     """Update the Flask session with key/value pairs"""
     session.update(state)
+
+
+def remove_from_session(keys: Iterable[str]):
+    """Remove an entry from the session"""
+    for key in keys:
+        if key in session:
+            session.pop(key)
 
 
 def cognito_login(fn):
