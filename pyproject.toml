@@ -27,7 +27,6 @@ python = "^3.8"
 Flask = "^2.0.3"
 requests = "^2.27.1"
 python-jose = {extras = ["crytography"], version = "^3.3.0"}
-Flask-JWT-Extended = "^4.3.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
