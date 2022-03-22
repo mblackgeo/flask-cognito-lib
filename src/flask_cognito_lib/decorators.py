@@ -82,6 +82,7 @@ def cognito_login_callback(fn):
         # validate the JWT and get the claims
         claims = _auth_cls.decode_and_verify_token(
             token=access_token,
+            leeway=10,  # 10 seconds leeway after returning from Cognito
         )
 
         # Remove the code verifier and challenge now that this flow is complete
@@ -129,7 +130,9 @@ def auth_required(groups: Optional[Iterable[str]] = None):
             # Try and validate the access token stored in the cookie
             try:
                 access_token = request.cookies.get(cfg.COOKIE_NAME)
-                claims = _auth_cls.decode_and_verify_token(access_token)
+                claims = _auth_cls.decode_and_verify_token(
+                    access_token, leeway=cfg.max_cookie_age_seconds
+                )
                 valid = True
 
                 # Check for required group membership
