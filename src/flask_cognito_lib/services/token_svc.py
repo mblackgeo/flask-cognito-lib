@@ -1,126 +1,30 @@
-import time
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Dict, Optional
+from urllib.error import HTTPError
 
-import requests
-from jose import jwk, jwt
-from jose.exceptions import JOSEError
-from jose.utils import base64url_decode
+import jwt
+from jwt import PyJWK, PyJWKClient, PyJWKClientError
 
 from flask_cognito_lib.config import Config
 from flask_cognito_lib.exceptions import CognitoError, TokenVerifyError
 
 
 class TokenService:
-    def __init__(self, cfg: Config, request_client: Optional[Callable] = None):
+    def __init__(self, cfg: Config):
         self.cfg = cfg
+        self.jwk = PyJWKClient(self.cfg.jwk_endpoint, cache_keys=True)
 
-        # Populate the claims after verification of the JWT
-        self.claims: Dict[str, Any] = None
-
-        if not request_client:
-            self.request_client = requests.get
-        else:
-            self.request_client = request_client
-
-        self._load_jwk_keys()
-
-    def _load_jwk_keys(self):
-        """Load the JWKs from the Cognito user pool endpoint JWK"""
+    def get_public_key(self, token: str) -> PyJWK:
+        """Find the public key ID for a given JWT"""
         try:
-            response = self.request_client(self.cfg.jwk_endpoint)
-            self.jwk_keys = response.json()["keys"]
-
-        except requests.exceptions.RequestException as e:
-            raise CognitoError(str(e)) from e
-
-    @staticmethod
-    def _extract_headers(token: str) -> Dict[str, Any]:
-        """Extract the unverified headers from a JWT"""
-        try:
-            headers = jwt.get_unverified_headers(token)
-            return headers
-        except JOSEError as e:
-            raise TokenVerifyError(str(e)) from e
-
-    def _get_pkey(self, headers: Dict[str, Any]) -> Dict[str, Any]:
-        """Find the public key ID from JWT headers"""
-        kid = headers["kid"]
-        for key in self.jwk_keys:
-            if key["kid"] == kid:
-                return key
-
-        raise TokenVerifyError("Public key not found in jwks.json")
-
-    @staticmethod
-    def _verify_signature(token: str, pkey_data: Dict[str, Any]) -> None:
-        """Verify that signature of the JWT given the public key"""
-
-        try:
-            # construct the public key
-            public_key = jwk.construct(pkey_data)
-        except JOSEError as e:
-            raise TokenVerifyError(str(e)) from e
-
-        # get the last two sections of the token,
-        # message and signature (encoded in base64)
-        message, encoded_signature = str(token).rsplit(".", 1)
-
-        # decode the signature
-        decoded_signature = base64url_decode(encoded_signature.encode("utf-8"))
-
-        # verify the signature
-        if not public_key.verify(message.encode("utf8"), decoded_signature):
-            raise TokenVerifyError("Signature verification failed")
-
-    @staticmethod
-    def _extract_claims(token: str) -> Dict[str, Any]:
-        """Extract the claims from a JWT"""
-        try:
-            claims = jwt.get_unverified_claims(token)
-            return claims
-        except JOSEError as e:
-            raise TokenVerifyError(str(e)) from e
-
-    @staticmethod
-    def _check_expiration(
-        claims: Dict[str, Any], current_time: Optional[float] = None
-    ) -> None:
-        """Check if a JWT has expired"""
-        if current_time is None:
-            current_time = time.time()
-
-        if current_time > claims["exp"]:
-            raise TokenVerifyError("Token is expired")  # probably another exception
-
-    def _check_audience(self, claims: Dict[str, Any]) -> None:
-        """Check if the JWT was issued for the correct audience"""
-        audience = claims["aud"] if "aud" in claims else claims["client_id"]
-        if audience != self.cfg.user_pool_client_id:
-            raise TokenVerifyError("Token was not issued for this audience")
-
-    def _check_issued_at(
-        self, claims: Dict[str, Any], current_time: Optional[float] = None
-    ) -> None:
-        """Check if the JWT was issued by the correct issuer"""
-        if current_time is None:
-            current_time = time.time()
-
-        min_time = current_time - (5 * 60)
-        max_time = current_time + (5 * 60)
-
-        if claims["iat"] > max_time or claims["iat"] < min_time:
-            raise TokenVerifyError("Token issued at time is out of range")
-
-    def _check_issuer(self, claims: Dict[str, Any]) -> None:
-        """Check if the JWT was issued by the correct issuer"""
-        if claims["iss"] != self.cfg.issuer:
-            raise TokenVerifyError("Token was not issuer is not correct")
+            return self.jwk.get_signing_key_from_jwt(token)
+        except (PyJWKClientError, HTTPError) as err:
+            raise CognitoError("Error getting public keys from Cognito") from err
 
     def verify(
         self,
         token: str,
-        current_time: Optional[int] = None,
-    ) -> None:
+        leeway: Optional[float] = None,
+    ) -> Dict[str, Any]:
         """Verify the content and signature of a JWT from Cognito
 
         This will check the audience, issuer, expiry and validate the signature
@@ -130,8 +34,13 @@ class TokenService:
         ----------
         token : str
             The encoded JWT
-        current_time : Optional[int], optional
-            Pass a unix time , by default None
+
+        Returns
+        -------
+        Dict[str, Any]
+            The verified claims from the encoded JWT
+        leeway
+            A time margin in seconds for the expiration check.
 
         Raises
         ------
@@ -141,14 +50,32 @@ class TokenService:
         if not token:
             raise TokenVerifyError("No token provided")
 
-        headers = self._extract_headers(token)
-        pkey_data = self._get_pkey(headers)
-        self._verify_signature(token, pkey_data)
+        try:
+            claims = jwt.decode(
+                jwt=token,
+                key=self.get_public_key(token).key,
+                algorithms=["RS256"],
+                audience=self.cfg.user_pool_client_id,
+                issuer=self.cfg.issuer,
+                leeway=leeway,
+                options={
+                    "verify_signature": True,
+                    "verify_aud": False,  # JWT from Cognito will set client_id
+                    "verify_iss": True,
+                    "verify_exp": True,
+                    "verify_iat": True,
+                },
+            )
 
-        claims = self._extract_claims(token)
-        self._check_expiration(claims, current_time)
-        self._check_issued_at(claims, current_time)
-        self._check_audience(claims)
-        self._check_issuer(claims)
+        except jwt.PyJWTError as err:
+            raise TokenVerifyError("Token is not valid") from err
 
-        self.claims = claims
+        # Cognito does not set an audience, but should populate client_id
+        try:
+            if claims["client_id"] != self.cfg.user_pool_client_id:
+                raise TokenVerifyError("Token was not issued for this client id")
+
+        except KeyError as err:
+            raise TokenVerifyError("Token is missing client id") from err
+
+        return claims
