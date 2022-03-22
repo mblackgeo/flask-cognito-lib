@@ -74,5 +74,5 @@ class CognitoAuth:
             code=code, code_verifier=code_verifier
         )
 
-    def decode_and_verify_token(self, token: str) -> Dict[str, str]:
-        return self.token_service.verify(token)
+    def decode_and_verify_token(self, token: str, leeway: float) -> Dict[str, str]:
+        return self.token_service.verify(token, leeway)
