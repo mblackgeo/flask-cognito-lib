@@ -136,9 +136,8 @@ def auth_required(groups: Optional[Iterable[str]] = None):
                 valid = True
 
                 # Check for required group membership
-                # TODO implement this properly including exception handling
                 if groups:
-                    valid = all(g in claims["groups"] for g in groups)
+                    valid = all(g in claims["cognito:groups"] for g in groups)
                     if not valid:
                         raise CognitoGroupRequiredError
 
