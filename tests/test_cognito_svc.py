@@ -4,7 +4,7 @@ from flask_cognito_lib.utils import CognitoTokenResponse
 
 def test_base_url(cfg):
     cognito = CognitoService(cfg)
-    assert cognito.cfg.domain == "http://auth.example.com"
+    assert cognito.cfg.domain == "https://webapp-test.auth.eu-west-1.amazoncognito.com"
 
 
 def test_sign_in_url(cfg):
@@ -16,10 +16,10 @@ def test_sign_in_url(cfg):
         scopes=["openid", "profile"],
     )
     assert res == (
-        "http://auth.example.com/oauth2/authorize"
+        "https://webapp-test.auth.eu-west-1.amazoncognito.com/oauth2/authorize"
         "?response_type=code"
-        "&client_id=545isk1een1lvilb9en643g3vd"
-        "&redirect_uri=http%3A//example.com/redirect"
+        "&client_id=4lln66726pp3f4gi1krj0sta9h"
+        "&redirect_uri=http%3A//localhost%3A5000/postlogin"
         "&state=1234"
         "&nonce=6789"
         "&code_challenge=asdf"

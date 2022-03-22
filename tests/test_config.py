@@ -13,5 +13,5 @@ def test_missing_config(app, cfg):
 
 def test_issuer(cfg):
     """Check if forms the issuer URL correctly"""
-    expected = "https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_Drvd8r4TM"
+    expected = "https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_c7O90SNDF"
     assert cfg.issuer == expected
