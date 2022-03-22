@@ -100,7 +100,7 @@ class CognitoService:
         }
 
         try:
-            response = requests.get(
+            response = requests.post(
                 url=self.cfg.token_endpoint,
                 data=data,
                 auth=(self.cfg.user_pool_client_id, self.cfg.user_pool_client_secret),
