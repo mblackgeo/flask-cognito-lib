@@ -1,15 +1,14 @@
 from jwt import PyJWKSet
 
-from flask_cognito_lib.config import Config
 from flask_cognito_lib.services.token_svc import TokenService
 
 
-def test_verify(mocker, jwks):
+def test_verify(mocker, jwks, cfg):
     mocker.patch(
         "jwt.jwks_client.PyJWKClient.get_jwk_set",
         return_value=PyJWKSet.from_dict(jwks),
     )
-    serv = TokenService(cfg=Config())
+    serv = TokenService(cfg=cfg)
     token = (
         "eyJraWQiOiJwdjVrMkZkcSs1dVZnY2I0anJnQTc2SDdpVkd2QU80dU9taHBDaGVxVERvPSIsImFsZyI6IlJTMjU2In0."
         "eyJzdWIiOiJmOGNkZDc4MC0wODBkLTQ0YjQtOTVkMC0zZGRmZDg0YTJkNTgiLCJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJzY29wZSI6Im9wZW5pZCBlbWFpbCIsImF1dGhfdGltZSI6MTU2ODczNzA4NCwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLmV1LXdlc3QtMS5hbWF6b25hd3MuY29tXC9ldS13ZXN0LTFfRHJ2ZDhyNFRNIiwiZXhwIjoxNTY4NzQwNjg0LCJpYXQiOjE1Njg3MzcwODQsInZlcnNpb24iOjIsImp0aSI6IjU0MDgxNDY4LWY5M2QtNGM3NC1hZmQ3LTEwMGMzNmU3OTIyZSIsImNsaWVudF9pZCI6IjU0NWlzazFlZW4xbHZpbGI5ZW42NDNnM3ZkIiwidXNlcm5hbWUiOiJ0ZXN0MTIzIn0."
