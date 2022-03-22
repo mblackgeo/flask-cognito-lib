@@ -70,14 +70,20 @@ class CognitoAuth:
     ) -> CognitoTokenResponse:
         """Get the token from the Cognito redirect after the user has logged in"""
         # TODO docstring
-        code = request_args.get("code")
-        state = request_args.get("state")
+        try:
+            code = request_args["code"]
+            state = request_args["state"]
+        except KeyError as err:
+            raise CognitoError(
+                "Access code and/or state not returned from Cognito"
+            ) from err
 
         if state != expected_state:
             raise CognitoError("State for CSRF is not correct")
 
         return self.cognito_service.exchange_code_for_token(
-            code=code, code_verifier=code_verifier
+            code=code,
+            code_verifier=code_verifier,
         )
 
     def verify_access_token(self, token: str, leeway: float) -> Dict[str, str]:
