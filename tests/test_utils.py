@@ -5,5 +5,5 @@ def test_generate_code_challenge():
     secret = generate_code_verifier(40)
     verify = generate_code_challenge(secret)
 
-    assert len(secret) > 50
+    assert len(secret) >= 50
     assert len(verify) == 43
