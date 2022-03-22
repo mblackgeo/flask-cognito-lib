@@ -6,6 +6,9 @@ from flask import _app_ctx_stack as ctx_stack
 from flask_cognito_lib.config import Config
 from flask_cognito_lib.exceptions import CognitoError
 from flask_cognito_lib.services import cognito_service_factory, token_service_factory
+from flask_cognito_lib.services.cognito_svc import CognitoService
+from flask_cognito_lib.services.token_svc import TokenService
+from flask_cognito_lib.utils import CognitoTokenResponse
 
 
 class CognitoAuth:
@@ -43,7 +46,7 @@ class CognitoAuth:
         app.extensions[self.cfg.APP_EXTENSION_KEY] = self
 
     @property
-    def token_service(self):
+    def token_service(self) -> TokenService:
         # TODO docstring
         ctx = ctx_stack.top
         if ctx is not None:
@@ -53,7 +56,7 @@ class CognitoAuth:
             return getattr(ctx, self.cfg.CONTEXT_KEY_TOKEN_SERVICE)
 
     @property
-    def cognito_service(self):
+    def cognito_service(self) -> CognitoService:
         # TODO docstring
         ctx = ctx_stack.top
         if ctx is not None:
@@ -62,9 +65,9 @@ class CognitoAuth:
                 setattr(ctx, self.cfg.CONTEXT_KEY_COGNITO_SERVICE, cognito_service)
             return getattr(ctx, self.cfg.CONTEXT_KEY_COGNITO_SERVICE)
 
-    def get_token(
+    def get_tokens(
         self, request_args: Dict[str, str], expected_state: str, code_verifier: str
-    ) -> str:
+    ) -> CognitoTokenResponse:
         """Get the token from the Cognito redirect after the user has logged in"""
         # TODO docstring
         code = request_args.get("code")
@@ -77,10 +80,10 @@ class CognitoAuth:
             code=code, code_verifier=code_verifier
         )
 
-    def decode_and_verify_token(self, token: str, leeway: float) -> Dict[str, str]:
+    def verify_access_token(self, token: str, leeway: float) -> Dict[str, str]:
         # TODO docstring
-        return self.token_service.verify(token, leeway)
+        return self.token_service.verify_access_token(token, leeway)
 
-    def get_user_info(self, token: str) -> Dict[str, str]:
+    def verify_id_token(self, token: str, leeway: float) -> Dict[str, str]:
         # TODO docstring
-        return self.cognito_service.get_user_info(token)
+        return self.token_service.verify_id_token(token, leeway)
