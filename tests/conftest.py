@@ -1,5 +1,6 @@
 import pytest
 from flask import Flask
+from jwt import PyJWKSet
 
 from flask_cognito_lib import CognitoAuth
 from flask_cognito_lib.config import Config
@@ -68,3 +69,11 @@ def jwks():
 @pytest.fixture
 def cfg():
     return Config()
+
+
+@pytest.fixture(autouse=True)
+def jwk_patch(mocker, jwks):
+    mocker.patch(
+        "jwt.jwks_client.PyJWKClient.get_jwk_set",
+        return_value=PyJWKSet.from_dict(jwks),
+    )
