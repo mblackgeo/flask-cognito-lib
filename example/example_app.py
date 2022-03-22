@@ -55,7 +55,7 @@ def claims():
     # a 401 Authentication Error is thrown, which is caught here a redirected
     # to login.
     # If their session is valid, the claims from the Cognito JWT will be shown
-    return jsonify(session["claims"])
+    return jsonify(session)
 
 
 @app.errorhandler(AuthorisationRequiredError)
