@@ -1,7 +1,9 @@
 import re
 from base64 import urlsafe_b64encode
+from dataclasses import dataclass
 from hashlib import sha256
 from os import urandom
+from typing import Optional
 
 
 def secure_random(n_bytes: int = 32) -> str:
@@ -21,3 +23,13 @@ def generate_code_challenge(code_verifier: str) -> str:
     code_challenge = sha256(code_verifier.encode("utf-8")).digest()
     code_challenge = urlsafe_b64encode(code_challenge).decode("utf-8")
     return code_challenge.replace("=", "")
+
+
+@dataclass
+class CognitoTokenResponse:
+    access_token: Optional[str]
+    token_type: Optional[str]
+    expires_in: Optional[int]
+    refresh_token: Optional[str]
+    id_token: Optional[str]
+    error: Optional[str]

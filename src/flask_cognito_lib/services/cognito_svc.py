@@ -5,6 +5,7 @@ import requests
 
 from flask_cognito_lib.config import Config
 from flask_cognito_lib.exceptions import CognitoError
+from flask_cognito_lib.utils import CognitoTokenResponse
 
 
 class CognitoService:
@@ -66,7 +67,7 @@ class CognitoService:
         code: str,
         code_verifier: str,
         requests_client: Optional[Callable] = None,
-    ) -> str:
+    ) -> CognitoTokenResponse:
         """Exchange a short lived authorisation code for an access token
 
         Parameters
@@ -82,8 +83,8 @@ class CognitoService:
 
         Returns
         -------
-        str
-            An access token
+        CognitoTokenResponse
+            A dataclass that holds the token response from Cognito
 
         Raises
         ------
@@ -109,12 +110,11 @@ class CognitoService:
                 auth=(self.cfg.user_pool_client_id, self.cfg.user_pool_client_secret),
             )
             response_json = response.json()
-            # TODO ID token and refresh token
 
         except requests.exceptions.RequestException as e:
             raise CognitoError(str(e)) from e
 
-        if "access_token" not in response_json:
-            raise CognitoError(f"no access token returned for code {response_json}")
+        if "error" in response_json:
+            raise CognitoError(f"Cognito error : {response_json['error']}")
 
-        return response_json["access_token"]
+        return CognitoTokenResponse(**response_json)
