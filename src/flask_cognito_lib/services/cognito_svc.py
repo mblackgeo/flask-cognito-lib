@@ -1,4 +1,4 @@
-from typing import Callable, List, Optional
+from typing import List, Optional
 from urllib.parse import quote
 
 import requests
@@ -66,7 +66,6 @@ class CognitoService:
         self,
         code: str,
         code_verifier: str,
-        requests_client: Optional[Callable] = None,
     ) -> CognitoTokenResponse:
         """Exchange a short lived authorisation code for an access token
 
@@ -92,9 +91,6 @@ class CognitoService:
             If the request to the endpoint fails or the endpoint does not
             return an access token
         """
-        if not requests_client:
-            requests_client = requests.post
-
         data = {
             "grant_type": "authorization_code",
             "client_id": self.cfg.user_pool_client_id,
@@ -104,7 +100,7 @@ class CognitoService:
         }
 
         try:
-            response = requests_client(
+            response = requests.get(
                 url=self.cfg.token_endpoint,
                 data=data,
                 auth=(self.cfg.user_pool_client_id, self.cfg.user_pool_client_secret),

@@ -1,4 +1,5 @@
 from flask_cognito_lib.services.cognito_svc import CognitoService
+from flask_cognito_lib.utils import CognitoTokenResponse
 
 
 def test_base_url(cfg):
@@ -27,9 +28,15 @@ def test_sign_in_url(cfg):
     )
 
 
-def test_exchange_code_for_token(cfg, token_endpoint_request):
+def test_exchange_code_for_token(cfg, mocker):
+    mocker.patch(
+        "flask_cognito_lib.services.cognito_svc.CognitoService.exchange_code_for_token",
+        return_value=CognitoTokenResponse(access_token="test_access_token"),
+    )
+
     cognito = CognitoService(cfg)
     token = cognito.exchange_code_for_token(
-        code="test_code", code_verifier="asdf", requests_client=token_endpoint_request
+        code="test_code",
+        code_verifier="asdf",
     )
-    assert token == "test_access_token"
+    assert token.access_token == "test_access_token"
