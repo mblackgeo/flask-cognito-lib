@@ -1,13 +1,27 @@
-from jwt import PyJWKSet
+import pytest
 
+from flask_cognito_lib.exceptions import CognitoError, TokenVerifyError
 from flask_cognito_lib.services.token_svc import TokenService
 
 
-def test_verify_access_token(mocker, jwks, cfg):
-    mocker.patch(
-        "jwt.jwks_client.PyJWKClient.get_jwk_set",
-        return_value=PyJWKSet.from_dict(jwks),
-    )
+def test_verify_no_token(cfg):
+    serv = TokenService(cfg=cfg)
+
+    with pytest.raises(TokenVerifyError):
+        serv.verify_access_token(None)
+
+
+def test_get_public_key(cfg):
+    with pytest.raises(CognitoError):
+        # Using a dummy token should not find matching key
+        TokenService(cfg).get_public_key(
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+            ".eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9"
+            ".dyt0CoTl4WoVjAHI9Q_CwSKhl6d_9rhM3NrXuJttkao"
+        )
+
+
+def test_verify_access_token(cfg):
     serv = TokenService(cfg=cfg)
 
     token = (
@@ -35,11 +49,7 @@ def test_verify_access_token(mocker, jwks, cfg):
     }
 
 
-def test_verify_id_token(mocker, jwks, cfg):
-    mocker.patch(
-        "jwt.jwks_client.PyJWKClient.get_jwk_set",
-        return_value=PyJWKSet.from_dict(jwks),
-    )
+def test_verify_id_token(cfg):
     serv = TokenService(cfg=cfg)
 
     token = (
