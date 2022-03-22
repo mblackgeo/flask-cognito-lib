@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 from urllib.error import HTTPError
 
 import jwt
@@ -23,7 +23,7 @@ class TokenService:
     def verify(
         self,
         token: str,
-        leeway: Optional[float] = None,
+        leeway: float = 0,
     ) -> Dict[str, Any]:
         """Verify the content and signature of a JWT from Cognito
 
@@ -40,7 +40,7 @@ class TokenService:
         Dict[str, Any]
             The verified claims from the encoded JWT
         leeway
-            A time margin in seconds for the expiration check.
+            A time margin in seconds for the expiration check
 
         Raises
         ------
