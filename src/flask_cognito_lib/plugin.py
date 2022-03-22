@@ -44,6 +44,7 @@ class CognitoAuth:
 
     @property
     def token_service(self):
+        # TODO docstring
         ctx = ctx_stack.top
         if ctx is not None:
             if not hasattr(ctx, self.cfg.CONTEXT_KEY_TOKEN_SERVICE):
@@ -53,6 +54,7 @@ class CognitoAuth:
 
     @property
     def cognito_service(self):
+        # TODO docstring
         ctx = ctx_stack.top
         if ctx is not None:
             if not hasattr(ctx, self.cfg.CONTEXT_KEY_COGNITO_SERVICE):
@@ -64,6 +66,7 @@ class CognitoAuth:
         self, request_args: Dict[str, str], expected_state: str, code_verifier: str
     ) -> str:
         """Get the token from the Cognito redirect after the user has logged in"""
+        # TODO docstring
         code = request_args.get("code")
         state = request_args.get("state")
 
@@ -75,4 +78,9 @@ class CognitoAuth:
         )
 
     def decode_and_verify_token(self, token: str, leeway: float) -> Dict[str, str]:
+        # TODO docstring
         return self.token_service.verify(token, leeway)
+
+    def get_user_info(self, token: str) -> Dict[str, str]:
+        # TODO docstring
+        return self.cognito_service.get_user_info(token)
