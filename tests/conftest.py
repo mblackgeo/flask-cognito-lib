@@ -1,6 +1,5 @@
 import pytest
 from flask import Flask
-from jwt import PyJWKClient, PyJWKSet
 
 from flask_cognito_lib import CognitoAuth
 from flask_cognito_lib.config import Config
