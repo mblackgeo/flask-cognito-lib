@@ -8,7 +8,10 @@ from flask_cognito_lib.decorators import (
     cognito_login_callback,
     cognito_logout,
 )
-from flask_cognito_lib.exceptions import AuthorisationRequiredError
+from flask_cognito_lib.exceptions import (
+    AuthorisationRequiredError,
+    CognitoGroupRequiredError,
+)
 
 app = Flask(__name__)
 
@@ -38,6 +41,9 @@ def postlogin():
     # and the user claims are stored in the Flask session (session["claims"]).
     # This route must be set as one of the User Pool client's Callback URLs.
     # Do anything login after the user has logged in here, e.g. a redirect
+
+    # TODO
+    # Custom redirect using the state value
     return redirect(url_for("claims"))
 
 
@@ -49,22 +55,31 @@ def claims():
     # a 401 Authentication Error is thrown, which is caught here a redirected
     # to login.
     # If their session is valid, the claims from the Cognito JWT will be shown
-    return jsonify(session)
+    return jsonify(session["claims"])
+
+
+@app.errorhandler(AuthorisationRequiredError)
+def auth_error_handler(err):
+    # Register an error handler if the user hits an "@auth_required" route
+    # but is not logged in to redirect them to the Cognito UI
+    return redirect(url_for("login"))
 
 
 @app.route("/admin")
 @auth_required(groups=["admin"])
 def admin():
-    # TODO docs
-    # TODO exception handling here
-    return "User is in the admin group"
+    # This route will only be accessible to a user who is a member of all of
+    # groups specified in the "groups" argument on the auth_required decorator
+    # If they are not, a CognitoGroupRequiredError is raised which is handled
+    # below
+    return jsonify(session["claims"]["cognito:groups"])
 
 
-@app.errorhandler(AuthorisationRequiredError)
-def login_redirect_handler(err):
+@app.errorhandler(CognitoGroupRequiredError)
+def missing_group_error_handler(err):
     # Register an error handler if the user hits an "@auth_required" route
-    # but is not logged in to redirect them to the Cognito UI
-    return redirect(url_for("login"))
+    # but is not logged part of the valid groups
+    return jsonify("Group membership does not allow access to this resource"), 403
 
 
 @app.route("/logout")
