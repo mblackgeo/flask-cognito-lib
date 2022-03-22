@@ -11,6 +11,7 @@ from flask_cognito_lib.exceptions import (
     CognitoGroupRequiredError,
     TokenVerifyError,
 )
+from flask_cognito_lib.plugin import CognitoAuth
 from flask_cognito_lib.utils import (
     generate_code_challenge,
     generate_code_verifier,
@@ -18,7 +19,9 @@ from flask_cognito_lib.utils import (
 )
 
 cfg = Config()
-cognito_auth = LocalProxy(lambda: app.extensions[cfg.APP_EXTENSION_KEY])
+cognito_auth: CognitoAuth = LocalProxy(
+    lambda: app.extensions[cfg.APP_EXTENSION_KEY]
+)  # type: ignore
 
 
 def update_session(state: Dict[str, str]):
@@ -72,37 +75,42 @@ def cognito_login_callback(fn):
         # Get the access token return after auth flow with Cognito
         code_verifier = session["code_verifier"]
         state = session["state"]
-        # nonce = session["state"]
+        nonce = session["nonce"]
 
         # exchange the code for an access token
         # also confirms the returned state is correct
-        access_token = cognito_auth.get_token(
+        tokens = cognito_auth.get_tokens(
             request_args=request.args,
             expected_state=state,
             code_verifier=code_verifier,
         )
 
         # validate the JWT and get the claims
-        claims = cognito_auth.decode_and_verify_token(
-            token=access_token,
+        claims = cognito_auth.verify_access_token(
+            token=tokens.access_token,
             leeway=10,  # 10 seconds leeway after returning from Cognito
         )
         update_session({"claims": claims})
 
         # Grab the user info from the user endpoint and store in the session
-        # TODO verify nonce on the ID token
-        user_info = cognito_auth.get_user_info(token=access_token)
+        user_info = cognito_auth.verify_id_token(
+            token=tokens.id_token,
+            nonce=nonce,
+            leeway=10,
+        )
         update_session({"user_info": user_info})
 
-        # Remove the code verifier and challenge now that this flow is complete
-        # remove_from_session(("code_challenge", "code_verifier", "state"))
+        # Remove one-time use variables now we have completed the auth flow
+        remove_from_session(("code_challenge", "code_verifier", "nonce"))
+        # TODO handle state
 
         # return and set the JWT as a http only cookie
         resp = fn(*args, **kwargs)
 
+        # Store the access token in a HTTP only secure cookie
         resp.set_cookie(
             key=cfg.COOKIE_NAME,
-            value=access_token,
+            value=tokens.access_token,
             max_age=cfg.max_cookie_age_seconds,
             httponly=True,
             secure=True,
@@ -137,9 +145,11 @@ def auth_required(groups: Optional[Iterable[str]] = None):
 
             # Try and validate the access token stored in the cookie
             try:
+                # We are hitting this point some time after the auth flow
+                # so allow a leeway the same as the maximum cookie age
                 access_token = request.cookies.get(cfg.COOKIE_NAME)
-                claims = cognito_auth.decode_and_verify_token(
-                    access_token, leeway=cfg.max_cookie_age_seconds
+                claims = cognito_auth.verify_access_token(
+                    token=access_token, leeway=cfg.max_cookie_age_seconds
                 )
                 valid = True
 
