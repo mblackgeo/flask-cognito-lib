@@ -27,9 +27,9 @@ def generate_code_challenge(code_verifier: str) -> str:
 
 @dataclass
 class CognitoTokenResponse:
-    access_token: Optional[str]
-    token_type: Optional[str]
-    expires_in: Optional[int]
-    refresh_token: Optional[str]
-    id_token: Optional[str]
-    error: Optional[str]
+    access_token: Optional[str] = None
+    token_type: Optional[str] = None
+    expires_in: Optional[int] = None
+    refresh_token: Optional[str] = None
+    id_token: Optional[str] = None
+    error: Optional[str] = None
