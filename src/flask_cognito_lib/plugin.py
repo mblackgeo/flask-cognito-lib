@@ -82,8 +82,15 @@ class CognitoAuth:
 
     def verify_access_token(self, token: str, leeway: float) -> Dict[str, str]:
         # TODO docstring
-        return self.token_service.verify_access_token(token, leeway)
+        return self.token_service.verify_access_token(token=token, leeway=leeway)
 
-    def verify_id_token(self, token: str, leeway: float) -> Dict[str, str]:
+    def verify_id_token(
+        self,
+        token: str,
+        leeway: float,
+        nonce: Optional[str] = None,
+    ) -> Dict[str, str]:
         # TODO docstring
-        return self.token_service.verify_id_token(token, leeway)
+        return self.token_service.verify_id_token(
+            token=token, leeway=leeway, nonce=nonce
+        )
