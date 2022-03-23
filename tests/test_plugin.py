@@ -36,3 +36,17 @@ def test_plugin_get_tokens_state_invalid(app, cfg):
             expected_state="1234",
             code_verifier="",
         )
+
+
+def test_plugin_get_tokens(app, cfg, mocker):
+    cls = app.extensions[cfg.APP_EXTENSION_KEY]
+    mocker.patch(
+        "requests.post",
+        return_value=mocker.Mock(json=lambda: {"access_token": "test_access_token"}),
+    )
+    tokens = cls.get_tokens(
+        request_args={"code": "asdf", "state": "qwer"},
+        expected_state="qwer",
+        code_verifier="",
+    )
+    assert tokens.access_token == "test_access_token"
