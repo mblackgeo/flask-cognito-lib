@@ -10,6 +10,9 @@ def test_verify_no_token(cfg):
     with pytest.raises(TokenVerifyError):
         serv.verify_access_token(None)
 
+    with pytest.raises(TokenVerifyError):
+        serv.verify_id_token(None)
+
 
 def test_get_public_key(cfg):
     with pytest.raises(CognitoError):
@@ -63,3 +66,10 @@ def test_verify_id_token(cfg, id_token):
         "jti": "054b8e66-5853-4127-9d55-e3a29dbd84bd",
         "email": "mblack@sparkgeo.com",
     }
+
+
+def test_verify_access_token_invalid_client(app, cfg, access_token):
+    app.config["AWS_COGNITO_USER_POOL_CLIENT_ID"] = "wrong"
+    with pytest.raises(TokenVerifyError):
+        serv = TokenService(cfg=cfg)
+        serv.verify_access_token(access_token, leeway=1e9)
