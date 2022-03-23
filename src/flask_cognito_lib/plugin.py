@@ -39,9 +39,6 @@ class CognitoAuth:
         app : Flask
             Flask application
         """
-        if not hasattr(app, "extensions"):
-            app.extensions = {}
-
         self.cfg = Config()
         app.extensions[self.cfg.APP_EXTENSION_KEY] = self
 
