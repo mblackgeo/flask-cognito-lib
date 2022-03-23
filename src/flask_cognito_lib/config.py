@@ -82,6 +82,10 @@ class Config:
         return int(get("AWS_COGNITO_COOKIE_AGE_SECONDS", required=False, default=1800))
 
     @property
+    def cognito_response_leeway(self) -> int:
+        return int(get("AWS_COGNITO_RESPONSE_LEEWAY", required=False, default=10))
+
+    @property
     def issuer(self) -> str:
         return f"https://cognito-idp.{self.region}.amazonaws.com/{self.user_pool_id}"
 
