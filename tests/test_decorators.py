@@ -25,7 +25,7 @@ def test_cognito_login(client, cfg):
     assert response.headers["location"].startswith(cfg.authorize_endpoint)
 
 
-def test_cognito_login_callback_expired(app, client):
+def test_cognito_login_callback_expired(app, client, token_response):
     # Set Cognito response to small value so that tokens have expired
     app.config.AWS_COGNITO_RESPONSE_LEEWAY = 0
 
@@ -39,7 +39,7 @@ def test_cognito_login_callback_expired(app, client):
         client.get("/postlogin")
 
 
-def test_cognito_login_callback_invalid_nonce(client):
+def test_cognito_login_callback_invalid_nonce(client, token_response):
     with client as c:
         with c.session_transaction() as sess:
             sess["code_verifier"] = "1234"
@@ -50,7 +50,7 @@ def test_cognito_login_callback_invalid_nonce(client):
         client.get("/postlogin")
 
 
-def test_cognito_login_callback(client, cfg, access_token):
+def test_cognito_login_callback(client, cfg, access_token, token_response):
     with client as c:
         with c.session_transaction() as sess:
             sess["code_verifier"] = "1234"

@@ -149,7 +149,7 @@ def id_token():
     )
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=False)
 def token_response(mocker, access_token, id_token):
     mocker.patch(
         "flask_cognito_lib.plugin.CognitoAuth.get_tokens",
