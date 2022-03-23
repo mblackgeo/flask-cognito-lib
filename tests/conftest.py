@@ -125,6 +125,7 @@ def cfg():
 
 @pytest.fixture(autouse=True)
 def jwk_patch(mocker, jwks):
+    # Return the keys from the user pool without hitting the real endpoint
     mocker.patch(
         "jwt.jwks_client.PyJWKClient.get_jwk_set",
         return_value=PyJWKSet.from_dict(jwks),
