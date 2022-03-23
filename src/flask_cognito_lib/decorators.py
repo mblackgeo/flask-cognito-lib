@@ -24,11 +24,6 @@ cognito_auth: CognitoAuth = LocalProxy(
 )  # type: ignore
 
 
-def update_session(state: Dict[str, str]):
-    """Update the Flask session with key/value pairs"""
-    session.update(state)
-
-
 def remove_from_session(keys: Iterable[str]):
     """Remove an entry from the session"""
     for key in keys:
@@ -50,7 +45,7 @@ def cognito_login(fn):
             "state": secure_random(),
             "nonce": secure_random(),
         }
-        update_session(cognito_session)
+        session.update(cognito_session)
 
         # TODO add support for scopes
         # TODO add suport for custom state values
@@ -88,17 +83,17 @@ def cognito_login_callback(fn):
         # validate the JWT and get the claims
         claims = cognito_auth.verify_access_token(
             token=tokens.access_token,
-            leeway=10,  # 10 seconds leeway after returning from Cognito
+            leeway=cfg.cognito_response_leeway,
         )
-        update_session({"claims": claims})
+        session.update({"claims": claims})
 
         # Grab the user info from the user endpoint and store in the session
         user_info = cognito_auth.verify_id_token(
             token=tokens.id_token,
             nonce=nonce,
-            leeway=10,
+            leeway=cfg.cognito_response_leeway,
         )
-        update_session({"user_info": user_info})
+        session.update({"user_info": user_info})
 
         # Remove one-time use variables now we have completed the auth flow
         remove_from_session(("code_challenge", "code_verifier", "nonce"))
