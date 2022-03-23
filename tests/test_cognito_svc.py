@@ -1,5 +1,8 @@
+import pytest
+import requests
+
+from flask_cognito_lib.exceptions import CognitoError
 from flask_cognito_lib.services.cognito_svc import CognitoService
-from flask_cognito_lib.utils import CognitoTokenResponse
 
 
 def test_base_url(cfg):
@@ -28,15 +31,34 @@ def test_sign_in_url(cfg):
     )
 
 
+def test_exchange_code_for_token_requests_error(cfg, mocker):
+    mocker.patch(
+        "requests.post",
+        side_effect=requests.exceptions.RequestException("404"),
+    )
+
+    with pytest.raises(CognitoError):
+        cognito = CognitoService(cfg)
+        cognito.exchange_code_for_token(code="", code_verifier="")
+
+
 def test_exchange_code_for_token(cfg, mocker):
     mocker.patch(
-        "flask_cognito_lib.services.cognito_svc.CognitoService.exchange_code_for_token",
-        return_value=CognitoTokenResponse(access_token="test_access_token"),
+        "requests.post",
+        return_value=mocker.Mock(json=lambda: {"access_token": "test_access_token"}),
     )
 
     cognito = CognitoService(cfg)
-    token = cognito.exchange_code_for_token(
-        code="test_code",
-        code_verifier="asdf",
-    )
+    token = cognito.exchange_code_for_token(code="test_code", code_verifier="asdf")
     assert token.access_token == "test_access_token"
+
+
+def test_exchange_code_for_token_error(cfg, mocker):
+    mocker.patch(
+        "requests.post",
+        return_value=mocker.Mock(json=lambda: {"error": "some error code"}),
+    )
+
+    with pytest.raises(CognitoError):
+        cognito = CognitoService(cfg)
+        cognito.exchange_code_for_token(code="", code_verifier="")
