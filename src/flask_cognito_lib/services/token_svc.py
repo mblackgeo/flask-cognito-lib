@@ -14,7 +14,24 @@ class TokenService:
         self.jwk = PyJWKClient(self.cfg.jwk_endpoint, cache_keys=True)
 
     def get_public_key(self, token: str) -> PyJWK:
-        """Find the public key ID for a given JWT"""
+        """Find the public key ID for a given JWT
+
+        Parameters
+        ----------
+        token : str
+            The access token in JWT format. Must have `kid` in headers.
+
+        Returns
+        -------
+        PyJWK
+            A PyJWK instance that contains the public information
+
+        Raises
+        ------
+        CognitoError
+            If the PyJWTClient raises or the request to the user pool JWK
+            endpoint fails
+        """
         try:
             return self.jwk.get_signing_key_from_jwt(token)
         except (PyJWKClientError, HTTPError) as err:
@@ -74,7 +91,7 @@ class TokenService:
         token: str,
         leeway: float = 0,
     ) -> Dict[str, Any]:
-        """Verify the claims & signature of an access token in JWT format from Cognito
+        """Verify the claims & signature of a JWT access token from Cognito
 
         This will check the audience, issuer, expiry and validate the signature
         of the JWT matches the public keys from the user pool
@@ -82,7 +99,7 @@ class TokenService:
         Parameters
         ----------
         access_token : str
-            The encoded JWT
+            The encoded JWT from Cognito
         leeway : float
             A time margin in seconds for the expiration check
 

@@ -1,15 +1,19 @@
 from werkzeug.exceptions import HTTPException
 
 
-class ConfigurationError(Exception):
+class FlaskCognitoError(Exception):
     pass
 
 
-class TokenVerifyError(Exception):
+class ConfigurationError(FlaskCognitoError):
     pass
 
 
-class CognitoError(Exception):
+class TokenVerifyError(FlaskCognitoError):
+    pass
+
+
+class CognitoError(FlaskCognitoError):
     pass
 
 

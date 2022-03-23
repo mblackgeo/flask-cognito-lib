@@ -76,9 +76,6 @@ class CognitoService:
         code_verifier : str
             The plaintext code verification secret used as the code challenge
             when logging in
-        requests_client : Optional[Callable], optional
-            A client used to make http request, by default uses request.post
-            Used for mocking real requests in the unit tests
 
         Returns
         -------
@@ -88,8 +85,8 @@ class CognitoService:
         Raises
         ------
         CognitoError
-            If the request to the endpoint fails or the endpoint does not
-            return an access token
+            If the request to the endpoint fails
+            If the endpoint returns an error code
         """
         data = {
             "grant_type": "authorization_code",
