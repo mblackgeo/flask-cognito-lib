@@ -32,8 +32,7 @@ def test_logout_url(cfg):
 
 
 def test_cookie_age(cfg):
-    # this is not set in the config so should be the default value
-    assert cfg.max_cookie_age_seconds == 1800
+    assert cfg.max_cookie_age_seconds == 1e9
 
 
 def test_token_endpoint(cfg):

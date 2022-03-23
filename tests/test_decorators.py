@@ -72,3 +72,38 @@ def test_cognito_login_callback(client, cfg, access_token):
         # check that user claims and user info are stored in the session
         assert "claims" in session
         assert "user_info" in session
+
+
+def test_cognito_logout(client, cfg):
+    # should 302 redirect to coginto
+    response = client.get("/logout")
+    assert response.status_code == 302
+    assert response.headers["location"].startswith(cfg.logout_endpoint)
+
+
+def test_auth_required_expired_token(client, cfg, app, access_token):
+    # 403 if the token verification has failed
+    app.config["AWS_COGNITO_COOKIE_AGE_SECONDS"] = 0
+    client.set_cookie(server_name="localhost", key=cfg.COOKIE_NAME, value=access_token)
+    response = client.get("/private")
+    assert response.status_code == 403
+
+
+def test_auth_required_valid_token(client_with_cookie):
+    # 200 if the token passes verification
+    response = client_with_cookie.get("/private")
+    assert response.status_code == 200
+    assert response.data.decode("utf-8") == "ok"
+
+
+def test_auth_required_groups_valid(client_with_cookie):
+    # Has access to this route as the token has the correct group membership
+    response = client_with_cookie.get("/valid_group")
+    assert response.status_code == 200
+    assert response.data.decode("utf-8") == "ok"
+
+
+def test_auth_required_groups_invalid(client_with_cookie):
+    # 403 as the token isn't in this group
+    response = client_with_cookie.get("/invalid_group")
+    assert response.status_code == 403

@@ -4,7 +4,12 @@ from jwt import PyJWKSet
 
 from flask_cognito_lib import CognitoAuth
 from flask_cognito_lib.config import Config
-from flask_cognito_lib.decorators import cognito_login, cognito_login_callback
+from flask_cognito_lib.decorators import (
+    auth_required,
+    cognito_login,
+    cognito_login_callback,
+    cognito_logout,
+)
 from flask_cognito_lib.utils import CognitoTokenResponse
 
 
@@ -33,6 +38,7 @@ def app():
     ] = "https://webapp-test.auth.eu-west-1.amazoncognito.com"
     _app.config["AWS_REGION"] = "eu-west-1"
     _app.config["AWS_COGNITO_RESPONSE_LEEWAY"] = 1e9
+    _app.config["AWS_COGNITO_COOKIE_AGE_SECONDS"] = 1e9
 
     _app.testing = True
 
@@ -40,7 +46,6 @@ def app():
     # Testing routes
     # ----------------
 
-    #
     @_app.route("/login")
     @cognito_login
     def login():
@@ -51,6 +56,32 @@ def app():
     @cognito_login_callback
     def postlogin():
         # recieves the response from cognito and sets a cookie
+        return make_response("ok")
+
+    @_app.route("/logout")
+    @cognito_logout
+    def logout():
+        # 302 redirects to the cognito UI to logout and deletes a cookie
+        pass
+
+    @_app.route("/private")
+    @auth_required()
+    def auth_req():
+        # requires a valid access token to get a response
+        # else raises AuthorisationRequiredError
+        return make_response("ok")
+
+    @_app.route("/valid_group")
+    @auth_required(groups=["admin"])
+    def group_req_valid():
+        # sample token has admin group in "cognito:groups"
+        return make_response("ok")
+
+    @_app.route("/invalid_group")
+    @auth_required(groups=["not_a_group"])
+    def group_req_invalid():
+        # Should throw 403 CognitoGroupRequiredError as the token is not in
+        # the required group
         return make_response("ok")
 
     yield _app
@@ -124,3 +155,10 @@ def token_response(mocker, access_token, id_token):
         "flask_cognito_lib.plugin.CognitoAuth.get_tokens",
         return_value=CognitoTokenResponse(access_token=access_token, id_token=id_token),
     )
+
+
+@pytest.fixture
+def client_with_cookie(app, access_token, cfg):
+    cl = app.test_client()
+    cl.set_cookie(server_name="localhost", key=cfg.COOKIE_NAME, value=access_token)
+    yield cl
