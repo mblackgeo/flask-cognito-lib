@@ -1,9 +1,11 @@
 import pytest
-from flask import Flask
+from flask import Flask, make_response
 from jwt import PyJWKSet
 
 from flask_cognito_lib import CognitoAuth
 from flask_cognito_lib.config import Config
+from flask_cognito_lib.decorators import cognito_login, cognito_login_callback
+from flask_cognito_lib.utils import CognitoTokenResponse
 
 
 @pytest.fixture(autouse=True)
@@ -18,6 +20,7 @@ def app():
 
     _app.config["TESTING"] = True
     _app.config["PRESERVE_CONTEXT_ON_EXCEPTION"] = False
+    _app.config["SECRET_KEY"] = "very-secure"
 
     # minimum require configuration for CognitoAuth extension
     _app.config["AWS_COGNITO_USER_POOL_ID"] = "eu-west-1_c7O90SNDF"
@@ -29,15 +32,33 @@ def app():
         "AWS_COGNITO_DOMAIN"
     ] = "https://webapp-test.auth.eu-west-1.amazoncognito.com"
     _app.config["AWS_REGION"] = "eu-west-1"
+    _app.config["AWS_COGNITO_RESPONSE_LEEWAY"] = 1e9
 
     _app.testing = True
+
+    # ----------------
+    # Testing routes
+    # ----------------
+
+    #
+    @_app.route("/login")
+    @cognito_login
+    def login():
+        # 302 redirects to the cognito UI
+        pass
+
+    @_app.route("/postlogin")
+    @cognito_login_callback
+    def postlogin():
+        # recieves the response from cognito and sets a cookie
+        return make_response("ok")
 
     yield _app
     ctx.pop()
 
 
 @pytest.fixture
-def client():
+def client(app):
     cl = app.test_client()
     yield cl
 
@@ -96,3 +117,10 @@ def id_token():
         "vnGkFOxtC7ubRkQHByNst5Uyxj4kGFXRP-kaG09iRCADJQSgxwGjZDbG4xbvW0EISA4mGz1sfnCiinuWLNrbKR4KUC3qTytu4hq91OCjB2-KKxeVHxQR1NsjYZ8u7DBOCVeKSouO4oaHDf966f1gubdYXDp12urtiDJy9MybV9diRxOm2eRLAQPIxSFO5owGNcGh03OWystMEJvUwwDVbdpf562OZ72Eo9UHnv3eR3VvH1Gv49WAzwqweIVRiv4-hJqGjLeKnqo3X1toBvU_2QPN9KmM7oYcIpYqagKQNCIcsLq6ZngOJfbCBPCPQX9XYrCkMAmm0VaBRix2zzHYtg"
     )
 
+
+@pytest.fixture(autouse=True)
+def token_response(mocker, access_token, id_token):
+    mocker.patch(
+        "flask_cognito_lib.plugin.CognitoAuth.get_tokens",
+        return_value=CognitoTokenResponse(access_token=access_token, id_token=id_token),
+    )
