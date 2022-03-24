@@ -37,7 +37,7 @@ def app():
         "AWS_COGNITO_DOMAIN"
     ] = "https://webapp-test.auth.eu-west-1.amazoncognito.com"
     _app.config["AWS_REGION"] = "eu-west-1"
-    _app.config["AWS_COGNITO_RESPONSE_LEEWAY"] = 1e9
+    _app.config["AWS_COGNITO_EXPIRATION_LEEWAY"] = 1e9
     _app.config["AWS_COGNITO_COOKIE_AGE_SECONDS"] = 1e9
 
     _app.testing = True
