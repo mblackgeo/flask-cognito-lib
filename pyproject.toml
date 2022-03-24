@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flask_cognito_lib"
-version = "1.0.0"
+version = "1.0.1"
 description = "A Flask extension that supports protecting routes with AWS Cognito following OAuth 2.1 best practices"
 license = "MIT"
 authors = ["mblackgeo <18327836+mblackgeo@users.noreply.github.com>"]
