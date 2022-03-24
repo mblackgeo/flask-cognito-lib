@@ -9,11 +9,19 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+    steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/setup-python@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
         with:
           python-version: 3.8
-      - run: pip install "mkdocs-material~=8.2" "mdx-include~=1.4"
 
-      - run: mkdocs gh-deploy --force
+      - name: Install poetry
+        run: pip install poetry==1.1.12
+
+      - name: Install code
+        run: poetry install
+
+      - name: Publish to Github pages
+        run: poetry run mkdocs gh-deploy --force
