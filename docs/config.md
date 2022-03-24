@@ -1,5 +1,7 @@
 # Application configuration
 
+## Cognito Auth extension configuration
+
 The following key/value pairs are used for configurating the extension:
 
 | **Config Name**                       | **Description**                                                                      |
@@ -15,6 +17,9 @@ The following key/value pairs are used for configurating the extension:
 | `AWS_COGNITO_EXPIRATION_LEEWAY`       | (Optional) Leeway (in seconds) when checking for token expiry (default=0)            |
 
 (*) To obtain these values, navigate to the user pool in the AWS Cognito console, then head to the "App Integration" tab. Under the app client list, select the app client and you should be able to view the Client ID and Client Secret
+
+
+## Example usage
 
 These configuration should be setup and passed to the Flask app object, for example, if they are set in environment variables this could be achieved as follows:
 
