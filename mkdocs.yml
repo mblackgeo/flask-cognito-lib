@@ -22,3 +22,9 @@ plugins:
   - search
 repo_url: https://github.com/mblackgeo/flask-cognito-lib
 repo_name: mblack/flask-cognit-lib
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
