@@ -83,7 +83,7 @@ def cognito_login_callback(fn):
         # validate the JWT and get the claims
         claims = cognito_auth.verify_access_token(
             token=tokens.access_token,
-            leeway=cfg.cognito_response_leeway,
+            leeway=cfg.cognito_expiration_leeway,
         )
         session.update({"claims": claims})
 
@@ -92,7 +92,7 @@ def cognito_login_callback(fn):
             user_info = cognito_auth.verify_id_token(
                 token=tokens.id_token,
                 nonce=nonce,
-                leeway=cfg.cognito_response_leeway,
+                leeway=cfg.cognito_expiration_leeway,
             )
             session.update({"user_info": user_info})
 
@@ -141,11 +141,10 @@ def auth_required(groups: Optional[Iterable[str]] = None):
 
             # Try and validate the access token stored in the cookie
             try:
-                # We are hitting this point some time after the auth flow
-                # so allow a leeway the same as the maximum cookie age
                 access_token = request.cookies.get(cfg.COOKIE_NAME)
                 claims = cognito_auth.verify_access_token(
-                    token=access_token, leeway=cfg.max_cookie_age_seconds
+                    token=access_token,
+                    leeway=cfg.cognito_expiration_leeway,
                 )
                 valid = True
 
