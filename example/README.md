@@ -29,16 +29,16 @@ Cognito is a serverless offering from Amazon Web Services that allows for sign-u
 
 After setting up the user pool, there are a number of values to note that are required for configuration of the Flask app:
 
-| **Config Name**                     | **Description**                                                                      | **Required**     |
-|-------------------------------------|--------------------------------------------------------------------------------------|------------------|
-| AWS_REGION                          | Region the user pool was created                                                     | Y                |
-| AWS_COGNITO_DOMAIN                  | The domain name of the user pool (from Step 2)                                       | Y                |
-| AWS_COGNITO_USER_POOL_ID            | The ID of the user pool                                                              | Y                |
-| AWS_COGNITO_USER_POOL_CLIENT_ID     | The user pool app client ID (*)                                                      | Y                |
-| AWS_COGNITO_USER_POOL_CLIENT_SECRET | The user pool app client secret (*)                                                  | Y                |
-| AWS_COGNITO_REDIRECT_URL            | The full URL of the route that handles post-login flow (Step 7)                      | Y                |
-| AWS_COGNITO_LOGOUT_URL              | The full URL of the route that handles post-logout flow (Step 8)                     | Y                |
-| AWS_COGNITO_COOKIE_AGE_SECONDS      | Age of the access token cookie. Same as token expiration setting in Cognito (Step 8) | N (default 1800) |
+| **Config Name**                       | **Description**                                                                      | **Required**     |
+|---------------------------------------|--------------------------------------------------------------------------------------|------------------|
+| `AWS_REGION`                          | Region the user pool was created                                                     | Y                |
+| `AWS_COGNITO_DOMAIN`                  | The domain name of the user pool (from Step 2)                                       | Y                |
+| `AWS_COGNITO_USER_POOL_ID`            | The ID of the user pool                                                              | Y                |
+| `AWS_COGNITO_USER_POOL_CLIENT_ID`     | The user pool app client ID (*)                                                      | Y                |
+| `AWS_COGNITO_USER_POOL_CLIENT_SECRET` | The user pool app client secret (*)                                                  | Y                |
+| `AWS_COGNITO_REDIRECT_URL`            | The full URL of the route that handles post-login flow (Step 7)                      | Y                |
+| `AWS_COGNITO_LOGOUT_URL`              | The full URL of the route that handles post-logout flow (Step 8)                     | Y                |
+| `AWS_COGNITO_COOKIE_AGE_SECONDS`      | Age of the access token cookie. Same as token expiration setting in Cognito (Step 8) | N (default 1800) |
 
 (*) Navigate to the user pool in the AWS Cognito console, then head to the "App Integration" tab. Under the app client list, select the app client and you should be able to view the Client ID and Client Secret
 
