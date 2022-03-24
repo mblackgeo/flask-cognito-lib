@@ -1,0 +1,24 @@
+site_name: Flask Cognito Lib
+site_url: https://mblackgeo.github.io/flask-cognito-lib/
+site_description: An extension to protect Flask routes with AWS Cognito implementing OAuth 2.1 best practices
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      primary: deep orange
+      accent: yellow
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to dark mode
+    - scheme: default
+      primary: deep orange
+      accent: red
+      toggle:
+        icon: material/lightbulb
+        name: Switch to light mode
+  icon:
+    logo: material/library-shelves
+plugins:
+  - search
+repo_url: https://github.com/mblackgeo/flask-cognito-lib
+repo_name: mblack/flask-cognit-lib
