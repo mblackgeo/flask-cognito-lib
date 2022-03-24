@@ -20,10 +20,10 @@ Cognito is a serverless offering from Amazon Web Services that allows for sign-u
     - Choose "Confidential Client"
     - Set the "App client name"
     - Ensure the box is checked to "Create a client secret"
-    - Under "Allowed callback URLs" add the URL of the route that has the `@cognito_login_callback` - for the example this `http://localhost:5000/postlogin`
+    - Under "Allowed callback URLs" add the URL of the route that has the `@cognito_login_callback` - for the example this should be `http://localhost:5000/postlogin`
     - Expand the "Advanced app client settings"
         - Set the Refresh, Access, and ID Token expiration values to the desired session length for the user (note that refresh tokens are not used)
-        - Locate the "Add Signout URL" button and add the URL of the route handles logic after logout - for the example this `http://localhost:5000/postlogout`
+        - Locate the "Add Signout URL" button and add the URL of the route handles logic after logout - for the example this should be `http://localhost:5000/postlogout`
 - Review all settings and hit "Create"
 - After creation, add users and groups as required
 
