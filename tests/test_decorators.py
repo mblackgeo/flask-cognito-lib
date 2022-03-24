@@ -83,7 +83,7 @@ def test_cognito_logout(client, cfg):
 
 def test_auth_required_expired_token(client, cfg, app, access_token):
     # 403 if the token verification has failed
-    app.config["AWS_COGNITO_COOKIE_AGE_SECONDS"] = 0
+    app.config["AWS_COGNITO_EXPIRATION_LEEWAY"] = 0
     client.set_cookie(server_name="localhost", key=cfg.COOKIE_NAME, value=access_token)
     response = client.get("/private")
     assert response.status_code == 403
