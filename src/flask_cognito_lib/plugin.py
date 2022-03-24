@@ -180,5 +180,7 @@ class CognitoAuth:
             If not token is passed, or any checks fail
         """
         return self.token_service.verify_id_token(
-            token=token, leeway=leeway, nonce=nonce
+            token=token,
+            leeway=leeway,
+            nonce=nonce,
         )
