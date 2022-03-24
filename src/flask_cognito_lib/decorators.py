@@ -88,12 +88,13 @@ def cognito_login_callback(fn):
         session.update({"claims": claims})
 
         # Grab the user info from the user endpoint and store in the session
-        user_info = cognito_auth.verify_id_token(
-            token=tokens.id_token,
-            nonce=nonce,
-            leeway=cfg.cognito_response_leeway,
-        )
-        session.update({"user_info": user_info})
+        if tokens.id_token is not None:
+            user_info = cognito_auth.verify_id_token(
+                token=tokens.id_token,
+                nonce=nonce,
+                leeway=cfg.cognito_response_leeway,
+            )
+            session.update({"user_info": user_info})
 
         # Remove one-time use variables now we have completed the auth flow
         remove_from_session(("code_challenge", "code_verifier", "nonce"))
