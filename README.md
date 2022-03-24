@@ -1,4 +1,4 @@
-# Protect Flask routes with AWS Cognito - `flask-cognito-lib`
+# Protect Flask routes with AWS Cognito
 
 A Flask extension that supports protecting routes with AWS Cognito following [OAuth 2.1 best practices](https://oauth.net/2.1/). That means the full authorization code flow, including Proof Key for Code Exchange (RFC 7636) to prevent Cross Site Request Forgery (CRSF), along with secure storage of access tokens in HTTP only cookies (to prevent Cross Site Scripting attacks), and additional `nonce` validation (if using ID tokens) to prevent replay attacks.
 
