@@ -1,6 +1,10 @@
 # Setting up a Cognito User Pool and client
 
+## About Cognito
+
 Cognito is a serverless offering from Amazon Web Services that allows for sign-up/sign-in and user management with OAuth 2.0 and OpenID Connect, as well as federated identities through social identity providers (e.g. Google, Facebook, Amazon) and SAML. It has a generous free tier, with 50,000 monthly active users from the Cognito IdP. To get start protecting routes in your Flask app, first create a new Cognito User Pool and a client for the application:
+
+## Setup steps
 
 - Visit the AWS Cognito console, click to create a new user pool ("Add user directories to your app")
 - Step 1: Ensure the "Cognito user pool" provider is checked, choose any additional sign-in options as required
