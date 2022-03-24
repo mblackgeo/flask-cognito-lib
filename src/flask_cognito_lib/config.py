@@ -90,9 +90,13 @@ class Config:
         return int(get("AWS_COGNITO_COOKIE_AGE_SECONDS", required=False, default=1800))
 
     @property
-    def cognito_response_leeway(self) -> int:
-        """Return the leeway (in seconds) when validating a token (post-login)"""
-        return int(get("AWS_COGNITO_RESPONSE_LEEWAY", required=False, default=10))
+    def cognito_expiration_leeway(self) -> int:
+        """Return the leeway (in seconds) for checking token expiration
+
+        This is here largely for testing purposes. In production applications
+        this should be set to zero.
+        """
+        return int(get("AWS_COGNITO_EXPIRATION_LEEWAY", required=False, default=0))
 
     @property
     def issuer(self) -> str:
