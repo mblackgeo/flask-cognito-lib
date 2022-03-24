@@ -28,3 +28,5 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - mdx_include:
+      base_path: example
