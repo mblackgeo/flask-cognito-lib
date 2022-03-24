@@ -24,7 +24,8 @@ Cognito is a serverless offering from Amazon Web Services that allows for sign-u
     - Expand the "Advanced app client settings"
         - Set the Refresh, Access, and ID Token expiration values to the desired session length for the user (note that refresh tokens are not used)
         - Locate the "Add Signout URL" button and add the URL of the route handles logic after logout - for the example this `http://localhost:5000/postlogout`
-    - Review all settings and hit "Create"
+- Review all settings and hit "Create"
+- After creation, add users and groups as required
 
 
 After setting up the user pool, there are a number of values to note that are required for configuration of the Flask app:
