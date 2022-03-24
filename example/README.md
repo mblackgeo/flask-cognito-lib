@@ -14,17 +14,17 @@ Cognito is a serverless offering from Amazon Web Services that allows for sign-u
 - Step 3: Configure your sign-up experience as required, or leave to defaults
 - Step 4: Configure message delivery, for production apps you should use SES, for testing "Send email with Cognito" is sufficient
 - Step 5: Integrate your app
-    1. Name the user pool
-    2. Check the box to enable the Hosted UI
-    3. Setup a domain for the user pool (either a custom domain or the domain prefix)
-    4. Choose "Confidential Client"
-    5. Set the "App client name"
-    6. Ensure the box is checked to "Create a client secret"
-    7. Under "Allowed callback URLs" add the URL of the route that has the `@cognito_login_callback` - for the example this `http://localhost:5000/postlogin`
-    8. Expand the "Advanced app client settings"
+    - Name the user pool
+    - Check the box to enable the Hosted UI
+    - Setup a domain for the user pool (either a custom domain or the domain prefix)
+    - Choose "Confidential Client"
+    - Set the "App client name"
+    - Ensure the box is checked to "Create a client secret"
+    - Under "Allowed callback URLs" add the URL of the route that has the `@cognito_login_callback` - for the example this `http://localhost:5000/postlogin`
+    - Expand the "Advanced app client settings"
         - Set the Refresh, Access, and ID Token expiration values to the desired session length for the user (note that refresh tokens are not used)
         - Locate the "Add Signout URL" button and add the URL of the route handles logic after logout - for the example this `http://localhost:5000/postlogout`
-    9. Review all settings and hit "Create"
+    - Review all settings and hit "Create"
 
 
 After setting up the user pool, there are a number of values to note that are required for configuration of the Flask app:
