@@ -24,3 +24,7 @@ format:  ## Run black and isort to format the code
 .PHONY: example
 example:  ## Run the example application locally
 	poetry run python example/app.py
+
+.PHONY: docs
+docs:  ## Run mkdocs locally
+	poetry run mkdocs serve
