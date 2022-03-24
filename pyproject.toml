@@ -43,6 +43,7 @@ pytest-mock = "^3.7.0"
 pytest-cov = "^3.0.0"
 python-dotenv = "^0.19.2"
 mkdocs-material = "^8.2.6"
+mdx-include = "^1.4.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
