@@ -42,17 +42,24 @@ def cognito_login(fn):
         cognito_session = {
             "code_verifier": code_verifier,
             "code_challenge": generate_code_challenge(code_verifier),
-            "state": secure_random(),
             "nonce": secure_random(),
         }
         session.update(cognito_session)
 
+        # Add suport for custom state values which are appended to a secure
+        # random value for additional CRSF protection
+        state = secure_random()
+        custom_state = session.get("state", default=None)
+        if custom_state:
+            state += f"__{custom_state}"
+
+        session.update({"state": state})
+
         # TODO add support for scopes
-        # TODO add suport for custom state values
         login_url = cognito_auth.cognito_service.get_sign_in_url(
-            code_challenge=cognito_session["code_challenge"],
-            state=cognito_session["state"],
-            nonce=cognito_session["nonce"],
+            code_challenge=session["code_challenge"],
+            state=session["state"],
+            nonce=session["nonce"],
         )
         return redirect(login_url)
 
@@ -98,7 +105,6 @@ def cognito_login_callback(fn):
 
         # Remove one-time use variables now we have completed the auth flow
         remove_from_session(("code_challenge", "code_verifier", "nonce"))
-        # TODO handle state
 
         # return and set the JWT as a http only cookie
         resp = fn(*args, **kwargs)
