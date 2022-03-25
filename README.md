@@ -116,8 +116,6 @@ if __name__ == "__main__":
     app.run()
 ```
 
-A separate repo holds [a complete example app](https://github.com/mblackgeo/flask-cognito-jwt-example), including AWS CDK (Cloud Development Kit) code to deploy the application to API Gateway and Lambda, along with creation of a Cognito User Pool and Client.
-
 
 ## Development
 
@@ -129,6 +127,7 @@ Prequisites:
 The Makefile includes helpful commands setting a development environment, get started by installing the package into a new environment and setting up pre-commit by running `make install`. Run `make help` to see additional available commands (e.g. linting, testing and so on).
 
 * [Pytest](https://docs.pytest.org/en/6.2.x/) is used for testing the application (see `/tests`).
+* [MkDocs](https://www.mkdocs.org/) is used for generating docs and hosted with GH pages (see `/docs`).
 * Code is linted using [flake8](https://flake8.pycqa.org/en/latest/)
 * Code formatting is validated using [Black](https://github.com/psf/black)
 * [pre-commit](https://pre-commit.com/) is used to run these checks locally before files are pushed to git
