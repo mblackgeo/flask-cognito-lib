@@ -112,6 +112,8 @@ if __name__ == "__main__":
     app.run()
 ```
 
+A separate repo holds [a complete example app](https://github.com/mblackgeo/flask-cognito-jwt-example), including AWS CDK (Cloud Development Kit) code to deploy the application to API Gateway and Lambda, along with creation of a Cognito User Pool and Client.
+
 
 ## Development
 
