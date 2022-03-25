@@ -58,7 +58,7 @@ class CognitoService:
         )
 
         if scopes is not None:
-            full_url += f"&scopes={'+'.join(scopes)}"
+            full_url += f"&scope={'+'.join(scopes)}"
 
         return full_url
 
