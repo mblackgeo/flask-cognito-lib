@@ -6,15 +6,14 @@ from flask_cognito_lib.exceptions import TokenVerifyError
 
 
 def test_remove_from_session(client):
-    with client as c:
-        with c.session_transaction() as sess:
-            sess["a"] = 123
+    with client.session_transaction() as sess:
+        sess["a"] = 123
 
-        remove_from_session("a")
-        assert "a" not in session
+    remove_from_session("a")
+    assert "a" not in session
 
-        # no-op for non-existant keys
-        remove_from_session("b")
+    # no-op for non-existant keys
+    remove_from_session("b")
 
 
 def test_cognito_login(client, cfg):
