@@ -20,7 +20,7 @@ pip install flask-coginito-lib
 
 ## Quick start
 
-A complete example Flask application is provided in [`/example`](example/) including instructions on setting up a Cognito User Pool. Assuming a Cognito user pool has been setup, with an app client (with Client ID and Secret), get started as follows:
+To get started quickly, a complete example Flask application is provided in [`/example`](example/) including instructions on setting up a Cognito User Pool. A separate repo holds [a complete example app](https://github.com/mblackgeo/flask-cognito-jwt-example), including AWS CDK (Cloud Development Kit) code to deploy the application to API Gateway and Lambda, along with creation of a Cognito User Pool and Client. However, assuming a Cognito user pool has been setup with an app client (with Client ID and Secret), get started as follows:
 
 ```python
 from flask import Flask, jsonify, redirect, session, url_for
