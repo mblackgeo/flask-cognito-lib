@@ -60,6 +60,7 @@ def cognito_login(fn):
             code_challenge=session["code_challenge"],
             state=session["state"],
             nonce=session["nonce"],
+            scopes=cfg.cognito_scopes,
         )
         return redirect(login_url)
 
