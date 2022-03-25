@@ -36,6 +36,16 @@ def test_cognito_custom_state(client, cfg):
     assert "__homepage&" in response.headers["location"]
 
 
+def test_cognito_custom_scopes(client, app, cfg):
+    app.config["AWS_COGNITO_SCOPES"] = ["openid", "profile", "phone", "email"]
+    response = client.get("/login")
+
+    # should 302 redirect to coginto
+    assert response.status_code == 302
+    assert response.headers["location"].startswith(cfg.authorize_endpoint)
+    assert "scope=openid+profile+phone+email" in response.headers["location"]
+
+
 def test_cognito_login_callback_expired(app, client, token_response):
     # Set Cognito response to small value so that tokens have expired
     app.config.AWS_COGNITO_RESPONSE_LEEWAY = 0
