@@ -24,6 +24,18 @@ def test_cognito_login(client, cfg):
     assert response.headers["location"].startswith(cfg.authorize_endpoint)
 
 
+def test_cognito_custom_state(client, cfg):
+    with client.session_transaction() as sess:
+        sess["state"] = "homepage"
+
+    response = client.get("/login")
+
+    # should 302 redirect to coginto
+    assert response.status_code == 302
+    assert response.headers["location"].startswith(cfg.authorize_endpoint)
+    assert "__homepage&" in response.headers["location"]
+
+
 def test_cognito_login_callback_expired(app, client, token_response):
     # Set Cognito response to small value so that tokens have expired
     app.config.AWS_COGNITO_RESPONSE_LEEWAY = 0
