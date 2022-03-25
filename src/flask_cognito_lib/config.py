@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, List, Optional
 from urllib.parse import quote
 
 from flask import current_app
@@ -97,6 +97,14 @@ class Config:
         this should be set to zero.
         """
         return int(get("AWS_COGNITO_EXPIRATION_LEEWAY", required=False, default=0))
+
+    @property
+    def cognito_scopes(self) -> Optional[List[str]]:
+        """
+        Return the scopes to request from Cognito.
+        If None, all supported scopes are returned
+        """
+        return get("AWS_COGNITO_SCOPES", required=False, default=None)
 
     @property
     def issuer(self) -> str:
