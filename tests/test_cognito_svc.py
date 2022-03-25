@@ -27,7 +27,7 @@ def test_sign_in_url(cfg):
         "&nonce=6789"
         "&code_challenge=asdf"
         "&code_challenge_method=S256"
-        "&scopes=openid+profile"
+        "&scope=openid+profile"
     )
 
 
