@@ -67,18 +67,18 @@ def postlogin():
     # The decorator will store the validated access token in a HTTP only cookie
     # and the user claims and info are stored in the Flask session:
     # session["claims"] and session["user_info"].
-    # Do anything login after the user has logged in here, e.g. a redirect
+    # Do anything after the user has logged in here, e.g. a redirect
     return redirect(url_for("claims"))
 
 
 @app.route("/claims")
 @auth_required()
 def claims():
-    # This route is protected by the Cognito authorisation. If the user is not
+    # This route is protected by Cognito authorisation. If the user is not
     # logged in at this point or their token from Cognito is no longer valid
-    # a 401 Authentication Error is thrown, which is caught here a redirected
-    # to login.
-    # If their session is valid, the current session will be shown including
+    # a 401 Authentication Error is thrown, which is caught by the
+    # `auth_error_handler` a redirected to the Hosted UI to login.
+    # If their auth is valid, the current session will be shown including
     # their claims and user_info extracted from the Cognito tokens.
     return jsonify(session)
 
@@ -96,14 +96,18 @@ def admin():
     # This route will only be accessible to a user who is a member of all of
     # groups specified in the "groups" argument on the auth_required decorator
     # If they are not, a CognitoGroupRequiredError is raised which is handled
-    # below
+    # by the `missing_group_error_handler` below.
+    # If their auth is valid, the set of groups the user is a member of will be
+    # shown.
+
+    # Could also use: jsonify(session["user_info"]["cognito:groups"])
     return jsonify(session["claims"]["cognito:groups"])
 
 
 @app.errorhandler(CognitoGroupRequiredError)
 def missing_group_error_handler(err):
     # Register an error handler if the user hits an "@auth_required" route
-    # but is not logged part of the valid groups
+    # but is not in all of groups specified
     return jsonify("Group membership does not allow access to this resource"), 403
 
 

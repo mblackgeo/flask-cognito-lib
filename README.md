@@ -65,7 +65,7 @@ def postlogin():
     # The decorator will store the validated access token in a HTTP only cookie
     # and the user claims and info are stored in the Flask session:
     # session["claims"] and session["user_info"].
-    # Do anything login after the user has logged in here, e.g. a redirect
+    # Do anything after the user has logged in here, e.g. a redirect
     return redirect(url_for("claims"))
 
 
@@ -74,9 +74,9 @@ def postlogin():
 def claims():
     # This route is protected by the Cognito authorisation. If the user is not
     # logged in at this point or their token from Cognito is no longer valid
-    # a 401 Authentication Error is thrown, which is caught here a redirected
-    # to login.
-    # If their session is valid, the current session will be shown including
+    # a 401 Authentication Error is thrown, which can be caught by registering
+    # an `@app.error_handler(AuthorisationRequiredError)
+    # If their auth is valid, the current session will be shown including
     # their claims and user_info extracted from the Cognito tokens.
     return jsonify(session)
 
@@ -86,8 +86,12 @@ def claims():
 def admin():
     # This route will only be accessible to a user who is a member of all of
     # groups specified in the "groups" argument on the auth_required decorator
-    # If they are not, a CognitoGroupRequiredError is raised which is handled
-    # below
+    # If they are not, a 401 Authentication Error is thrown, which can be caught
+    # by registering an `@app.error_handler(CognitoGroupRequiredError).
+    # If their auth is valid, the set of groups the user is a member of will be
+    # shown.
+
+    # Could also use: jsonify(session["user_info"]["cognito:groups"])
     return jsonify(session["claims"]["cognito:groups"])
 
 
