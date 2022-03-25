@@ -4,12 +4,14 @@ from flask_cognito_lib.exceptions import CognitoError, TokenVerifyError
 from flask_cognito_lib.services.token_svc import TokenService
 
 
-def test_verify_no_token(cfg):
+def test_verify_no_access_token(cfg):
     serv = TokenService(cfg=cfg)
-
     with pytest.raises(TokenVerifyError):
         serv.verify_access_token(None)
 
+
+def test_verify_no_id_token(cfg):
+    serv = TokenService(cfg=cfg)
     with pytest.raises(TokenVerifyError):
         serv.verify_id_token(None)
 

@@ -17,12 +17,17 @@ def test_plugin_lazy_init(cfg):
     assert cfg.APP_EXTENSION_KEY in app.extensions
 
 
-def test_plugin_get_tokens_parameters_missing(app, cfg):
+def test_plugin_get_tokens_parameters_state(app, cfg):
     cls = app.extensions[cfg.APP_EXTENSION_KEY]
     with pytest.raises(CognitoError):
         cls.get_tokens(
             request_args={"code": "asdf"}, expected_state="", code_verifier=""
         )
+
+
+def test_plugin_get_tokens_parameters_code(app, cfg):
+    cls = app.extensions[cfg.APP_EXTENSION_KEY]
+    with pytest.raises(CognitoError):
         cls.get_tokens(
             request_args={"state": "asdf"}, expected_state="", code_verifier=""
         )
