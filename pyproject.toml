@@ -83,7 +83,7 @@ version_toml = [
 ]
 major_on_zero = false
 branch = "main"
-upload_to_PyPI = false
+upload_to_repository = false
 upload_to_release = true
 build_command = "pip install poetry==1.1.12 && poetry build"
 dist_path = "dist/"
