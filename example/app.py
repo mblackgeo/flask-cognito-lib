@@ -56,9 +56,10 @@ def login():
     # No logic is required as the decorator handles the redirect to the Cognito
     # hosted UI for the user to sign in.
     # An optional "state" value can be set in the current session which will
-    # be passed and returned in postlogin route (back from from Cognito)
-    # this could be used for dynamic redirects, for example:
-    # session['state'] = "some_custom_value"
+    # be passed and then used in the postlogin route (after the user has logged
+    # into the Cognito hosted UI); this could be used for dynamic redirects,
+    # for example, set `session['state'] = "some_custom_value"` before passing
+    # the user to this route
     pass
 
 
