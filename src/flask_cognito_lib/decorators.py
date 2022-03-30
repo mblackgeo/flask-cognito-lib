@@ -55,7 +55,6 @@ def cognito_login(fn):
 
         session.update({"state": state})
 
-        # TODO add support for scopes
         login_url = cognito_auth.cognito_service.get_sign_in_url(
             code_challenge=session["code_challenge"],
             state=session["state"],
