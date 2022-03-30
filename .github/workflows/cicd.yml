@@ -77,9 +77,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to TestPyPI
-        run: /
+        run: |
+          poetry config repositories.testpypi https://test.pypi.org/legacy/
           poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_API_TOKEN }}
-          make test-release
+          poetry publish --build -r testpypi
 
       - name: Test install from TestPyPI
         run: |
@@ -89,6 +90,6 @@ jobs:
           flask-cognito-lib
 
       - name: Publish to PyPI
-        run: /
+        run: |
           poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
-          make release
+          poetry publish
