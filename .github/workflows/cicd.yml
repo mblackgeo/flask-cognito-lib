@@ -68,17 +68,18 @@ jobs:
       - name: Install code
         run: poetry install
 
-      - name: Python Semantic Release
-        uses: relekang/python-semantic-release@master
+      - name: Rub Semantic Release
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "action@github.com"
+          poetry run semantic-release publish -D commit_author="github-actions <action@github.com>"
         env:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to TestPyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: __token__
-          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-          repository_url: https://test.pypi.org/legacy/
+        run: /
+          poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_API_TOKEN }}
+          make test-release
 
       - name: Test install from TestPyPI
         run: |
@@ -88,7 +89,6 @@ jobs:
           flask-cognito-lib
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
+        run: /
+          poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
+          make release
