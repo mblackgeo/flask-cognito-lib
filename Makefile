@@ -32,3 +32,12 @@ docs:  ## Run mkdocs locally
 .PHONY: build-docs
 build-docs:  ## Build the docs
 	poetry run mkdocs build --strict
+
+.PHONY: test-release
+test-release:  ## Build the package and release to test-PyPI
+	poetry config repositories.testpypi https://test.pypi.org/legacy/
+	poetry publish --build -r testpypi
+
+.PHONY: release
+release:  ## Build the package and release to PyPI
+	poetry publish
