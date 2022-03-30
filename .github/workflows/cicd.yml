@@ -68,7 +68,7 @@ jobs:
       - name: Install code
         run: poetry install
 
-      - name: Rub Semantic Release
+      - name: Semantic Release
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "action@github.com"
