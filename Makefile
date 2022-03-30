@@ -8,7 +8,7 @@ install:  ## Create a new environment with poetry and install with pre-commit ho
 
 .PHONY: test
 test:  ## Run the test suite using pytest
-	poetry run pytest --cov flask_cognito_lib --cov-report term-missing
+	poetry run pytest --cov flask_cognito_lib --cov-report term-missing --cov-report=xml
 
 .PHONY: lint
 lint:  ## Run linting checks with flake8, isort, and black
@@ -28,3 +28,7 @@ example:  ## Run the example application locally
 .PHONY: docs
 docs:  ## Run mkdocs locally
 	poetry run mkdocs serve
+
+.PHONY: build-docs
+build-docs:  ## Build the docs
+	poetry run mkdocs build --strict

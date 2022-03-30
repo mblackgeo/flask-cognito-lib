@@ -132,6 +132,7 @@ The Makefile includes helpful commands setting a development environment, get st
 * Code formatting is validated using [Black](https://github.com/psf/black)
 * [pre-commit](https://pre-commit.com/) is used to run these checks locally before files are pushed to git
 * The [Github Actions pipeline](.github/workflows/pipeline.yml) runs these checks and tests
+* [Semantic-release](https://python-semantic-release.readthedocs.io/en/latest/) is used with [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for automated releasing to PyPI
 
 
 ## Contributing

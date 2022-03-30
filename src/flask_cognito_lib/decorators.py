@@ -106,6 +106,11 @@ def cognito_login_callback(fn):
         # Remove one-time use variables now we have completed the auth flow
         remove_from_session(("code_challenge", "code_verifier", "nonce"))
 
+        # split out the random part of the state value (in case the user
+        # specified their own custom state value)
+        state = session.get("state").split("__")[-1]
+        session.update({"state": state})
+
         # return and set the JWT as a http only cookie
         resp = fn(*args, **kwargs)
 
