@@ -44,6 +44,7 @@ pytest-cov = "^3.0.0"
 python-dotenv = "^0.19.2"
 mkdocs-material = "^8.2.6"
 mdx-include = "^1.4.1"
+python-semantic-release = "^7.27.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -71,3 +72,20 @@ profile = "black"
 multi_line_output = 3
 line_length = 88
 known_first_party = ["flask_coginito_lib"]
+
+
+[tool.semantic_release]
+version_variable = [
+    "src/flask_cognito_lib/__init__.py:__version__"
+]
+version_toml = [
+    "pyproject.toml:tool.poetry.version"
+]
+major_on_zero = false
+branch = "main"
+upload_to_PyPI = true
+upload_to_release = true
+build_command = "pip install poetry==1.1.12 && poetry build"
+dist_path = "dist/"
+changelog_file = "CHANGELOG.md"
+patch_without_tag = true
