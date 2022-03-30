@@ -9,32 +9,30 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      # TODO matrix of python versions
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
+
+      - uses: actions/cache@v2
+        id: cache
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('tests/requirements.txt') }}
 
       - name: Install poetry
         run: pip install poetry==1.1.12
 
       - name: Install code
         run: poetry install
+        if: steps.cache.outputs.cache-hit != 'true'
 
-      - name: Lint with flake8
-        run: |
-          # stop the build if there are Python syntax errors or undefined names
-          poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-          poetry run flake8 . --count --exit-zero --statistics
+      - name: Lint
+        run: make lint
 
-      - name: Check formatting with Black
-        run: poetry run black . --check
-
-      - name: Check import order with isort
-        run: poetry run isort -c src
-
-      - name: Test with pytest
-        run: poetry run pytest -v --cov flask_cognito_lib --cov-report=xml
+      - name: Test
+        run: make test
 
       - name: "Upload coverage to Codecov"
         uses: codecov/codecov-action@v2
