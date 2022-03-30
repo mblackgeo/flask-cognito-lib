@@ -28,3 +28,7 @@ example:  ## Run the example application locally
 .PHONY: docs
 docs:  ## Run mkdocs locally
 	poetry run mkdocs serve
+
+.PHONY: build-docs
+build-docs:  ## Build the docs
+	poetry run mkdocs build --strict
