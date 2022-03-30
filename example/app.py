@@ -55,6 +55,10 @@ def login():
     # A simple route that will redirect to the Cognito Hosted UI.
     # No logic is required as the decorator handles the redirect to the Cognito
     # hosted UI for the user to sign in.
+    # An optional "state" value can be set in the current session which will
+    # be passed and returned in postlogin route (back from from Cognito)
+    # this could be used for dynamic redirects, for example:
+    # session['state'] = "some_custom_value"
     pass
 
 
@@ -67,7 +71,9 @@ def postlogin():
     # The decorator will store the validated access token in a HTTP only cookie
     # and the user claims and info are stored in the Flask session:
     # session["claims"] and session["user_info"].
-    # Do anything after the user has logged in here, e.g. a redirect
+    # Do anything after the user has logged in here, e.g. a redirect or perform
+    # logic based on a custom `session['state']` value if that was set in the
+    # login route
     return redirect(url_for("claims"))
 
 
