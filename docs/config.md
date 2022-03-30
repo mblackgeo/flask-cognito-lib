@@ -4,17 +4,18 @@
 
 The following key/value pairs are used for configurating the extension:
 
-| **Config Name**                       | **Description**                                                                      |
-|---------------------------------------|--------------------------------------------------------------------------------------|
-| `AWS_REGION`                          | Region the user pool was created                                                     |
-| `AWS_COGNITO_DOMAIN`                  | The domain name of the user pool                                                     |
-| `AWS_COGNITO_USER_POOL_ID`            | The ID of the user pool                                                              |
-| `AWS_COGNITO_USER_POOL_CLIENT_ID`     | The user pool app client ID (*)                                                      |
-| `AWS_COGNITO_USER_POOL_CLIENT_SECRET` | The user pool app client secret (*)                                                  |
-| `AWS_COGNITO_REDIRECT_URL`            | The full URL of the route that handles post-login flow                               |
-| `AWS_COGNITO_LOGOUT_URL`              | The full URL of the route that handles post-logout flow                              |
-| `AWS_COGNITO_COOKIE_AGE_SECONDS`      | (Optional) How long to store the access token cookie. (default=1800)                 |
-| `AWS_COGNITO_EXPIRATION_LEEWAY`       | (Optional) Leeway (in seconds) when checking for token expiry (default=0)            |
+| **Config Name**                       | **Description**                                                                          |
+|---------------------------------------|------------------------------------------------------------------------------------------|
+| `AWS_REGION`                          | Region the user pool was created                                                         |
+| `AWS_COGNITO_DOMAIN`                  | The domain name of the user pool                                                         |
+| `AWS_COGNITO_USER_POOL_ID`            | The ID of the user pool                                                                  |
+| `AWS_COGNITO_USER_POOL_CLIENT_ID`     | The user pool app client ID (*)                                                          |
+| `AWS_COGNITO_USER_POOL_CLIENT_SECRET` | The user pool app client secret (*)                                                      |
+| `AWS_COGNITO_REDIRECT_URL`            | The full URL of the route that handles post-login flow                                   |
+| `AWS_COGNITO_LOGOUT_URL`              | The full URL of the route that handles post-logout flow                                  |
+| `AWS_COGNITO_COOKIE_AGE_SECONDS`      | (Optional) How long to store the access token cookie. (default=1800)                     |
+| `AWS_COGNITO_EXPIRATION_LEEWAY`       | (Optional) Leeway (in seconds) when checking for token expiry (default=0)                |
+| `AWS_COGNITO_SCOPES`                  | (Optional) List of scopes to request from Cognito, if None (default) will get all scopes |
 
 (*) To obtain these values, navigate to the user pool in the AWS Cognito console, then head to the "App Integration" tab. Under the app client list, select the app client and you should be able to view the Client ID and Client Secret
 
@@ -47,6 +48,7 @@ class Config:
     # Optional
     # AWS_COGNITO_COOKIE_AGE_SECONDS = environ["AWS_COGNITO_COOKIE_AGE_SECONDS"]
     # AWS_COGNITO_EXPIRATION_LEEWAY = environ["AWS_COGNITO_EXPIRATION_LEEWAY]
+    # AWS_COGNITO_SCOPES = ["openid", "phone", "email"]
 
 
 app = Flask(__name__)
