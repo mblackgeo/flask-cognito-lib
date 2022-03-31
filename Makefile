@@ -4,7 +4,7 @@ help:
 .PHONY: install
 install:  ## Create a new environment with poetry and install with pre-commit hooks
 	poetry install
-	pre-commit install
+	pre-commit install --hook-type commit-msg
 
 .PHONY: test
 test:  ## Run the test suite using pytest
