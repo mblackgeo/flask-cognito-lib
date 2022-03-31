@@ -26,7 +26,6 @@ jobs:
 
       - name: Install code
         run: poetry install
-        if: steps.cache.outputs.cache-hit != 'true'
 
       - name: Lint
         run: make lint
