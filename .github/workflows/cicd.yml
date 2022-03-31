@@ -83,6 +83,8 @@ jobs:
           pypi_token: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository_name: "testpypi"
           repository_url: "https://test.pypi.org/legacy/"
+        env:
+          SEM_RELEASE_STATUS: ${{ join(steps.release.outputs.*) }}
 
       - name: Test install from TestPyPI
         if: ${{ !contains(join(steps.release.outputs.*), 'No release will be made') }}
