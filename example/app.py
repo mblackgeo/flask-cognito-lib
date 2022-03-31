@@ -73,8 +73,8 @@ def postlogin():
     # and the user claims and info are stored in the Flask session:
     # session["claims"] and session["user_info"].
     # Do anything after the user has logged in here, e.g. a redirect or perform
-    # logic based on a custom `session['state']` value if that was set in the
-    # login route
+    # logic based on a custom `session['state']` value if that was set before
+    # login
     return redirect(url_for("claims"))
 
 
