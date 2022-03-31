@@ -72,11 +72,12 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "action@github.com"
-          echo "::set-output name=semrel::$(poetry run semantic-release publish -D commit_author='github-actions <action@github.com>')\n"
+          poetry run semantic-release publish -D commit_author='github-actions <action@github.com>' 2> out.txt
+          echo "::set-output name=semrel::$(cat out.txt)"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and publish to pypi
+      - name: Build and publish to Test PyPI
         uses: JRubics/poetry-publish@v1.10
         if: ${{ !contains(join(steps.release.outputs.*), 'No release will be made') }}
         with:
@@ -86,7 +87,7 @@ jobs:
         env:
           SEM_RELEASE_STATUS: ${{ join(steps.release.outputs.*) }}
 
-      - name: Test install from TestPyPI
+      - name: Test install from Test PyPI
         if: ${{ !contains(join(steps.release.outputs.*), 'No release will be made') }}
         run: |
           pip install \
@@ -94,7 +95,7 @@ jobs:
           --extra-index-url https://pypi.org/simple \
           flask-cognito-lib
 
-      - name: Build and publish to pypi
+      - name: Build and publish to PyPI
         if: ${{ !contains(join(steps.release.outputs.*), 'No release will be made') }}
         uses: JRubics/poetry-publish@v1.10
         with:
