@@ -73,7 +73,7 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "action@github.com"
-          echo "::set-output name=mix-test::$(poetry run semantic-release publish -D commit_author="github-actions <action@github.com>)\n"
+          echo "::set-output name=semrel::$(poetry run semantic-release publish -D commit_author="github-actions <action@github.com>)\n"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
