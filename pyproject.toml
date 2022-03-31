@@ -88,4 +88,4 @@ upload_to_release = true
 build_command = "pip install poetry==1.1.12 && poetry build"
 dist_path = "dist/"
 changelog_file = "CHANGELOG.md"
-patch_without_tag = true
+patch_without_tag = false
