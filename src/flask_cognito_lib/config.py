@@ -50,6 +50,11 @@ class Config:
     COOKIE_NAME = "cognito_access_token"
 
     @property
+    def disabled(self) -> bool:
+        """Return True if Cognito Authentication is disabled"""
+        return get("AWS_COGNITO_DISABLED", required=False, default=False)
+
+    @property
     def user_pool_id(self) -> str:
         """Return the Cognito user pool ID"""
         return get("AWS_COGNITO_USER_POOL_ID", required=True)

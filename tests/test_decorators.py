@@ -128,3 +128,11 @@ def test_auth_required_groups_invalid(client_with_cookie):
     # 403 as the token isn't in this group
     response = client_with_cookie.get("/invalid_group")
     assert response.status_code == 403
+
+
+def test_auth_required_extension_dislabled(client, app):
+    # Return page with 200 OK if the extension is disabled (bypass Cognito)
+    app.config["AWS_COGNITO_DISABLED"] = True
+    response = client.get("/private")
+    assert response.status_code == 200
+    assert response.data.decode("utf-8") == "ok"
