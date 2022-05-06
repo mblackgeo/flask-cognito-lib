@@ -29,6 +29,7 @@ class Config:
     FLASK_ENV = "TESTING"
 
     # Cognito config
+    # AWS_COGNITO_DISABLED = True  # Can set to turn off auth (e.g. for local testing)
     AWS_REGION = environ["AWS_REGION"]
     AWS_COGNITO_USER_POOL_ID = environ["AWS_COGNITO_USER_POOL_ID"]
     AWS_COGNITO_DOMAIN = environ["AWS_COGNITO_DOMAIN"]
