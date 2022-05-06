@@ -17,6 +17,11 @@ def test_missing_config(app, cfg):
         print(cfg.region)
 
 
+def test_disabled(cfg):
+    """Check if extension is enabled (by default it should be)"""
+    assert not cfg.disabled
+
+
 def test_issuer(cfg):
     """Check if forms the issuer URL correctly"""
     expected = "https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_c7O90SNDF"

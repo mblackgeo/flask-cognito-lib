@@ -6,6 +6,7 @@ The following key/value pairs are used for configurating the extension:
 
 | **Config Name**                       | **Description**                                                                          |
 |---------------------------------------|------------------------------------------------------------------------------------------|
+| `AWS_COGNITO_DISABLED`                | Globally disable auth with Cognito (default=False)                                       |
 | `AWS_REGION`                          | Region the user pool was created                                                         |
 | `AWS_COGNITO_DOMAIN`                  | The domain name of the user pool                                                         |
 | `AWS_COGNITO_USER_POOL_ID`            | The ID of the user pool                                                                  |

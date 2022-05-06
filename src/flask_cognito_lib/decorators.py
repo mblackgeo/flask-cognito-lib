@@ -149,6 +149,9 @@ def auth_required(groups: Optional[Iterable[str]] = None):
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
+            # return early if the extension is disabled
+            if cfg.disabled:
+                return fn(*args, **kwargs)
 
             # Try and validate the access token stored in the cookie
             try:
