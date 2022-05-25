@@ -1,5 +1,12 @@
 <!--next-version-placeholder-->
 
+## v1.3.0 (2022-05-25)
+### Feature
+* Bump pyjwt minor version ([`672b99e`](https://github.com/mblackgeo/flask-cognito-lib/commit/672b99eca5d2865ca96e064f21bda68378b25328))
+
+### Documentation
+* Fix broken badges on mkdocs ([`9f888f6`](https://github.com/mblackgeo/flask-cognito-lib/commit/9f888f6d37c22c4ac1bb2f96a11b6b69cf63f71f))
+
 ## v1.2.0 (2022-05-06)
 ### Feature
 * Add new config parameter to disable extension ([`fcafc51`](https://github.com/mblackgeo/flask-cognito-lib/commit/fcafc510e80ee901885e324d180aed3529fbcdbc))
