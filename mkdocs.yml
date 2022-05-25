@@ -21,7 +21,7 @@ theme:
 plugins:
   - search
 repo_url: https://github.com/mblackgeo/flask-cognito-lib
-repo_name: mblack/flask-cognit-lib
+repo_name: mblack/flask-cognito-lib
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
