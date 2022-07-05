@@ -32,6 +32,7 @@ After setting up the user pool, there are a number of values to note that are re
 
 | **Config Name**                       | **Description**                                                                      | **Required**     |
 |---------------------------------------|--------------------------------------------------------------------------------------|------------------|
+| `SECRET_KEY`                          | Secret key for the Flask app, required to store create the session cookies           | Y                |
 | `AWS_REGION`                          | Region the user pool was created                                                     | Y                |
 | `AWS_COGNITO_DOMAIN`                  | The domain name of the user pool (from Step 2)                                       | Y                |
 | `AWS_COGNITO_USER_POOL_ID`            | The ID of the user pool                                                              | Y                |
