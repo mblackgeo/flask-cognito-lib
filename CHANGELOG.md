@@ -1,5 +1,13 @@
 <!--next-version-placeholder-->
 
+## v1.3.1 (2022-07-06)
+### Fix
+* Run decorators within the app context ([`bb8bd38`](https://github.com/mblackgeo/flask-cognito-lib/commit/bb8bd381ef6a49d39f82babf8a86091e4cd557f3))
+
+### Documentation
+* Add SECRET_KEY to required config ([`366c862`](https://github.com/mblackgeo/flask-cognito-lib/commit/366c862f133ebf8f4c4908ded96fbd51ec4f8f4e))
+* Fix typo in repo_url for mkdocs ([`b2e0875`](https://github.com/mblackgeo/flask-cognito-lib/commit/b2e08754914f4ffc28795d2288cd72feec858d7b))
+
 ## v1.3.0 (2022-05-25)
 ### Feature
 * Bump pyjwt minor version ([`672b99e`](https://github.com/mblackgeo/flask-cognito-lib/commit/672b99eca5d2865ca96e064f21bda68378b25328))
