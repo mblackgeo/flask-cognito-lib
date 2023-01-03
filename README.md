@@ -1,8 +1,8 @@
 # Protect Flask routes with AWS Cognito
 
 [![PyPI](https://img.shields.io/pypi/v/flask_cognito_lib?style=for-the-badge)](https://pypi.org/project/flask-cognito-lib/)
-[![Docs](https://img.shields.io/github/workflow/status/mblackgeo/flask-cognito-lib/docs?label=DOCS&style=for-the-badge)](https://mblackgeo.github.io/flask-cognito-lib)
-[![CI](https://img.shields.io/github/workflow/status/mblackgeo/flask-cognito-lib/cicd?label=CI&style=for-the-badge)](https://github.com/mblackgeo/flask-cognito-lib/actions)
+[![Docs](https://img.shields.io/github/actions/workflow/status/mblackgeo/flask-cognito-lib/docs.yml?label=DOCS&style=for-the-badge)](https://mblackgeo.github.io/flask-cognito-lib)
+[![CI](https://img.shields.io/github/actions/workflow/status/mblackgeo/flask-cognito-lib/cicd.yml?label=CI&style=for-the-badge)](https://github.com/mblackgeo/flask-cognito-lib/actions)
 [![codecov](https://img.shields.io/codecov/c/github/mblackgeo/flask-cognito-lib?style=for-the-badge&token=TGV2RMGNZ5)](https://codecov.io/gh/mblackgeo/flask-cognito-lib)
 
 A Flask extension that supports protecting routes with AWS Cognito following [OAuth 2.1 best practices](https://oauth.net/2.1/). That means the full authorization code flow, including Proof Key for Code Exchange (RFC 7636) to prevent Cross Site Request Forgery (CSRF), along with secure storage of access tokens in HTTP only cookies (to prevent Cross Site Scripting attacks), and additional `nonce` validation (if using ID tokens) to prevent replay attacks.
