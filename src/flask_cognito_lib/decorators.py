@@ -51,7 +51,7 @@ def cognito_login(fn):
             # Add suport for custom state values which are appended to a secure
             # random value for additional CRSF protection
             state = secure_random()
-            custom_state = session.get("state", default=None)
+            custom_state = session.get("state")
             if custom_state:
                 state += f"__{custom_state}"
 
