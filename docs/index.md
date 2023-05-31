@@ -17,7 +17,7 @@ A Flask extension that supports protecting routes with AWS Cognito following [OA
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install:
 
 ```bash
-pip install flask-coginito-lib
+pip install flask-cognito-lib
 ```
 
 
