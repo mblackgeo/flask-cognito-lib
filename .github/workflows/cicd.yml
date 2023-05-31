@@ -22,10 +22,10 @@ jobs:
           key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('tests/requirements.txt') }}
 
       - name: Install poetry
-        run: pip install poetry==1.1.12
+        run: pip install poetry==1.5.1
 
       - name: Install code
-        run: poetry install
+        run: poetry install --no-update
 
       - name: Lint
         run: make lint
