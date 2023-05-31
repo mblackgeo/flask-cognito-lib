@@ -62,7 +62,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install poetry
-        run: pip install poetry==1.1.12
+        run: pip install poetry==1.5.1
 
       - name: Install code
         run: poetry install
