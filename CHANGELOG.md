@@ -1,5 +1,20 @@
 <!--next-version-placeholder-->
 
+## v1.3.2 (2023-05-31)
+### Fix
+
+* Bump poetry version for CI pipelines ([`c60092c`](https://github.com/mblackgeo/flask-cognito-lib/commit/c60092c6d7a041e8fdb7be29fc770d652dfe98fc))
+* Typo in isort configuration ([`8d80de8`](https://github.com/mblackgeo/flask-cognito-lib/commit/8d80de8858bafb298b94249dd4d5d4a80da11120))
+* Remove deprecated server_name argument ([`22b10c8`](https://github.com/mblackgeo/flask-cognito-lib/commit/22b10c8e4dbcb66ae9d26f614c419208e9eed806))
+* Remove --no-update option ([`7ad415c`](https://github.com/mblackgeo/flask-cognito-lib/commit/7ad415c98c1a25edebb3c9a87c7cfa8545b19a6f))
+* Bump poetry version ([`c3558a7`](https://github.com/mblackgeo/flask-cognito-lib/commit/c3558a7ccfeafad6690520eb1f130860f9578296))
+* Specify default when extracting session state ([`c28da44`](https://github.com/mblackgeo/flask-cognito-lib/commit/c28da44afaccbc6259f75edf407447afbbf3d12c))
+
+### Documentation
+
+* Fix typo for installation ([`3e0d6cd`](https://github.com/mblackgeo/flask-cognito-lib/commit/3e0d6cd1dfab4155c6682e5d0c34c429ef2a51be))
+* Fix badges ([`fc8e167`](https://github.com/mblackgeo/flask-cognito-lib/commit/fc8e1674e8e0a90e2dcf6987d7b43634dd566f32))
+
 ## v1.3.1 (2022-07-06)
 ### Fix
 * Run decorators within the app context ([`bb8bd38`](https://github.com/mblackgeo/flask-cognito-lib/commit/bb8bd381ef6a49d39f82babf8a86091e4cd557f3))
