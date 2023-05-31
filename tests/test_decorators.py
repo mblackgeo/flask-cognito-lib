@@ -1,5 +1,6 @@
 import pytest
 from flask import session
+
 from flask_cognito_lib.decorators import remove_from_session
 from flask_cognito_lib.exceptions import TokenVerifyError
 
@@ -18,7 +19,7 @@ def test_remove_from_session(client):
 def test_cognito_login(client, cfg):
     response = client.get("/login")
 
-    # should 302 redirect to coginto
+    # should 302 redirect to cognito
     assert response.status_code == 302
     assert response.headers["location"].startswith(cfg.authorize_endpoint)
 
@@ -29,7 +30,7 @@ def test_cognito_custom_state(client, cfg):
 
     response = client.get("/login")
 
-    # should 302 redirect to coginto
+    # should 302 redirect to cognito
     assert response.status_code == 302
     assert response.headers["location"].startswith(cfg.authorize_endpoint)
     assert "__homepage&" in response.headers["location"]
@@ -39,7 +40,7 @@ def test_cognito_custom_scopes(client, app, cfg):
     app.config["AWS_COGNITO_SCOPES"] = ["openid", "profile", "phone", "email"]
     response = client.get("/login")
 
-    # should 302 redirect to coginto
+    # should 302 redirect to cognito
     assert response.status_code == 302
     assert response.headers["location"].startswith(cfg.authorize_endpoint)
     assert "scope=openid+profile+phone+email" in response.headers["location"]
@@ -95,7 +96,7 @@ def test_cognito_login_callback(client, cfg, access_token, token_response):
 
 
 def test_cognito_logout(client, cfg):
-    # should 302 redirect to coginto
+    # should 302 redirect to cognito
     response = client.get("/logout")
     assert response.status_code == 302
     assert response.headers["location"].startswith(cfg.logout_endpoint)

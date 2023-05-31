@@ -1,5 +1,7 @@
 import pytest
 from flask import Flask, make_response
+from jwt import PyJWKSet
+
 from flask_cognito_lib import CognitoAuth
 from flask_cognito_lib.config import Config
 from flask_cognito_lib.decorators import (
@@ -9,7 +11,6 @@ from flask_cognito_lib.decorators import (
     cognito_logout,
 )
 from flask_cognito_lib.utils import CognitoTokenResponse
-from jwt import PyJWKSet
 
 
 @pytest.fixture(autouse=True)
