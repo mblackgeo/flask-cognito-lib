@@ -1,7 +1,5 @@
 import pytest
 from flask import Flask, make_response
-from jwt import PyJWKSet
-
 from flask_cognito_lib import CognitoAuth
 from flask_cognito_lib.config import Config
 from flask_cognito_lib.decorators import (
@@ -11,6 +9,7 @@ from flask_cognito_lib.decorators import (
     cognito_logout,
 )
 from flask_cognito_lib.utils import CognitoTokenResponse
+from jwt import PyJWKSet
 
 
 @pytest.fixture(autouse=True)
@@ -161,5 +160,5 @@ def token_response(mocker, access_token, id_token):
 @pytest.fixture
 def client_with_cookie(app, access_token, cfg):
     cl = app.test_client()
-    cl.set_cookie(server_name="localhost", key=cfg.COOKIE_NAME, value=access_token)
+    cl.set_cookie(key=cfg.COOKIE_NAME, value=access_token)
     yield cl
