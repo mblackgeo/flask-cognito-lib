@@ -25,7 +25,7 @@ jobs:
         run: pip install poetry==1.5.1
 
       - name: Install code
-        run: poetry install --no-update
+        run: poetry install
 
       - name: Lint
         run: make lint
