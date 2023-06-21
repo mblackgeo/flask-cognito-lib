@@ -79,14 +79,14 @@ jobs:
 
       - name: Build and publish to Test PyPI
         uses: JRubics/poetry-publish@v1.10
-        if: ${{ env.TO_RELEASE == "1" }}
+        if: ${{ env.TO_RELEASE == '1' }}
         with:
           pypi_token: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository_name: "testpypi"
           repository_url: "https://test.pypi.org/legacy/"
 
       - name: Test install from Test PyPI
-        if: ${{ env.TO_RELEASE == "1" }}
+        if: ${{ env.TO_RELEASE == '1' }}
         run: |
           pip install \
           --index-url https://test.pypi.org/simple/ \
@@ -94,7 +94,7 @@ jobs:
           flask-cognito-lib
 
       - name: Build and publish to PyPI
-        if: ${{ env.TO_RELEASE == "1" }}
+        if: ${{ env.TO_RELEASE == '1' }}
         uses: JRubics/poetry-publish@v1.10
         with:
           pypi_token: ${{ secrets.PYPI_API_TOKEN }}
