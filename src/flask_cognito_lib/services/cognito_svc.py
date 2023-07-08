@@ -96,11 +96,19 @@ class CognitoService:
             "code_verifier": code_verifier,
         }
 
+        # The Authorization header must not be present when using a
+        # Public Client, we assume this when the secret is blank.
+        # (Blank secrets are not supported on Confidential Clients)
+        if self.cfg.user_pool_client_secret:
+            auth = (self.cfg.user_pool_client_id, self.cfg.user_pool_client_secret)
+        else:
+            auth = None
+
         try:
             response = requests.post(
                 url=self.cfg.token_endpoint,
                 data=data,
-                auth=(self.cfg.user_pool_client_id, self.cfg.user_pool_client_secret),
+                auth=auth,
             )
             response_json = response.json()
 
