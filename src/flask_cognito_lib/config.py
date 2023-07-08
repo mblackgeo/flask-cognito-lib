@@ -67,7 +67,7 @@ class Config:
     @property
     def user_pool_client_secret(self) -> str:
         """Return the Cognito user pool client secret"""
-        return get("AWS_COGNITO_USER_POOL_CLIENT_SECRET", required=True)
+        return get("AWS_COGNITO_USER_POOL_CLIENT_SECRET", required=False)
 
     @property
     def redirect_url(self) -> str:
