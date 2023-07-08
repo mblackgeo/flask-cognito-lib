@@ -1,7 +1,7 @@
 from typing import Any, Callable, Dict, Optional
 
 from flask import Flask
-from flask import _app_ctx_stack as ctx_stack
+from flask import g
 
 from flask_cognito_lib.config import Config
 from flask_cognito_lib.exceptions import CognitoError
@@ -51,12 +51,10 @@ class CognitoAuth:
         TokenService
             An instance of TokenService
         """
-        ctx = ctx_stack.top
-        if ctx is not None:
-            if not hasattr(ctx, self.cfg.CONTEXT_KEY_TOKEN_SERVICE):
-                token_service = self.token_service_factory(cfg=self.cfg)
-                setattr(ctx, self.cfg.CONTEXT_KEY_TOKEN_SERVICE, token_service)
-            return getattr(ctx, self.cfg.CONTEXT_KEY_TOKEN_SERVICE)
+        if not hasattr(g, self.cfg.CONTEXT_KEY_TOKEN_SERVICE):
+            token_service = self.token_service_factory(cfg=self.cfg)
+            setattr(g, self.cfg.CONTEXT_KEY_TOKEN_SERVICE, token_service)
+        return getattr(g, self.cfg.CONTEXT_KEY_TOKEN_SERVICE)
 
     @property
     def cognito_service(self) -> CognitoService:
@@ -67,12 +65,10 @@ class CognitoAuth:
         CognitoService
             An instance of CognitoService
         """
-        ctx = ctx_stack.top
-        if ctx is not None:
-            if not hasattr(ctx, self.cfg.CONTEXT_KEY_COGNITO_SERVICE):
-                cognito_service = self.cognito_service_factory(cfg=self.cfg)
-                setattr(ctx, self.cfg.CONTEXT_KEY_COGNITO_SERVICE, cognito_service)
-            return getattr(ctx, self.cfg.CONTEXT_KEY_COGNITO_SERVICE)
+        if not hasattr(g, self.cfg.CONTEXT_KEY_COGNITO_SERVICE):
+            cognito_service = self.cognito_service_factory(cfg=self.cfg)
+            setattr(g, self.cfg.CONTEXT_KEY_COGNITO_SERVICE, cognito_service)
+        return getattr(g, self.cfg.CONTEXT_KEY_COGNITO_SERVICE)
 
     def get_tokens(
         self,
