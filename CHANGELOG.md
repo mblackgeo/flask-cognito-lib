@@ -1,5 +1,14 @@
 <!--next-version-placeholder-->
 
+## v1.4.0 (2023-07-08)
+### Feature
+
+* Support Public Cognito Clients without an app secret ([#17](https://github.com/mblackgeo/flask-cognito-lib/issues/17)) ([`a54077c`](https://github.com/mblackgeo/flask-cognito-lib/commit/a54077c34ff43c211bea1dcd836daecde58e4fee))
+
+### Documentation
+
+* Fix badges ([`7b73d81`](https://github.com/mblackgeo/flask-cognito-lib/commit/7b73d81f8329aaaa19a96d8282578f2055a962ec))
+
 ## v1.3.2 (2023-05-31)
 ### Fix
 
