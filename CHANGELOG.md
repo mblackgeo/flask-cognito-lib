@@ -1,5 +1,10 @@
 <!--next-version-placeholder-->
 
+## v1.4.1 (2023-07-08)
+### Fix
+
+* Replace use of deprecated app context stack ([`692f312`](https://github.com/mblackgeo/flask-cognito-lib/commit/692f312e5bb8f34080d44d2aed30ff43926a62b2))
+
 ## v1.4.0 (2023-07-08)
 ### Feature
 
