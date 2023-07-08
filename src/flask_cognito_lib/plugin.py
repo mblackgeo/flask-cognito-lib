@@ -1,7 +1,6 @@
 from typing import Any, Callable, Dict, Optional
 
-from flask import Flask
-from flask import g
+from flask import Flask, g
 
 from flask_cognito_lib.config import Config
 from flask_cognito_lib.exceptions import CognitoError
