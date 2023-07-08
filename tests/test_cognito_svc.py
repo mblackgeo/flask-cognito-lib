@@ -52,6 +52,7 @@ def test_exchange_code_for_token(cfg, mocker):
     token = cognito.exchange_code_for_token(code="test_code", code_verifier="asdf")
     assert token.access_token == "test_access_token"
 
+
 def test_exchange_code_for_token_with_public_client(app, cfg, mocker):
     mocker.patch(
         "requests.post",
