@@ -84,6 +84,11 @@ def app():
         # the required group
         return make_response("ok")
 
+    @_app.route("/any_group")
+    @auth_required(groups=["admin", "editor"], any_group=True)
+    def any_group_req_valid():
+        return make_response("ok")
+
     yield _app
     ctx.pop()
 

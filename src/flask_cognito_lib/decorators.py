@@ -149,7 +149,7 @@ def cognito_logout(fn):
     return wrapper
 
 
-def auth_required(groups: Optional[Iterable[str]] = None):
+def auth_required(groups: Optional[Iterable[str]] = None, any_group: bool = False):
     """A decorator to protect a route with AWS Cognito"""
 
     def wrapper(fn):
@@ -171,7 +171,11 @@ def auth_required(groups: Optional[Iterable[str]] = None):
 
                     # Check for required group membership
                     if groups:
-                        valid = all(g in claims["cognito:groups"] for g in groups)
+                        if any_group:
+                            valid = any(g in claims["cognito:groups"] for g in groups)
+                        else:
+                            valid = all(g in claims["cognito:groups"] for g in groups)
+
                         if not valid:
                             raise CognitoGroupRequiredError
 
