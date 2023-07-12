@@ -1,6 +1,5 @@
 import pytest
 from flask import session
-
 from flask_cognito_lib.decorators import remove_from_session
 from flask_cognito_lib.exceptions import TokenVerifyError
 
@@ -138,7 +137,7 @@ def test_auth_required_extension_dislabled(client, app):
     assert response.data.decode("utf-8") == "ok"
 
 
-def test_auth_required_any_groups_valid_group1(client_with_cookie, mocker):
+def test_auth_required_any_group_valid_group1(client_with_cookie, mocker):
     # Mock the token verfication to add an extra group for testing
     # valid groups are "editor" and "admin"
     mocker.patch(
@@ -152,7 +151,7 @@ def test_auth_required_any_groups_valid_group1(client_with_cookie, mocker):
     assert response.data.decode("utf-8") == "ok"
 
 
-def test_auth_required_any_groups_valid_group2(client_with_cookie, mocker):
+def test_auth_required_any_group_valid_group2(client_with_cookie, mocker):
     # Mock the token verfication to add an extra group for testing
     # valid groups are "editor" and "admin"
     mocker.patch(
@@ -166,7 +165,7 @@ def test_auth_required_any_groups_valid_group2(client_with_cookie, mocker):
     assert response.data.decode("utf-8") == "ok"
 
 
-def test_auth_required_any_groups_invalid(client_with_cookie, mocker):
+def test_auth_required_any_group_invalid(client_with_cookie, mocker):
     # Mock the token verfication to add an extra group for testing
     # valid groups are "editor" and "admin"
     mocker.patch(
