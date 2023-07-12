@@ -94,6 +94,16 @@ def admin():
     return jsonify(session["claims"]["cognito:groups"])
 
 
+@app.route("/edit")
+@auth_required(groups=["admin", "editor"], any_groups=True)
+def edit():
+    # This route will only be accessible to a user who is a member of any of
+    # groups specified in the "groups" argument on the auth_required decorator
+    # If they are not, a CognitoGroupRequiredError is raised which is handled
+    # below
+    return jsonify(session["claims"]["cognito:groups"])
+
+
 @app.route("/logout")
 @cognito_logout
 def logout():

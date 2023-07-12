@@ -2,7 +2,6 @@ from os import environ, path, urandom
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, redirect, session, url_for
-
 from flask_cognito_lib import CognitoAuth
 from flask_cognito_lib.decorators import (
     auth_required,
@@ -109,6 +108,16 @@ def admin():
     # shown.
 
     # Could also use: jsonify(session["user_info"]["cognito:groups"])
+    return jsonify(session["claims"]["cognito:groups"])
+
+
+@app.route("/edit")
+@auth_required(groups=["admin", "editor"], any_groups=True)
+def edit():
+    # This route will only be accessible to a user who is a member of any of
+    # groups specified in the "groups" argument on the auth_required decorator
+    # If they are not, a CognitoGroupRequiredError is raised which is handled
+    # below
     return jsonify(session["claims"]["cognito:groups"])
 
 
