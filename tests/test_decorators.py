@@ -117,14 +117,14 @@ def test_auth_required_valid_token(client_with_cookie):
     assert response.data.decode("utf-8") == "ok"
 
 
-def test_auth_required_groups_valid(client_with_cookie):
+def test_auth_required_all_groups_valid(client_with_cookie):
     # Has access to this route as the token has the correct group membership
     response = client_with_cookie.get("/valid_group")
     assert response.status_code == 200
     assert response.data.decode("utf-8") == "ok"
 
 
-def test_auth_required_groups_invalid(client_with_cookie):
+def test_auth_required_all_groups_invalid(client_with_cookie):
     # 403 as the token isn't in this group
     response = client_with_cookie.get("/invalid_group")
     assert response.status_code == 403
@@ -136,3 +136,44 @@ def test_auth_required_extension_dislabled(client, app):
     response = client.get("/private")
     assert response.status_code == 200
     assert response.data.decode("utf-8") == "ok"
+
+
+def test_auth_required_any_groups_valid_group1(client_with_cookie, mocker):
+    # Mock the token verfication to add an extra group for testing
+    # valid groups are "editor" and "admin"
+    mocker.patch(
+        "flask_cognito_lib.decorators.cognito_auth.verify_access_token",
+        return_value={"cognito:groups": ["editor", "another_group"]},
+    )
+
+    # Has access to this route as the token has the correct group membership
+    response = client_with_cookie.get("/any_group")
+    assert response.status_code == 200
+    assert response.data.decode("utf-8") == "ok"
+
+
+def test_auth_required_any_groups_valid_group2(client_with_cookie, mocker):
+    # Mock the token verfication to add an extra group for testing
+    # valid groups are "editor" and "admin"
+    mocker.patch(
+        "flask_cognito_lib.decorators.cognito_auth.verify_access_token",
+        return_value={"cognito:groups": ["admin", "group2"]},
+    )
+
+    # Has access to this route as the token has the correct group membership
+    response = client_with_cookie.get("/any_group")
+    assert response.status_code == 200
+    assert response.data.decode("utf-8") == "ok"
+
+
+def test_auth_required_any_groups_invalid(client_with_cookie, mocker):
+    # Mock the token verfication to add an extra group for testing
+    # valid groups are "editor" and "admin"
+    mocker.patch(
+        "flask_cognito_lib.decorators.cognito_auth.verify_access_token",
+        return_value={"cognito:groups": ["group1", "group2"]},
+    )
+
+    # Does not have access to this route, not in any valid group
+    response = client_with_cookie.get("/any_group")
+    assert response.status_code == 403
