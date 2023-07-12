@@ -2,6 +2,7 @@ from os import environ, path, urandom
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, redirect, session, url_for
+
 from flask_cognito_lib import CognitoAuth
 from flask_cognito_lib.decorators import (
     auth_required,

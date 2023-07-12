@@ -1,5 +1,6 @@
 import pytest
 from flask import session
+
 from flask_cognito_lib.decorators import remove_from_session
 from flask_cognito_lib.exceptions import TokenVerifyError
 
