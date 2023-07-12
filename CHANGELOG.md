@@ -1,5 +1,15 @@
 <!--next-version-placeholder-->
 
+## v1.5.0 (2023-07-12)
+### Feature
+
+* Support "any" group membership in `auth_required` decorator ([`7d38fdb`](https://github.com/mblackgeo/flask-cognito-lib/commit/7d38fdb24593f96f66421b7974fe29c0a1e58ae0))
+
+### Documentation
+
+* Fix type in example usage of any group argument ([`bd0b9cc`](https://github.com/mblackgeo/flask-cognito-lib/commit/bd0b9cccb3f6476743cdf63c074e809b78a7ed8b))
+* Add examples of "any group" membership ([`8c42686`](https://github.com/mblackgeo/flask-cognito-lib/commit/8c42686bc52336b5feeb8275514a77bca4678ae6))
+
 ## v1.4.1 (2023-07-08)
 ### Fix
 
