@@ -110,8 +110,7 @@ def admin():
 def edit():
     # This route will only be accessible to a user who is a member of any of
     # groups specified in the "groups" argument on the auth_required decorator
-    # If they are not, a CognitoGroupRequiredError is raised which is handled
-    # below
+    # If they are not, a CognitoGroupRequiredError is raised
     return jsonify(session["claims"]["cognito:groups"])
 
 
