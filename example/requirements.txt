@@ -1,3 +1,2 @@
-Flask==2.0.3
 python-dotenv==0.19.2
 flask-cognito-lib~=1.0

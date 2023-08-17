@@ -33,7 +33,7 @@ PyJWT = { extras = ["crypto"], version = ">=2.4,<3.0" }
 urllib3 = "<=2.0"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
+pytest = "^7.2"
 mypy = "^0.941"
 black = "^22.1.0"
 flake8 = "^4.0.1"
