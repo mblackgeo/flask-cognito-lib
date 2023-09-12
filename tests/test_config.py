@@ -24,7 +24,7 @@ def test_disabled(cfg):
 
 def test_issuer(cfg):
     """Check if forms the issuer URL correctly"""
-    expected = "https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_c7O90SNDF"
+    expected = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_HC5viybYt"
     assert cfg.issuer == expected
 
 
@@ -42,25 +42,25 @@ def test_cookie_age(cfg):
 
 def test_token_endpoint(cfg):
     assert cfg.token_endpoint == (
-        "https://webapp-test.auth.eu-west-1.amazoncognito.com/oauth2/token"
+        "https://flask-cog-test.auth.us-east-1.amazoncognito.com/oauth2/token"
     )
 
 
 def test_logout_endpoint(cfg):
     assert cfg.logout_endpoint == (
-        "https://webapp-test.auth.eu-west-1.amazoncognito.com/logout"
-        "?client_id=4lln66726pp3f4gi1krj0sta9h"
+        "https://flask-cog-test.auth.us-east-1.amazoncognito.com/logout"
+        "?client_id=7og7do7m7tq0gi7ujm2uloa99v"
         "&logout_uri=http%3A//localhost%3A5000/postlogout"
     )
 
 
 def test_user_info_endpoint(cfg):
     assert cfg.user_info_endpoint == (
-        "https://webapp-test.auth.eu-west-1.amazoncognito.com/oauth2/userInfo"
+        "https://flask-cog-test.auth.us-east-1.amazoncognito.com/oauth2/userInfo"
     )
 
 
 def test_revoke_endpoint(cfg):
     assert cfg.revoke_endpoint == (
-        "https://webapp-test.auth.eu-west-1.amazoncognito.com/oauth2/revoke"
+        "https://flask-cog-test.auth.us-east-1.amazoncognito.com/oauth2/revoke"
     )

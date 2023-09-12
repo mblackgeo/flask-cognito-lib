@@ -30,20 +30,39 @@ def test_verify_access_token(cfg, access_token):
     serv = TokenService(cfg=cfg)
     claims = serv.verify_access_token(access_token, leeway=1e9)
     assert claims == {
-        "sub": "9048d38f-8174-49b9-8d59-3238172823d8",
+        "auth_time": 1694490743,
+        "client_id": "7og7do7m7tq0gi7ujm2uloa99v",
         "cognito:groups": ["admin"],
-        "iss": "https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_c7O90SNDF",
-        "version": 2,
-        "client_id": "4lln66726pp3f4gi1krj0sta9h",
-        "origin_jti": "d4811bf1-2798-4d33-b65c-2f8254729dd2",
-        "event_id": "18828d18-b465-470e-84b6-17520ded299b",
-        "token_use": "access",
+        "exp": 1694494343,
+        "iat": 1694490743,
+        "iss": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_HC5viybYt",
+        "jti": "4ac5f32c-29a6-4181-a570-bf52d03e8b05",
+        "origin_jti": "6d58f82c-86de-4415-8196-a2b3dcc17079",
         "scope": "phone openid email",
-        "auth_time": 1647961493,
-        "exp": 1647965093,
-        "iat": 1647961493,
-        "jti": "0fe29a9e-6e94-479b-987b-e45696d5843a",
-        "username": "mblack",
+        "sub": "49971d1a-f720-432c-abbc-9d466f260d98",
+        "token_use": "access",
+        "username": "49971d1a-f720-432c-abbc-9d466f260d98",
+        "version": 2,
+    }
+
+
+def test_verify_additional_access_token(cfg, additional_access_token):
+    serv = TokenService(cfg=cfg)
+    claims = serv.verify_access_token(additional_access_token, leeway=1e9)
+    assert claims == {
+        "auth_time": 1694298448,
+        "client_id": "j7hha0k2v15pkkj7f8srkldud",
+        "event_id": "61096a43-b05d-40a1-bd97-a3701f429f8e",
+        "exp": 1694302048,
+        "iat": 1694298448,
+        "iss": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_HC5viybYt",
+        "jti": "bb5c5f91-c1fe-4705-afda-f608af318228",
+        "origin_jti": "a828a523-77ba-46a4-baed-dcf729eb8ecc",
+        "scope": "phone openid email",
+        "sub": "49971d1a-f720-432c-abbc-9d466f260d98",
+        "token_use": "access",
+        "username": "49971d1a-f720-432c-abbc-9d466f260d98",
+        "version": 2,
     }
 
 
@@ -51,22 +70,42 @@ def test_verify_id_token(cfg, id_token):
     serv = TokenService(cfg=cfg)
     claims = serv.verify_id_token(id_token, leeway=1e9)
     assert claims == {
-        "at_hash": "WqTgBN7uFPnnJRgyd86WLA",
-        "sub": "9048d38f-8174-49b9-8d59-3238172823d8",
+        "at_hash": "8DLjfTWSvQuFfeDonQaT4w",
+        "aud": "7og7do7m7tq0gi7ujm2uloa99v",
+        "auth_time": 1694490743,
         "cognito:groups": ["admin"],
-        "email_verified": False,
-        "iss": "https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_c7O90SNDF",
-        "cognito:username": "mblack",
+        "cognito:username": "49971d1a-f720-432c-abbc-9d466f260d98",
+        "email": "test@flaskcognito.com",
+        "email_verified": True,
+        "exp": 1694494343,
+        "iat": 1694490743,
+        "iss": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_HC5viybYt",
+        "jti": "dd710d8e-cbe0-4b98-9c7c-aacff59e8a8c",
         "nonce": "MSln6nvPIIBVMhsNUOtUCtssceUKz4dhCRZi5QZRU4A=",
-        "origin_jti": "d4811bf1-2798-4d33-b65c-2f8254729dd2",
-        "aud": "4lln66726pp3f4gi1krj0sta9h",
-        "event_id": "18828d18-b465-470e-84b6-17520ded299b",
+        "origin_jti": "6d58f82c-86de-4415-8196-a2b3dcc17079",
+        "sub": "49971d1a-f720-432c-abbc-9d466f260d98",
         "token_use": "id",
-        "auth_time": 1647961493,
-        "exp": 1647965093,
-        "iat": 1647961493,
-        "jti": "054b8e66-5853-4127-9d55-e3a29dbd84bd",
-        "email": "mblack@sparkgeo.com",
+    }
+
+
+def test_verify_additional_id_token(cfg, additional_id_token):
+    serv = TokenService(cfg=cfg)
+    claims = serv.verify_id_token(additional_id_token, leeway=1e9)
+    assert claims == {
+        "at_hash": "2CzhktXsmHGpFTDd5XOrbA",
+        "aud": "j7hha0k2v15pkkj7f8srkldud",
+        "auth_time": 1694298448,
+        "cognito:username": "49971d1a-f720-432c-abbc-9d466f260d98",
+        "email": "test@flaskcognito.com",
+        "email_verified": True,
+        "event_id": "61096a43-b05d-40a1-bd97-a3701f429f8e",
+        "exp": 1694302048,
+        "iat": 1694298448,
+        "iss": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_HC5viybYt",
+        "jti": "16319665-0107-40fe-bb61-3a0c81ca1269",
+        "origin_jti": "a828a523-77ba-46a4-baed-dcf729eb8ecc",
+        "sub": "49971d1a-f720-432c-abbc-9d466f260d98",
+        "token_use": "id",
     }
 
 

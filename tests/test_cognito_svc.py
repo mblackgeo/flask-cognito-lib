@@ -7,7 +7,9 @@ from flask_cognito_lib.services.cognito_svc import CognitoService
 
 def test_base_url(cfg):
     cognito = CognitoService(cfg)
-    assert cognito.cfg.domain == "https://webapp-test.auth.eu-west-1.amazoncognito.com"
+    assert (
+        cognito.cfg.domain == "https://flask-cog-test.auth.us-east-1.amazoncognito.com"
+    )
 
 
 def test_sign_in_url(cfg):
@@ -19,9 +21,9 @@ def test_sign_in_url(cfg):
         scopes=["openid", "profile"],
     )
     assert res == (
-        "https://webapp-test.auth.eu-west-1.amazoncognito.com/oauth2/authorize"
+        "https://flask-cog-test.auth.us-east-1.amazoncognito.com/oauth2/authorize"
         "?response_type=code"
-        "&client_id=4lln66726pp3f4gi1krj0sta9h"
+        "&client_id=7og7do7m7tq0gi7ujm2uloa99v"
         "&redirect_uri=http%3A//localhost%3A5000/postlogin"
         "&state=1234"
         "&nonce=6789"

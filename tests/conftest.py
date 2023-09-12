@@ -28,15 +28,18 @@ def app():
     _app.config["SECRET_KEY"] = "very-secure"
 
     # minimum require configuration for CognitoAuth extension
-    _app.config["AWS_COGNITO_USER_POOL_ID"] = "eu-west-1_c7O90SNDF"
-    _app.config["AWS_COGNITO_USER_POOL_CLIENT_ID"] = "4lln66726pp3f4gi1krj0sta9h"
+    _app.config["AWS_COGNITO_USER_POOL_ID"] = "us-east-1_HC5viybYt"
+    _app.config["AWS_COGNITO_USER_POOL_CLIENT_ID"] = "7og7do7m7tq0gi7ujm2uloa99v"
+    _app.config["ADDITIONAL_AWS_COGNITO_USER_POOL_CLIENT_IDS"] = [
+        "j7hha0k2v15pkkj7f8srkldud"
+    ]
     _app.config["AWS_COGNITO_USER_POOL_CLIENT_SECRET"] = "secure-client-secret"
     _app.config["AWS_COGNITO_REDIRECT_URL"] = "http://localhost:5000/postlogin"
     _app.config["AWS_COGNITO_LOGOUT_URL"] = "http://localhost:5000/postlogout"
     _app.config[
         "AWS_COGNITO_DOMAIN"
-    ] = "https://webapp-test.auth.eu-west-1.amazoncognito.com"
-    _app.config["AWS_REGION"] = "eu-west-1"
+    ] = "https://flask-cog-test.auth.us-east-1.amazoncognito.com"
+    _app.config["AWS_REGION"] = "us-east-1"
     _app.config["AWS_COGNITO_EXPIRATION_LEEWAY"] = 1e9
     _app.config["AWS_COGNITO_COOKIE_AGE_SECONDS"] = 1e9
 
@@ -106,17 +109,17 @@ def jwks():
             {
                 "alg": "RS256",
                 "e": "AQAB",
-                "kid": "spvUVat6clXStpoIh6nCUttT6y6AmPoPAty+UMNvQ2Y=",
+                "kid": "gzj31u48EqJXelYMJv/KoEsxm7MPs38SKRNQ4Dn52w4=",
                 "kty": "RSA",
-                "n": "0u3EqunReyXWvYL-TIL41mpybOLQZMkzayIMXrGdw6AjDD0bI_vWo-s4j4Xpw9fqV4XMyfo-q7EB_XfMlTSIDqbYt0PIqw3ULUS2utC5QZrpUsEmcws1RGW1Ed-sZjmhozrFcugywVC7NMFb3zQGmOnLcElsfzAIZOfGQ4KPsLTxpUG8OoxU3wzoqSj00YydMAw-6-KEhv7RQbE5ik82gdSu5vzrB1n8iE4xJtwt7BNA1G3jR6cIATSDubb_mqrN7ZGr_d8_AF4LjscNVT28ois7XQpzY21jsPYftRmrUHitoULzoc_DngPNlG1HFPfU_-RIAq0v_LMgd3qMIEWHaw",
+                "n": "4E-KkPxBjSRkSFnzG1eATjmK6o--SAo4AONLHXHLbOXtvhaWwf7CsyP3t6oGcbx4gnx_b1-X1cXvUGjfW7a807gKSzQmj5yJerMwMAVMttar87qgCEzWOynuJMFH16sRLag1RPBGg6DVtE2NfbKn-65Ku5BVaEm_ca2TlP5-XdtZwhPoO05EPeKJjBhLLGpoBeQxEPvdPYSkwLEZTnIw_56EKdGbBN_EROvhNc8yLRgid8jVA737MKCBkYqwHicBH5a3s-7IYBVSG1LcmBSvq23zQ07sScetQaBGlb2uuVDBqV7rTnaMmWXqKvBF2P0mFci7i66KI8s9-dMwSd3x1w",
                 "use": "sig",
             },
             {
                 "alg": "RS256",
                 "e": "AQAB",
-                "kid": "2gH42FHBLdfSv1YQwmql6bi45sX3dovsvvuCXQQ6Uaw=",
+                "kid": "+p6XIZlM1nnLO+pQM2pBKFUZMJ7Ov2t7ijZT+GI/VHA=",
                 "kty": "RSA",
-                "n": "xaEhQcrn4hEXvAy5iCSTy0Tt_6MlvEk00k8eiJkRN8t-2YRZrU1-DK9FNY2tm9YxwFV1ynPSkkHkUPY3CWQt_zInhc8bx8ZjtzwqdApbkU_2A00LcUd_8VzmfGOToQ80EvTZ5QZvxQQxqcoOopX0WnysqFQT413isUaC4WTQcxb0nC78UZFW0t__xFuwtti-cwvWSUWdv_tLFBqBvhlvohENoCAQrXGsK64QCAj4dsagk2dsmrgdiOyihwnW4zx3Dcu4hDQMEcbMm4b76UN4_084k4rEpwcoDjq9wBx9QVUt9Xt81C2OWBkBz4UDX0QtAvTvl_RzErVDEwFtCEVfDQ",
+                "n": "wzVaAJHhPF8BGWSo1XnRcR1_NXraynIt22tnE-sxY507S-gny7aIBlsSy8yDUdDgyxrcGQK7sCuhT5DYQqzgVfxMHumkdiKjOu33tgyJUBOuPUCI-7CglSDlZ2gvamY7vpZRZ8o2IvC-nZc039-otak6XKddsUbshoyKYN1_XAkrIQk0oARrCq89YOx5xVPIcD1QXg_QdF9dyOs6WNZC56yDA0cQKXMv840WwP1m2qnYgr5ryOdduQv6nrXF8ot3s2CT9eFn6B2keBHlbwkEmFREXe4wKcKuXHItiF7EEFxoDOmQpxM0BBm40MNe8Rz0awUjBA3Y-ckF7KEVChTc8Q",
                 "use": "sig",
             },
         ]
@@ -140,18 +143,36 @@ def jwk_patch(mocker, jwks):
 @pytest.fixture
 def access_token():
     return (
-        "eyJraWQiOiIyZ0g0MkZIQkxkZlN2MVlRd21xbDZiaTQ1c1gzZG92c3Z2dUNYUVE2VWF3PSIsImFsZyI6IlJTMjU2In0."
-        "eyJzdWIiOiI5MDQ4ZDM4Zi04MTc0LTQ5YjktOGQ1OS0zMjM4MTcyODIzZDgiLCJjb2duaXRvOmdyb3VwcyI6WyJhZG1pbiJdLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtd2VzdC0xLmFtYXpvbmF3cy5jb21cL2V1LXdlc3QtMV9jN085MFNOREYiLCJ2ZXJzaW9uIjoyLCJjbGllbnRfaWQiOiI0bGxuNjY3MjZwcDNmNGdpMWtyajBzdGE5aCIsIm9yaWdpbl9qdGkiOiJkNDgxMWJmMS0yNzk4LTRkMzMtYjY1Yy0yZjgyNTQ3MjlkZDIiLCJldmVudF9pZCI6IjE4ODI4ZDE4LWI0NjUtNDcwZS04NGI2LTE3NTIwZGVkMjk5YiIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoicGhvbmUgb3BlbmlkIGVtYWlsIiwiYXV0aF90aW1lIjoxNjQ3OTYxNDkzLCJleHAiOjE2NDc5NjUwOTMsImlhdCI6MTY0Nzk2MTQ5MywianRpIjoiMGZlMjlhOWUtNmU5NC00NzliLTk4N2ItZTQ1Njk2ZDU4NDNhIiwidXNlcm5hbWUiOiJtYmxhY2sifQ."
-        "U0ucoBT7X40jGuuJpDpxLhlL3084Qc_Sq5MAfIoHvujRMqdea6_2QEMrT-p4XvYVQArYmJKPuP40N8i5YR_fOyoW_truqzFtu-MiCCBGOCVXZ0yZ5K8YX6Arb0TbZiyFsU1fj-qx_DmlQIuPDoiTNVo4_d0Ff1NvsHtYZ-00A-7cAtZIu9FvuEumIqOTawBXv4O5QViRYmnnS6hGl8Fh0-N8Eutb_MnhJk47xulvNcoCUIzw7GX8ayn6WgLDdEHYvJs1zrXiyBDx4T5oV667PdELc-DQOy4j6vBlXxjc-fptVT9k-AD_p_Pe70xvzBhFejKCQz5fI0FF7_MM683fIw"
+        "eyJraWQiOiIrcDZYSVpsTTFubkxPK3BRTTJwQktGVVpNSjdPdjJ0N2lqWlQrR0lcL1ZIQT0iLCJhbGciOiJSUzI1NiJ9."
+        "eyJzdWIiOiI0OTk3MWQxYS1mNzIwLTQzMmMtYWJiYy05ZDQ2NmYyNjBkOTgiLCJjb2duaXRvOmdyb3VwcyI6WyJhZG1pbiJdLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV9IQzV2aXliWXQiLCJ2ZXJzaW9uIjoyLCJjbGllbnRfaWQiOiI3b2c3ZG83bTd0cTBnaTd1am0ydWxvYTk5diIsIm9yaWdpbl9qdGkiOiI2ZDU4ZjgyYy04NmRlLTQ0MTUtODE5Ni1hMmIzZGNjMTcwNzkiLCJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJzY29wZSI6InBob25lIG9wZW5pZCBlbWFpbCIsImF1dGhfdGltZSI6MTY5NDQ5MDc0MywiZXhwIjoxNjk0NDk0MzQzLCJpYXQiOjE2OTQ0OTA3NDMsImp0aSI6IjRhYzVmMzJjLTI5YTYtNDE4MS1hNTcwLWJmNTJkMDNlOGIwNSIsInVzZXJuYW1lIjoiNDk5NzFkMWEtZjcyMC00MzJjLWFiYmMtOWQ0NjZmMjYwZDk4In0."
+        "HYwmKO72vzwvWp6DRvegDfXdFzTBMaMzh0Ke8NeSKYN9AbLGEH5AZoREp68Y9AUliP9gqTH0F3eJem0Cw9JjmxfnlbNNfu6xcQMajy0GjGN38nPTQkuh4wZDFSBJpHWWIw22O4Jg9ZgWLA2N3KIepK0ZqCFvSSPOy61S_lMV-dvhXXzOE5mUt99ySrW84whtT6j2SlrL_EZiguZ2ElXMiMebr7oUbQ7dhg5uGF-3y46BiwchK4AoVNakphW7UnZ3iWbacf_7Vy0updRortmttB1N53GcWkAHlV5S7RfOoA8LmcKx8iuK4JOH1JOhwgXyJISOPRB59L8MCZWiWL23iw"
+    )
+
+
+@pytest.fixture
+def additional_access_token():
+    return (
+        "eyJraWQiOiIrcDZYSVpsTTFubkxPK3BRTTJwQktGVVpNSjdPdjJ0N2lqWlQrR0lcL1ZIQT0iLCJhbGciOiJSUzI1NiJ9."
+        "eyJzdWIiOiI0OTk3MWQxYS1mNzIwLTQzMmMtYWJiYy05ZDQ2NmYyNjBkOTgiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV9IQzV2aXliWXQiLCJ2ZXJzaW9uIjoyLCJjbGllbnRfaWQiOiJqN2hoYTBrMnYxNXBra2o3ZjhzcmtsZHVkIiwib3JpZ2luX2p0aSI6ImE4MjhhNTIzLTc3YmEtNDZhNC1iYWVkLWRjZjcyOWViOGVjYyIsImV2ZW50X2lkIjoiNjEwOTZhNDMtYjA1ZC00MGExLWJkOTctYTM3MDFmNDI5ZjhlIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJwaG9uZSBvcGVuaWQgZW1haWwiLCJhdXRoX3RpbWUiOjE2OTQyOTg0NDgsImV4cCI6MTY5NDMwMjA0OCwiaWF0IjoxNjk0Mjk4NDQ4LCJqdGkiOiJiYjVjNWY5MS1jMWZlLTQ3MDUtYWZkYS1mNjA4YWYzMTgyMjgiLCJ1c2VybmFtZSI6IjQ5OTcxZDFhLWY3MjAtNDMyYy1hYmJjLTlkNDY2ZjI2MGQ5OCJ9."
+        "Y0LoHOZ_9VCpvjP0lUzTeOBHoYMlqSAsiUNXX5kPnHV4Ms2HjnvNEhsfQdTi5yq8YmUssFaM_-FVT2_wEJK8lKena2s0tt6L5IVAfcp7ia90kpV-2R0vj9XA-376XxPemI0vLjXaXGJgjTTukNU5k2nlOVdyi7EpGetKzLS-4-6PwpSOLcwyHzZIy7nzdJ66HBwHf_gJOq7ha3Txo74idMg2oMxIsu2vM09vGeQJOZYV2EqTkcCG44U9E4iZrc8LzFRc0zg7FGfT5K95A_kaHmYw44tPuXCaBE0BCzPSWMtdvumbQi-DJmIsDSQSo0mh4F1n71sJX8ML8nXX-HwppQ"
     )
 
 
 @pytest.fixture
 def id_token():
     return (
-        "eyJraWQiOiJzcHZVVmF0NmNsWFN0cG9JaDZuQ1V0dFQ2eTZBbVBvUEF0eStVTU52UTJZPSIsImFsZyI6IlJTMjU2In0."
-        "eyJhdF9oYXNoIjoiV3FUZ0JON3VGUG5uSlJneWQ4NldMQSIsInN1YiI6IjkwNDhkMzhmLTgxNzQtNDliOS04ZDU5LTMyMzgxNzI4MjNkOCIsImNvZ25pdG86Z3JvdXBzIjpbImFkbWluIl0sImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLmV1LXdlc3QtMS5hbWF6b25hd3MuY29tXC9ldS13ZXN0LTFfYzdPOTBTTkRGIiwiY29nbml0bzp1c2VybmFtZSI6Im1ibGFjayIsIm5vbmNlIjoiTVNsbjZudlBJSUJWTWhzTlVPdFVDdHNzY2VVS3o0ZGhDUlppNVFaUlU0QT0iLCJvcmlnaW5fanRpIjoiZDQ4MTFiZjEtMjc5OC00ZDMzLWI2NWMtMmY4MjU0NzI5ZGQyIiwiYXVkIjoiNGxsbjY2NzI2cHAzZjRnaTFrcmowc3RhOWgiLCJldmVudF9pZCI6IjE4ODI4ZDE4LWI0NjUtNDcwZS04NGI2LTE3NTIwZGVkMjk5YiIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNjQ3OTYxNDkzLCJleHAiOjE2NDc5NjUwOTMsImlhdCI6MTY0Nzk2MTQ5MywianRpIjoiMDU0YjhlNjYtNTg1My00MTI3LTlkNTUtZTNhMjlkYmQ4NGJkIiwiZW1haWwiOiJtYmxhY2tAc3BhcmtnZW8uY29tIn0."
-        "vnGkFOxtC7ubRkQHByNst5Uyxj4kGFXRP-kaG09iRCADJQSgxwGjZDbG4xbvW0EISA4mGz1sfnCiinuWLNrbKR4KUC3qTytu4hq91OCjB2-KKxeVHxQR1NsjYZ8u7DBOCVeKSouO4oaHDf966f1gubdYXDp12urtiDJy9MybV9diRxOm2eRLAQPIxSFO5owGNcGh03OWystMEJvUwwDVbdpf562OZ72Eo9UHnv3eR3VvH1Gv49WAzwqweIVRiv4-hJqGjLeKnqo3X1toBvU_2QPN9KmM7oYcIpYqagKQNCIcsLq6ZngOJfbCBPCPQX9XYrCkMAmm0VaBRix2zzHYtg"
+        "eyJraWQiOiJnemozMXU0OEVxSlhlbFlNSnZcL0tvRXN4bTdNUHMzOFNLUk5RNERuNTJ3ND0iLCJhbGciOiJSUzI1NiJ9."
+        "eyJhdF9oYXNoIjoiOERMamZUV1N2UXVGZmVEb25RYVQ0dyIsInN1YiI6IjQ5OTcxZDFhLWY3MjAtNDMyYy1hYmJjLTlkNDY2ZjI2MGQ5OCIsImNvZ25pdG86Z3JvdXBzIjpbImFkbWluIl0sImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV9IQzV2aXliWXQiLCJjb2duaXRvOnVzZXJuYW1lIjoiNDk5NzFkMWEtZjcyMC00MzJjLWFiYmMtOWQ0NjZmMjYwZDk4Iiwibm9uY2UiOiJNU2xuNm52UElJQlZNaHNOVU90VUN0c3NjZVVLejRkaENSWmk1UVpSVTRBPSIsIm9yaWdpbl9qdGkiOiI2ZDU4ZjgyYy04NmRlLTQ0MTUtODE5Ni1hMmIzZGNjMTcwNzkiLCJhdWQiOiI3b2c3ZG83bTd0cTBnaTd1am0ydWxvYTk5diIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNjk0NDkwNzQzLCJleHAiOjE2OTQ0OTQzNDMsImlhdCI6MTY5NDQ5MDc0MywianRpIjoiZGQ3MTBkOGUtY2JlMC00Yjk4LTljN2MtYWFjZmY1OWU4YThjIiwiZW1haWwiOiJ0ZXN0QGZsYXNrY29nbml0by5jb20ifQ."
+        "zSW8Fg6bXAlMRh5zBIS6YDTylVcXgIIuZ7VhxugvhQK7LU9WUiTQj7S_q_oImLVhfx_Mk4xm6DYsdYppJ7ppGYnFaxW_Ug6QHM632M0b7yj5wqZVZgtsEJuXoMddWh8oWBb1Y0VR1_enlinL_P56I0tumoqW8i21BXfFZC-r5WT3c_k0DR6d8kF9tHBtMnOpLgM4CqJC4acgFlHzZmCKVk_wSQUa2bOd4EPSTluUx3bwBMCNCqzxGls4LD58J_Hr5YfL1ZGJWwIKLhXHjBxyoARjIByMihhbRZSEeuvAR2R3BRysCfMVW38xAtxJF3YpQe7CU_Y93LSIXB23gNYsGw"
+    )
+
+
+@pytest.fixture
+def additional_id_token():
+    return (
+        "eyJraWQiOiJnemozMXU0OEVxSlhlbFlNSnZcL0tvRXN4bTdNUHMzOFNLUk5RNERuNTJ3ND0iLCJhbGciOiJSUzI1NiJ9."
+        "eyJhdF9oYXNoIjoiMkN6aGt0WHNtSEdwRlREZDVYT3JiQSIsInN1YiI6IjQ5OTcxZDFhLWY3MjAtNDMyYy1hYmJjLTlkNDY2ZjI2MGQ5OCIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV9IQzV2aXliWXQiLCJjb2duaXRvOnVzZXJuYW1lIjoiNDk5NzFkMWEtZjcyMC00MzJjLWFiYmMtOWQ0NjZmMjYwZDk4Iiwib3JpZ2luX2p0aSI6ImE4MjhhNTIzLTc3YmEtNDZhNC1iYWVkLWRjZjcyOWViOGVjYyIsImF1ZCI6Imo3aGhhMGsydjE1cGtrajdmOHNya2xkdWQiLCJldmVudF9pZCI6IjYxMDk2YTQzLWIwNWQtNDBhMS1iZDk3LWEzNzAxZjQyOWY4ZSIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNjk0Mjk4NDQ4LCJleHAiOjE2OTQzMDIwNDgsImlhdCI6MTY5NDI5ODQ0OCwianRpIjoiMTYzMTk2NjUtMDEwNy00MGZlLWJiNjEtM2EwYzgxY2ExMjY5IiwiZW1haWwiOiJ0ZXN0QGZsYXNrY29nbml0by5jb20ifQ."
+        "uMJkZthqngYGL-bNWY3ZX0tRQsVtNLhvZagj6g58i-xRWTwEXhk3sGMIqRa_bkuA7mJvXkLm7oNd5Cb_Di844YA1p5HWikLsgxjF2eVQCNdMfHX130nbNnr7WFIge8YQY2ZCeedq3AsaS_25POvUjEKxEuJ8BGs8hvKHpJFTskWHhg5trserECpErLpRQqpvbPVvkRl92zxmGsKoREcjHlTKxtPMGTHjJtpkg9Xn-HmUtDF5ipy-RTLUGjs3JUyfkbqbkt9Hq6Hhf5DppViICLusF_iwiQbf4WBOxeJ8ahHUe_Fo3bCZjPoeeI7aB8lqF3olZEtvQfQum3eZE_SJ7g"
     )
 
 

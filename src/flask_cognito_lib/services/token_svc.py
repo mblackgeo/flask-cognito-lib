@@ -74,7 +74,8 @@ class TokenService:
                 jwt=token,
                 key=self.get_public_key(token).key,
                 algorithms=["RS256"],
-                audience=self.cfg.user_pool_client_id,
+                audience=[self.cfg.user_pool_client_id]
+                + self.cfg.additional_user_pool_client_id,
                 issuer=self.cfg.issuer,
                 leeway=leeway,
                 options=options,
@@ -131,8 +132,12 @@ class TokenService:
         )
 
         # Cognito does not set an audience, but should populate client_id
-        if claims["client_id"] != self.cfg.user_pool_client_id:
-            raise TokenVerifyError("Token was not issued for this client id")
+        if (
+            claims["client_id"]
+            not in [self.cfg.user_pool_client_id]
+            + self.cfg.additional_user_pool_client_id
+        ):
+            raise TokenVerifyError("Token was not issued for an allowed client id")
 
         return claims
 

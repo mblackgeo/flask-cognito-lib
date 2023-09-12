@@ -65,6 +65,13 @@ class Config:
         return get("AWS_COGNITO_USER_POOL_CLIENT_ID", required=True)
 
     @property
+    def additional_user_pool_client_id(self) -> List[str]:
+        """Return additional allowed Cognito user pool client IDs"""
+        return get(
+            "ADDITIONAL_AWS_COGNITO_USER_POOL_CLIENT_IDS", default=[], required=False
+        )
+
+    @property
     def user_pool_client_secret(self) -> str:
         """Return the Cognito user pool client secret"""
         return get("AWS_COGNITO_USER_POOL_CLIENT_SECRET", required=False)
