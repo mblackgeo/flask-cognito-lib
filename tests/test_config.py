@@ -14,7 +14,6 @@ def test_missing_config(app, cfg):
     with pytest.raises(ConfigurationError):
         # remove a required configuration parameter
         app.config.pop("AWS_REGION")
-        print(cfg.region)
 
 
 def test_disabled(cfg):

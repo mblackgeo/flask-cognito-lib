@@ -107,7 +107,6 @@ def test_auth_required_expired_token(client, cfg, app, access_token):
     app.config["AWS_COGNITO_EXPIRATION_LEEWAY"] = 0
     client.set_cookie(key=cfg.COOKIE_NAME, value=access_token)
     response = client.get("/private")
-    print(response.data)
     assert response.status_code == 403
 
 
