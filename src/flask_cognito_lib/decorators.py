@@ -125,6 +125,7 @@ def cognito_login_callback(fn):
                 max_age=cfg.max_cookie_age_seconds,
                 httponly=True,
                 secure=True,
+                domain=cfg.cookie_domain
             )
 
         return resp
@@ -140,7 +141,7 @@ def cognito_logout(fn):
         with app.app_context():
             # logout at cognito and remove the cookies
             resp = redirect(cfg.logout_endpoint)
-            resp.delete_cookie(key=cfg.COOKIE_NAME)
+            resp.delete_cookie(key=cfg.COOKIE_NAME, domain=cfg.cookie_domain)
 
         # Cognito will redirect to the sign-out URL (if set) or else use
         # the callback URL

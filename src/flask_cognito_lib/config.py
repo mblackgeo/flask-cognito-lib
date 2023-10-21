@@ -149,3 +149,8 @@ class Config:
     def revoke_endpoint(self) -> str:
         """Return the Cognito REVOKE endpoint URL"""
         return f"{self.domain}/oauth2/revoke"
+
+    @property
+    def cookie_domain(self) -> str:
+        """Domain name of the cookie"""
+        return get("AWS_COGNITO_COOKIE_DOMAIN", required=False, default=None)
