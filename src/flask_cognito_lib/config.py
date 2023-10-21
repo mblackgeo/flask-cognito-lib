@@ -157,5 +157,5 @@ class Config:
     
     @property
     def cookie_samesite(self) -> str:
-        """Samesite property of cookie"""
+        """Samesite property of cookie. 'Lax', 'Strict', or None"""
         return get("AWS_COGNITO_COOKIE_SAMESITE", required=False, default=None)
