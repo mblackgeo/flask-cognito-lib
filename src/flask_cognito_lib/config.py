@@ -154,3 +154,8 @@ class Config:
     def cookie_domain(self) -> str:
         """Domain name of the cookie"""
         return get("AWS_COGNITO_COOKIE_DOMAIN", required=False, default=None)
+    
+    @property
+    def cookie_samesite(self) -> str:
+        """Samesite property of cookie"""
+        return get("AWS_COGNITO_COOKIE_SAMESITE", required=False, default=None)

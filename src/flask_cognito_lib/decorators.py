@@ -125,7 +125,8 @@ def cognito_login_callback(fn):
                 max_age=cfg.max_cookie_age_seconds,
                 httponly=True,
                 secure=True,
-                domain=cfg.cookie_domain
+                domain=cfg.cookie_domain,
+                samesite=cfg.cookie_samesite
             )
 
         return resp
