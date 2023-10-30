@@ -95,6 +95,46 @@ def test_cognito_login_callback(client, cfg, access_token, token_response):
         assert "user_info" in session
 
 
+def test_cognito_login_cookie_domain(client, cfg, access_token, token_response):
+    # set a domain for the cookie
+    client.application.config["AWS_COGNITO_COOKIE_DOMAIN"] = ".example.com"
+
+    with client as c:
+        with c.session_transaction() as sess:
+            sess["code_verifier"] = "1234"
+            sess["state"] = "5678"
+            sess["nonce"] = "MSln6nvPIIBVMhsNUOtUCtssceUKz4dhCRZi5QZRU4A="
+
+        # returns OK and sets the cookie
+        response = client.get("/postlogin")
+        assert response.status_code == 200
+        assert response.data.decode("utf-8") == "ok"
+
+        # check that the cookie is being set with the correct domain configuration
+        assert "Domain=example.com" in response.headers["Set-Cookie"]
+
+
+def test_cognito_login_cookie_samesite(client, cfg, access_token, token_response):
+    # set a domain for the cookie
+    client.application.config["AWS_COGNITO_COOKIE_DOMAIN"] = ".example.com"
+    client.application.config["AWS_COGNITO_COOKIE_SAMESITE"] = "Strict"
+
+    with client as c:
+        with c.session_transaction() as sess:
+            sess["code_verifier"] = "1234"
+            sess["state"] = "5678"
+            sess["nonce"] = "MSln6nvPIIBVMhsNUOtUCtssceUKz4dhCRZi5QZRU4A="
+
+        # returns OK and sets the cookie
+        response = client.get("/postlogin")
+        assert response.status_code == 200
+        assert response.data.decode("utf-8") == "ok"
+
+        # check that the cookie is being set with the correct domain configuration
+        assert "Domain=example.com" in response.headers["Set-Cookie"]
+        assert "SameSite=Strict" in response.headers["Set-Cookie"]
+
+
 def test_cognito_logout(client, cfg):
     # should 302 redirect to cognito
     response = client.get("/logout")
