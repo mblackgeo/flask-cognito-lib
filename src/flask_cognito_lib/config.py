@@ -109,7 +109,32 @@ class Config:
         Return the scopes to request from Cognito.
         If None, all supported scopes are returned
         """
-        return get("AWS_COGNITO_SCOPES", required=False, default=None)
+        return get("AWS_COGNITO_SCOPES", required=False)
+
+    @property
+    def cookie_domain(self) -> str:
+        """Return the domain used for the cookie.
+
+        Used if you want to set a cross-domain cookie.
+        For example, domain=".example.com" will set a cookie that is readable
+        by the domain www.example.com, foo.example.com etc.
+
+        If not set (default) then the cookie will only be readable by the
+        domain that set it.
+        """
+        return get("AWS_COGNITO_COOKIE_DOMAIN", required=False)
+
+    @property
+    def cookie_samesite(self) -> str:
+        """Return the property to set for "samesite" on the cookie
+
+        The SameSite attribute lets servers specify whether/when cookies are
+        sent with cross-site requests (where Site is defined by the registrable
+        domain and the scheme: http or https). This provides some protection
+        against cross-site request forgery attacks (CSRF).
+        It takes three possible values: Strict, Lax, and None.
+        """
+        return get("AWS_COGNITO_COOKIE_SAMESITE", required=False)
 
     @property
     def issuer(self) -> str:
