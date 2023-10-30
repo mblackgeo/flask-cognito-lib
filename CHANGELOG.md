@@ -1,5 +1,15 @@
 <!--next-version-placeholder-->
 
+## v1.6.0 (2023-10-30)
+### Feature
+
+* Add support for setting domain and samesite on the cookie ([`46e69c8`](https://github.com/mblackgeo/flask-cognito-lib/commit/46e69c8792c81b251c211b51979f0e0e4105a99a))
+
+### Documentation
+
+* Update with new configuration options for cookie domain/samesite ([`90fd6ac`](https://github.com/mblackgeo/flask-cognito-lib/commit/90fd6ace96a0c0fee275ec2f1f8b08d0e8e2d3e7))
+* Remove misleading text in example in README ([`9faafc0`](https://github.com/mblackgeo/flask-cognito-lib/commit/9faafc0bf12bcfc7b0e9fc1cd03ef4944289fb22))
+
 ## v1.5.0 (2023-07-12)
 ### Feature
 
