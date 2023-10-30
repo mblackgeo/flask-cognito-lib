@@ -1,5 +1,11 @@
 <!--next-version-placeholder-->
 
+## v1.6.1 (2023-10-30)
+
+### Fix
+
+* Support flask 2.x and 3.x ([`14f62f5`](https://github.com/mblackgeo/flask-cognito-lib/commit/14f62f5469a96d871bcbca3a8d117011d459dd62))
+
 ## v1.6.0 (2023-10-30)
 ### Feature
 
