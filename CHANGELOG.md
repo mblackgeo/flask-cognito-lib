@@ -1,5 +1,11 @@
 <!--next-version-placeholder-->
 
+## v1.6.2 (2024-03-26)
+
+### Fix
+
+* Support urllib3 2.x ([`ffbd55e`](https://github.com/mblackgeo/flask-cognito-lib/commit/ffbd55eb2f141151d3d0ef4394b445a7aa8cc821))
+
 ## v1.6.1 (2023-10-30)
 
 ### Fix
