@@ -119,6 +119,33 @@ class CognitoAuth:
             code_verifier=code_verifier,
         )
 
+    def refresh_tokens(
+        self,
+        refresh_token: str,
+    ) -> CognitoTokenResponse:
+        """
+        Exchange a refresh token for a new set of tokens
+
+        Parameters:
+        -----------
+        refresh_token : str
+            The refresh token to exchange for a new set of tokens
+
+        Returns:
+        --------
+        CognitoTokenResponse
+            A dataclass that holds the token response from Cognito
+
+        Raises:
+        -------
+        CognitoError
+            If the request to the TOKEN endpoint fails
+            If the TOKEN endpoint returns an error code
+        """
+        return self.cognito_service.refresh_token(
+            refresh_token=refresh_token,
+        )
+
     def verify_access_token(self, token: str, leeway: float) -> Dict[str, Any]:
         """Verify the claims & signature of an access token in JWT format from Cognito
 

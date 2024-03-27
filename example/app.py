@@ -9,6 +9,7 @@ from flask_cognito_lib.decorators import (
     cognito_login,
     cognito_login_callback,
     cognito_logout,
+    cognito_refresh_callback,
 )
 from flask_cognito_lib.exceptions import (
     AuthorisationRequiredError,
@@ -77,6 +78,20 @@ def postlogin():
     # logic based on a custom `session['state']` value if that was set before
     # login
     return redirect(url_for("claims"))
+
+
+@app.route("/refresh", methods=["POST"])
+@cognito_refresh_callback
+def refresh():
+    # A route to handle the token refresh with Cognito.
+    # The decorator will exchange the refresh token, previously stored in the session,
+    # for the new access and refresh tokens.
+    # The new validated access token will be stored in a HTTP only cookie,
+    # the refresh token, the user claims and info are stored in the Flask session:
+    # session["refresh_token"], session["claims"] and session["user_info"].
+    # Do anything after the user has refreshed access token here, e.g. a redirect
+    # or perform logic based on the `session["user_info"]`.
+    pass
 
 
 @app.route("/claims")
