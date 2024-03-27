@@ -96,6 +96,54 @@ class CognitoService:
             "code_verifier": code_verifier,
         }
 
+        return self._request_token(data)
+
+    def refresh_token(
+        self,
+        refresh_token: str,
+    ) -> CognitoTokenResponse:
+        """
+        Exchange a refresh token for a new set of tokens
+
+        Parameters:
+        -----------
+        refresh_token : str
+            The refresh token to exchange for a new set of tokens
+
+        Returns:
+        --------
+        CognitoTokenResponse
+            A dataclass that holds the token response from Cognito
+
+        Raises:
+        -------
+        CognitoError
+            If the request to the endpoint fails
+            If the endpoint returns an error code
+        """
+        data = {
+            "grant_type": "refresh_token",
+            "client_id": self.cfg.user_pool_client_id,
+            "refresh_token": refresh_token,
+        }
+
+        return self._request_token(data)
+
+    def _request_token(self, data: dict) -> CognitoTokenResponse:
+        """
+        Request a token from the Cognito token endpoint
+
+        Parameters
+        ----------
+        data : dict
+            The data to be sent as part of the request
+
+        Returns
+        -------
+        CognitoTokenResponse
+            A dataclass that holds the token response from Cognito
+
+        """
         # The Authorization header must not be present when using a
         # Public Client, we assume this when the secret is blank.
         # (Blank secrets are not supported on Confidential Clients)

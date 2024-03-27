@@ -1,6 +1,7 @@
 from functools import wraps
 from typing import Iterable, Optional
 
+from flask import Response
 from flask import current_app as app
 from flask import redirect, request, session
 from werkzeug.local import LocalProxy
@@ -8,11 +9,13 @@ from werkzeug.local import LocalProxy
 from flask_cognito_lib.config import Config
 from flask_cognito_lib.exceptions import (
     AuthorisationRequiredError,
+    CognitoError,
     CognitoGroupRequiredError,
     TokenVerifyError,
 )
 from flask_cognito_lib.plugin import CognitoAuth
 from flask_cognito_lib.utils import (
+    CognitoTokenResponse,
     generate_code_challenge,
     generate_code_verifier,
     secure_random,
@@ -30,6 +33,42 @@ def remove_from_session(keys: Iterable[str]):
         for key in keys:
             if key in session:
                 session.pop(key)
+
+
+def store_tokens(tokens: CognitoTokenResponse, nonce: Optional[str] = None) -> None:
+    """Store the tokens in the session"""
+    # validate the JWT and get the claims
+    claims = cognito_auth.verify_access_token(
+        token=tokens.access_token,
+        leeway=cfg.cognito_expiration_leeway,
+    )
+    session.update({"claims": claims})
+
+    # Grab the user info from the user endpoint and store in the session
+    if tokens.id_token is not None:
+        user_info = cognito_auth.verify_id_token(
+            token=tokens.id_token,
+            nonce=nonce,
+            leeway=cfg.cognito_expiration_leeway,
+        )
+        session.update({"user_info": user_info})
+
+    # Grab the `refresh_token` and store in the session
+    if tokens.refresh_token is not None:
+        session.update({"refresh_token": tokens.refresh_token})
+
+
+def store_access_token(tokens: CognitoTokenResponse, resp: Response) -> None:
+    """Store the access token in a HTTP only secure cookie"""
+    resp.set_cookie(
+        key=cfg.COOKIE_NAME,
+        value=tokens.access_token,
+        max_age=cfg.max_cookie_age_seconds,
+        httponly=True,
+        secure=True,
+        samesite=cfg.cookie_samesite,
+        domain=cfg.cookie_domain,
+    )
 
 
 def cognito_login(fn):
@@ -91,21 +130,8 @@ def cognito_login_callback(fn):
                 code_verifier=code_verifier,
             )
 
-            # validate the JWT and get the claims
-            claims = cognito_auth.verify_access_token(
-                token=tokens.access_token,
-                leeway=cfg.cognito_expiration_leeway,
-            )
-            session.update({"claims": claims})
-
-            # Grab the user info from the user endpoint and store in the session
-            if tokens.id_token is not None:
-                user_info = cognito_auth.verify_id_token(
-                    token=tokens.id_token,
-                    nonce=nonce,
-                    leeway=cfg.cognito_expiration_leeway,
-                )
-                session.update({"user_info": user_info})
+            # Store the tokens in the session
+            store_tokens(tokens=tokens, nonce=nonce)
 
             # Remove one-time use variables now we have completed the auth flow
             remove_from_session(("code_challenge", "code_verifier", "nonce"))
@@ -119,15 +145,42 @@ def cognito_login_callback(fn):
             resp = fn(*args, **kwargs)
 
             # Store the access token in a HTTP only secure cookie
-            resp.set_cookie(
-                key=cfg.COOKIE_NAME,
-                value=tokens.access_token,
-                max_age=cfg.max_cookie_age_seconds,
-                httponly=True,
-                secure=True,
-                samesite=cfg.cookie_samesite,
-                domain=cfg.cookie_domain,
+            store_access_token(tokens=tokens, resp=resp)
+
+        return resp
+
+    return wrapper
+
+
+def cognito_refresh_callback(fn):
+    """
+    A decorator that handles token refresh with Cognito
+    """
+
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        with app.app_context():
+            # Get the refresh token from the session.
+            try:
+                refresh_token = session["refresh_token"]
+            except KeyError as err:
+                raise CognitoError(
+                    "Refresh token is required to refresh the access token"
+                ) from err
+
+            # Exchange refresh token for the new access token.
+            tokens = cognito_auth.refresh_tokens(
+                refresh_token=refresh_token,
             )
+
+            # Store the tokens in the session
+            store_tokens(tokens=tokens)
+
+            # Return and set the JWT as a http only cookie
+            resp = fn(*args, **kwargs)
+
+            # Store the access token in a HTTP only secure cookie
+            store_access_token(tokens=tokens, resp=resp)
 
         return resp
 
