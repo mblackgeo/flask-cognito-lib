@@ -164,7 +164,7 @@ def id_token():
 
 @pytest.fixture
 def refresh_token():
-    return "mocked_refresh_token"
+    return "test_refresh_token"
 
 
 @pytest.fixture(autouse=False)

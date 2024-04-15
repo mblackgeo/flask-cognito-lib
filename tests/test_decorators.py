@@ -149,7 +149,7 @@ def test_cognito_refresh_callback(client, cfg, access_token, refresh_token_respo
     with client as c:
         with c.session_transaction() as sess:
             # Set the refresh_token in the session
-            sess["refresh_token"] = "old_refresh_token"
+            sess["refresh_token"] = "test_refresh_token"
 
         # returns OK and sets the cookie
         response = client.get("/refresh")
@@ -170,10 +170,16 @@ def test_cognito_refresh_callback(client, cfg, access_token, refresh_token_respo
 
 
 def test_cognito_logout(client, cfg):
-    # should 302 redirect to cognito
-    response = client.get("/logout")
-    assert response.status_code == 302
-    assert response.headers["location"].startswith(cfg.logout_endpoint)
+    with client as c:
+        with c.session_transaction() as sess:
+            # Set the refresh_token in the session
+            sess["refresh_token"] = "test_refresh_token"
+
+        # should 302 redirect to cognito
+        response = c.get("/logout")
+        assert response.status_code == 302
+        assert response.headers["location"].startswith(cfg.logout_endpoint)
+        assert "refresh_token" not in session
 
 
 def test_auth_required_expired_token(client, cfg, app, access_token):

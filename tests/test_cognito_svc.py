@@ -93,3 +93,12 @@ def test_refresh_token(cfg, mocker):
 
     assert token.access_token == "new_test_access_token"
     assert token.refresh_token == "new_test_refresh_token"
+
+
+def test_revoke_refresh_token(cfg, mocker):
+    mocker.patch(
+        "requests.post",
+    )
+
+    cognito = CognitoService(cfg)
+    cognito.revoke_refresh_token(refresh_token="test_refresh_token")

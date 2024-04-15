@@ -196,6 +196,7 @@ def cognito_logout(fn):
             # Revoke the refresh token if it exists
             if refresh_token := session.get("refresh_token"):
                 cognito_auth.revoke_refresh_token(refresh_token)
+                remove_from_session(("refresh_token",))
 
             # logout at cognito and remove the cookies
             resp = redirect(cfg.logout_endpoint)
