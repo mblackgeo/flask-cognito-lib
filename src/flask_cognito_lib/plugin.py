@@ -146,6 +146,31 @@ class CognitoAuth:
             refresh_token=refresh_token,
         )
 
+    def revoke_refresh_token(
+        self,
+        refresh_token: str,
+    ) -> None:
+        """
+        Revoke a refresh token
+
+        Parameters:
+        -----------
+        refresh_token : str
+            The refresh token to revoke
+
+        Raises:
+        -------
+        @see https://docs.aws.amazon.com/cognito/latest/developerguide/revocation-endpoint.html#revoke-sample-response
+
+        CognitoError
+            If the token isn't present in the request or if the feature is disabled for the app client
+            If the token that Amazon Cognito sent in the revocation request isn't a refresh token
+            If the client credentials aren't valid
+        """  # noqa
+        self.cognito_service.revoke_refresh_token(
+            refresh_token=refresh_token,
+        )
+
     def verify_access_token(self, token: str, leeway: float) -> Dict[str, Any]:
         """Verify the claims & signature of an access token in JWT format from Cognito
 
