@@ -2,7 +2,7 @@ import pytest
 from flask import session
 
 from flask_cognito_lib.decorators import remove_from_session
-from flask_cognito_lib.exceptions import TokenVerifyError
+from flask_cognito_lib.exceptions import CognitoError, TokenVerifyError
 
 
 def test_remove_from_session(client):
@@ -93,6 +93,7 @@ def test_cognito_login_callback(client, cfg, access_token, token_response):
         # check that user claims and user info are stored in the session
         assert "claims" in session
         assert "user_info" in session
+        assert "refresh_token" in session
 
 
 def test_cognito_login_cookie_domain(client, cfg, access_token, token_response):
@@ -133,6 +134,39 @@ def test_cognito_login_cookie_samesite(client, cfg, access_token, token_response
         # check that the cookie is being set with the correct domain configuration
         assert "Domain=example.com" in response.headers["Set-Cookie"]
         assert "SameSite=Strict" in response.headers["Set-Cookie"]
+
+
+def test_cognito_refresh_missing_token(
+    client, cfg, access_token, refresh_token_response
+):
+    with pytest.raises(
+        CognitoError, match="Refresh token is required to refresh the access token"
+    ):
+        client.get("/refresh")
+
+
+def test_cognito_refresh_callback(client, cfg, access_token, refresh_token_response):
+    with client as c:
+        with c.session_transaction() as sess:
+            # Set the refresh_token in the session
+            sess["refresh_token"] = "old_refresh_token"
+
+        # returns OK and sets the cookie
+        response = client.get("/refresh")
+        assert response.status_code == 200
+        assert response.data.decode("utf-8") == "ok"
+        assert response.headers["Set-Cookie"].startswith(
+            f"{cfg.COOKIE_NAME}={access_token}"
+        )
+
+        # removes one-time use codes from the session
+        assert "code_verifier" not in session
+        assert "nonce" not in session
+
+        # check that user claims and user info are stored in the session
+        assert "claims" in session
+        assert "user_info" in session
+        assert "refresh_token" in session
 
 
 def test_cognito_logout(client, cfg):

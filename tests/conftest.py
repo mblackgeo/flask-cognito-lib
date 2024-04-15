@@ -9,6 +9,7 @@ from flask_cognito_lib.decorators import (
     cognito_login,
     cognito_login_callback,
     cognito_logout,
+    cognito_refresh_callback,
 )
 from flask_cognito_lib.utils import CognitoTokenResponse
 
@@ -56,6 +57,12 @@ def app():
     @cognito_login_callback
     def postlogin():
         # recieves the response from cognito and sets a cookie
+        return make_response("ok")
+
+    @_app.route("/refresh")
+    @cognito_refresh_callback
+    def refresh():
+        # receives the response from cognito and updates a cookie
         return make_response("ok")
 
     @_app.route("/logout")
@@ -155,11 +162,28 @@ def id_token():
     )
 
 
+@pytest.fixture
+def refresh_token():
+    return "mocked_refresh_token"
+
+
 @pytest.fixture(autouse=False)
-def token_response(mocker, access_token, id_token):
+def token_response(mocker, access_token, id_token, refresh_token):
     mocker.patch(
         "flask_cognito_lib.plugin.CognitoAuth.get_tokens",
-        return_value=CognitoTokenResponse(access_token=access_token, id_token=id_token),
+        return_value=CognitoTokenResponse(
+            access_token=access_token, id_token=id_token, refresh_token=refresh_token
+        ),
+    )
+
+
+@pytest.fixture(autouse=False)
+def refresh_token_response(mocker, access_token, id_token, refresh_token):
+    mocker.patch(
+        "flask_cognito_lib.plugin.CognitoAuth.refresh_tokens",
+        return_value=CognitoTokenResponse(
+            access_token=access_token, id_token=id_token, refresh_token=refresh_token
+        ),
     )
 
 

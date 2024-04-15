@@ -75,3 +75,21 @@ def test_exchange_code_for_token_error(cfg, mocker):
     with pytest.raises(CognitoError):
         cognito = CognitoService(cfg)
         cognito.exchange_code_for_token(code="", code_verifier="")
+
+
+def test_refresh_token(cfg, mocker):
+    mocker.patch(
+        "requests.post",
+        return_value=mocker.Mock(
+            json=lambda: {
+                "access_token": "new_test_access_token",
+                "refresh_token": "new_test_refresh_token",
+            }
+        ),
+    )
+
+    cognito = CognitoService(cfg)
+    token = cognito.refresh_token(refresh_token="test_refresh_token")
+
+    assert token.access_token == "new_test_access_token"
+    assert token.refresh_token == "new_test_refresh_token"

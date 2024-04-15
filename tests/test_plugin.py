@@ -55,3 +55,21 @@ def test_plugin_get_tokens(app, cfg, mocker):
         code_verifier="",
     )
     assert tokens.access_token == "test_access_token"
+
+
+def test_plugin_refresh_tokens(app, cfg, mocker):
+    cls = app.extensions[cfg.APP_EXTENSION_KEY]
+    mocker.patch(
+        "requests.post",
+        return_value=mocker.Mock(
+            json=lambda: {
+                "access_token": "test_access_token",
+                "refresh_token": "test_refresh_token",
+            }
+        ),
+    )
+    tokens = cls.refresh_tokens(
+        refresh_token="asdf",
+    )
+    assert tokens.access_token == "test_access_token"
+    assert tokens.refresh_token == "test_refresh_token"
