@@ -97,7 +97,7 @@ def refresh():
 @app.route("/claims")
 @auth_required()
 def claims():
-    # This route is protected by Cognito authorisation. If the user is not
+    # This route is protected by the Cognito authorisation. If the user is not
     # logged in at this point or their token from Cognito is no longer valid
     # a 401 Authentication Error is thrown, which is caught by the
     # `auth_error_handler` a redirected to the Hosted UI to login.
@@ -133,7 +133,7 @@ def edit():
     # This route will only be accessible to a user who is a member of any of
     # groups specified in the "groups" argument on the auth_required decorator
     # If they are not, a CognitoGroupRequiredError is raised which is handled
-    # below
+    # below.
     return jsonify(session["claims"]["cognito:groups"])
 
 
@@ -149,7 +149,8 @@ def missing_group_error_handler(err):
 def logout():
     # Logout of the Cognito User pool and delete the cookies that were set
     # on login.
-    # No logic is required here as it simply redirects to Cognito
+    # Revokes the refresh token to not be used again and removes it from the session.
+    # No logic is required here as it simply redirects to Cognito.
     pass
 
 

@@ -34,6 +34,7 @@ from flask_cognito_lib.decorators import (
     cognito_login,
     cognito_login_callback,
     cognito_logout,
+    cognito_refresh_callback,
 )
 
 app = Flask(__name__)
@@ -79,14 +80,28 @@ def postlogin():
     return redirect(url_for("claims"))
 
 
+@app.route("/refresh", methods=["POST"])
+@cognito_refresh_callback
+def refresh():
+    # A route to handle the token refresh with Cognito.
+    # The decorator will exchange the refresh token, previously stored in the session,
+    # for the new access and refresh tokens.
+    # The new validated access token will be stored in a HTTP only cookie,
+    # the refresh token, the user claims and info are stored in the Flask session:
+    # session["refresh_token"], session["claims"] and session["user_info"].
+    # Do anything after the user has refreshed access token here, e.g. a redirect
+    # or perform logic based on the `session["user_info"]`.
+    pass
+
+
 @app.route("/claims")
 @auth_required()
 def claims():
     # This route is protected by the Cognito authorisation. If the user is not
     # logged in at this point or their token from Cognito is no longer valid
     # a 401 Authentication Error is thrown, which can be caught by registering
-    # an `@app.error_handler(AuthorisationRequiredError)
-    # If their auth is valid, the current session will be shown including
+    # an `@app.error_handler(AuthorisationRequiredError).
+    # If their session is valid, the current session will be shown including
     # their claims and user_info extracted from the Cognito tokens.
     return jsonify(session)
 
@@ -98,7 +113,7 @@ def admin():
     # groups specified in the "groups" argument on the auth_required decorator
     # If they are not, a 401 Authentication Error is thrown, which can be caught
     # by registering an `@app.error_handler(CognitoGroupRequiredError).
-    # If their auth is valid, the set of groups the user is a member of will be
+    # If their session is valid, the set of groups the user is a member of will be
     # shown.
 
     # Could also use: jsonify(session["user_info"]["cognito:groups"])
@@ -110,7 +125,7 @@ def admin():
 def edit():
     # This route will only be accessible to a user who is a member of any of
     # groups specified in the "groups" argument on the auth_required decorator
-    # If they are not, a CognitoGroupRequiredError is raised
+    # If they are not, a CognitoGroupRequiredError is raised.
     return jsonify(session["claims"]["cognito:groups"])
 
 
@@ -119,6 +134,7 @@ def edit():
 def logout():
     # Logout of the Cognito User pool and delete the cookies that were set
     # on login.
+    # Revokes the refresh token to not be used again and removes it from the session.
     # No logic is required here as it simply redirects to Cognito.
     pass
 
