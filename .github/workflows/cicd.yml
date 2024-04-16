@@ -46,7 +46,6 @@ jobs:
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
-          verbose: true
 
   cd:
     # Only run this job if the "ci" job passes
