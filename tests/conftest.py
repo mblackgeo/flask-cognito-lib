@@ -33,9 +33,9 @@ def app():
     _app.config["AWS_COGNITO_USER_POOL_CLIENT_SECRET"] = "secure-client-secret"
     _app.config["AWS_COGNITO_REDIRECT_URL"] = "http://localhost:5000/postlogin"
     _app.config["AWS_COGNITO_LOGOUT_URL"] = "http://localhost:5000/postlogout"
-    _app.config[
-        "AWS_COGNITO_DOMAIN"
-    ] = "https://webapp-test.auth.eu-west-1.amazoncognito.com"
+    _app.config["AWS_COGNITO_DOMAIN"] = (
+        "https://webapp-test.auth.eu-west-1.amazoncognito.com"
+    )
     _app.config["AWS_REGION"] = "eu-west-1"
     _app.config["AWS_COGNITO_EXPIRATION_LEEWAY"] = 1e9
     _app.config["AWS_COGNITO_COOKIE_AGE_SECONDS"] = 1e9
