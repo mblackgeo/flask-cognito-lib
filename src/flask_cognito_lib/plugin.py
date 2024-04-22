@@ -123,8 +123,7 @@ class CognitoAuth:
         self,
         refresh_token: str,
     ) -> CognitoTokenResponse:
-        """
-        Exchange a refresh token for a new set of tokens
+        """Exchange a refresh token for a new set of tokens
 
         Parameters:
         -----------
@@ -150,8 +149,7 @@ class CognitoAuth:
         self,
         refresh_token: str,
     ) -> None:
-        """
-        Revoke a refresh token
+        """Revoke a refresh token
 
         Parameters:
         -----------
@@ -160,13 +158,12 @@ class CognitoAuth:
 
         Raises:
         -------
-        @see https://docs.aws.amazon.com/cognito/latest/developerguide/revocation-endpoint.html#revoke-sample-response
-
         CognitoError
-            If the token isn't present in the request or if the feature is disabled for the app client
-            If the token that Amazon Cognito sent in the revocation request isn't a refresh token
+            If the token isn't present in the request or
+                if the feature is disabled for the app client
+            If the token isn't a refresh token
             If the client credentials aren't valid
-        """  # noqa
+        """
         self.cognito_service.revoke_refresh_token(
             refresh_token=refresh_token,
         )

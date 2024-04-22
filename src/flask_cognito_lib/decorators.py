@@ -153,9 +153,7 @@ def cognito_login_callback(fn):
 
 
 def cognito_refresh_callback(fn):
-    """
-    A decorator that handles token refresh with Cognito
-    """
+    """A decorator that handles token refresh with Cognito"""
 
     @wraps(fn)
     def wrapper(*args, **kwargs):

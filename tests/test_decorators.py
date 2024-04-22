@@ -137,7 +137,10 @@ def test_cognito_login_cookie_samesite(client, cfg, access_token, token_response
 
 
 def test_cognito_refresh_missing_token(
-    client, cfg, access_token, refresh_token_response
+    client,
+    cfg,
+    access_token,
+    refresh_token_response,
 ):
     with pytest.raises(
         CognitoError, match="Refresh token is required to refresh the access token"

@@ -172,7 +172,9 @@ def token_response(mocker, access_token, id_token, refresh_token):
     mocker.patch(
         "flask_cognito_lib.plugin.CognitoAuth.get_tokens",
         return_value=CognitoTokenResponse(
-            access_token=access_token, id_token=id_token, refresh_token=refresh_token
+            access_token=access_token,
+            id_token=id_token,
+            refresh_token=refresh_token,
         ),
     )
 

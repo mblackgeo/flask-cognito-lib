@@ -103,13 +103,13 @@ class CognitoService:
         self,
         refresh_token: str,
     ) -> CognitoTokenResponse:
-        """
-        Exchange a refresh token for a new set of tokens
+        """Exchange a refresh token for a new set of tokens
 
         Parameters:
         -----------
         refresh_token : str
-            The refresh token to exchange for a new set of tokens
+            The refresh token to exchange for a new set of
+            ID and access tokens
 
         Returns:
         --------
@@ -134,8 +134,7 @@ class CognitoService:
         self,
         refresh_token: str,
     ) -> None:
-        """
-        Revoke a refresh token
+        """Revoke a refresh token
 
         Parameters:
         -----------
@@ -144,26 +143,24 @@ class CognitoService:
 
         Raises:
         -------
-        @see https://docs.aws.amazon.com/cognito/latest/developerguide/revocation-endpoint.html#revoke-sample-response
-
         CognitoError
-            If the token isn't present in the request or if the feature is disabled for the app client
-            If the token that Amazon Cognito sent in the revocation request isn't a refresh token
+            If the token isn't present in the request or
+                if the feature is disabled for the app client
+            If the token isn't a refresh token
             If the client credentials aren't valid
-        """  # noqa
+        """
         data = {
             "token": refresh_token,
         }
 
         self._request(url=self.cfg.revoke_endpoint, data=data)
 
-    def _request_token(self, data: dict) -> CognitoTokenResponse:
-        """
-        Request a token from the Cognito token endpoint
+    def _request_token(self, data: dict[str, str]) -> CognitoTokenResponse:
+        """Request a token from the Cognito token endpoint
 
         Parameters
         ----------
-        data : dict
+        data : dict[str, str]
             The data to be sent as part of the request
 
         Returns
@@ -185,15 +182,14 @@ class CognitoService:
 
         return CognitoTokenResponse(**response_json)
 
-    def _request(self, url: str, data: dict) -> Response:
-        """
-        Make a request to the Cognito endpoint
+    def _request(self, url: str, data: dict[str, str]) -> Response:
+        """Make a request to the Cognito endpoint
 
         Parameters
         ----------
         url : str
             The URL of the endpoint
-        data : dict
+        data : dict[str, str]
             The data to be sent as part of the request
 
         Returns
