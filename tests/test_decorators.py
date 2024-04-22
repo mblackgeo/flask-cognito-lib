@@ -173,6 +173,18 @@ def test_cognito_refresh_callback(client, cfg, access_token, refresh_token_respo
 
 
 def test_cognito_logout(client, cfg):
+    # should 302 redirect to cognito
+    response = client.get("/logout")
+    assert response.status_code == 302
+    assert response.headers["location"].startswith(cfg.logout_endpoint)
+
+
+def test_cognito_logout_with_refresh_token(client, cfg, mocker):
+    # Mock the refresh token revocation
+    mocker.patch(
+        "flask_cognito_lib.decorators.cognito_auth.revoke_refresh_token",
+    )
+
     with client as c:
         with c.session_transaction() as sess:
             # Set the refresh_token in the session

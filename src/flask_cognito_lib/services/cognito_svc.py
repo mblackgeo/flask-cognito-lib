@@ -1,8 +1,8 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
 from urllib.parse import quote
 
 import requests
-from requests import Response
+from requests import JSONDecodeError, Response
 
 from flask_cognito_lib.config import Config
 from flask_cognito_lib.exceptions import CognitoError
@@ -155,12 +155,12 @@ class CognitoService:
 
         self._request(url=self.cfg.revoke_endpoint, data=data)
 
-    def _request_token(self, data: dict[str, str]) -> CognitoTokenResponse:
+    def _request_token(self, data: Dict[str, str]) -> CognitoTokenResponse:
         """Request a token from the Cognito token endpoint
 
         Parameters
         ----------
-        data : dict[str, str]
+        data : Dict[str, str]
             The data to be sent as part of the request
 
         Returns
@@ -175,21 +175,17 @@ class CognitoService:
             If the endpoint returns an error code
         """
         response = self._request(url=self.cfg.token_endpoint, data=data)
-        response_json = response.json()
 
-        if "error" in response_json:
-            raise CognitoError(f"Cognito error : {response_json['error']}")
+        return CognitoTokenResponse(**response.json())
 
-        return CognitoTokenResponse(**response_json)
-
-    def _request(self, url: str, data: dict[str, str]) -> Response:
+    def _request(self, url: str, data: Dict[str, str]) -> Response:
         """Make a request to the Cognito endpoint
 
         Parameters
         ----------
         url : str
             The URL of the endpoint
-        data : dict[str, str]
+        data : Dict[str, str]
             The data to be sent as part of the request
 
         Returns
@@ -219,6 +215,18 @@ class CognitoService:
             )
 
         except requests.exceptions.RequestException as e:
+            raise CognitoError(str(e)) from e
+
+        try:
+            response_json = response.json()
+            if "error" in response_json:
+                error_message = f"CognitoError: {response_json['error']}"
+
+                if "error_description" in response_json:
+                    error_message += f" - {response_json['error_description']}"
+
+                raise CognitoError(error_message)
+        except JSONDecodeError as e:
             raise CognitoError(str(e)) from e
 
         return response
