@@ -53,16 +53,18 @@ def store_tokens(tokens: CognitoTokenResponse, nonce: Optional[str] = None) -> N
         )
         session.update({"user_info": user_info})
 
-    # Grab the `refresh_token` and store in the session
-    if tokens.refresh_token is not None:
-        session.update({"refresh_token": tokens.refresh_token})
 
+def store_token_in_cookie(
+    token: str | None, cookie_name: str, resp: Response, encrypt: bool = False
+) -> None:
+    if encrypt:
+        # Encrypt the token
+        token = cognito_auth.token_service.encrypt_token(token)
 
-def store_access_token(tokens: CognitoTokenResponse, resp: Response) -> None:
     """Store the access token in a HTTP only secure cookie"""
     resp.set_cookie(
-        key=cfg.COOKIE_NAME,
-        value=tokens.access_token,
+        key=cookie_name,
+        value=token,
         max_age=cfg.max_cookie_age_seconds,
         httponly=True,
         secure=True,
@@ -145,7 +147,20 @@ def cognito_login_callback(fn):
             resp = fn(*args, **kwargs)
 
             # Store the access token in a HTTP only secure cookie
-            store_access_token(tokens=tokens, resp=resp)
+            store_token_in_cookie(
+                token=tokens.access_token,
+                cookie_name=cfg.COOKIE_NAME,
+                resp=resp,
+            )
+
+            # Grab the refresh token and store in a HTTP only secure cookie
+            if cfg.refresh_flow_enabled and tokens.refresh_token is not None:
+                store_token_in_cookie(
+                    token=tokens.refresh_token,
+                    cookie_name=cfg.COOKIE_NAME_REFRESH,
+                    resp=resp,
+                    encrypt=cfg.refresh_cookie_encrypted,
+                )
 
         return resp
 
@@ -158,13 +173,14 @@ def cognito_refresh_callback(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         with app.app_context():
-            # Get the refresh token from the session.
-            try:
-                refresh_token = session["refresh_token"]
-            except KeyError as err:
-                raise CognitoError(
-                    "Refresh token is required to refresh the access token"
-                ) from err
+            if not cfg.refresh_flow_enabled:
+                raise CognitoError("Refresh flow is not enabled")
+
+            refresh_token = request.cookies.get(cfg.COOKIE_NAME_REFRESH)
+
+            if cfg.refresh_cookie_encrypted:
+                # Decrypt the refresh token
+                refresh_token = cognito_auth.token_service.decrypt_token(refresh_token)
 
             # Exchange refresh token for the new access token.
             tokens = cognito_auth.refresh_tokens(
@@ -178,7 +194,20 @@ def cognito_refresh_callback(fn):
             resp = fn(*args, **kwargs)
 
             # Store the access token in a HTTP only secure cookie
-            store_access_token(tokens=tokens, resp=resp)
+            store_token_in_cookie(
+                token=tokens.access_token,
+                cookie_name=cfg.COOKIE_NAME,
+                resp=resp,
+            )
+
+            # Grab the refresh token and store in a HTTP only secure cookie
+            if cfg.refresh_flow_enabled and tokens.refresh_token is not None:
+                store_token_in_cookie(
+                    token=tokens.refresh_token,
+                    cookie_name=cfg.COOKIE_NAME_REFRESH,
+                    resp=resp,
+                    encrypt=cfg.refresh_cookie_encrypted,
+                )
 
         return resp
 
@@ -191,14 +220,23 @@ def cognito_logout(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         with app.app_context():
-            # Revoke the refresh token if it exists
-            if refresh_token := session.get("refresh_token"):
-                cognito_auth.revoke_refresh_token(refresh_token)
-                remove_from_session(("refresh_token",))
-
             # logout at cognito and remove the cookies
             resp = redirect(cfg.logout_endpoint)
             resp.delete_cookie(key=cfg.COOKIE_NAME, domain=cfg.cookie_domain)
+
+            # Revoke the refresh token if it exists
+            if refresh_token := request.cookies.get(cfg.COOKIE_NAME_REFRESH):
+                if cfg.refresh_cookie_encrypted:
+                    # Decrypt the refresh token
+                    refresh_token = cognito_auth.token_service.decrypt_token(
+                        refresh_token
+                    )
+
+                cognito_auth.revoke_refresh_token(refresh_token)
+                resp.delete_cookie(
+                    key=cfg.COOKIE_NAME_REFRESH,
+                    domain=cfg.cookie_domain,
+                )
 
         # Cognito will redirect to the sign-out URL (if set) or else use
         # the callback URL

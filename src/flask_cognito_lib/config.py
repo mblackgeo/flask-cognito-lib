@@ -48,11 +48,27 @@ class Config:
     CONTEXT_KEY_COGNITO_SERVICE = "aws_cognito_service"
     CONTEXT_KEY_TOKEN_SERVICE = "aws_jwt_service"
     COOKIE_NAME = "cognito_access_token"
+    COOKIE_NAME_REFRESH = "cognito_refresh_token"
 
     @property
     def disabled(self) -> bool:
         """Return True if Cognito Authentication is disabled"""
         return get("AWS_COGNITO_DISABLED", required=False, default=False)
+
+    @property
+    def refresh_flow_enabled(self) -> bool:
+        """Return True if Cognito Refresh flow is enabled"""
+        return get("AWS_COGNITO_REFRESH_FLOW_ENABLED", required=False, default=False)
+
+    @property
+    def refresh_cookie_encrypted(self) -> bool:
+        """Return True if Cognito Refresh cookie should be encrypted"""
+        return get("AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED", required=False, default=True)
+
+    @property
+    def secret_key(self) -> bytes | str:
+        """Return Flask secret key"""
+        return get("SECRET_KEY", required=True)
 
     @property
     def user_pool_id(self) -> str:

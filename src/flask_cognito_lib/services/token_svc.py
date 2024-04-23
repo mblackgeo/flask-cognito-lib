@@ -1,7 +1,10 @@
+from base64 import urlsafe_b64encode
+from hashlib import sha256
 from typing import Any, Dict, Iterable, Optional
 from urllib.error import HTTPError
 
 import jwt
+from cryptography.fernet import Fernet
 from jwt import PyJWK, PyJWKClient, PyJWKClientError
 
 from flask_cognito_lib.config import Config
@@ -12,6 +15,9 @@ class TokenService:
     def __init__(self, cfg: Config):
         self.cfg = cfg
         self.jwk = PyJWKClient(self.cfg.jwk_endpoint, cache_keys=True)
+        self.fernet = Fernet(
+            urlsafe_b64encode(sha256(cfg.secret_key.encode()).digest()),
+        )
 
     def get_public_key(self, token: str) -> PyJWK:
         """Find the public key ID for a given JWT
@@ -188,3 +194,33 @@ class TokenService:
             raise TokenVerifyError("Token nonce check failed")
 
         return claims
+
+    def encrypt_token(self, token: str) -> str:
+        """Encrypt a token using the configured key
+
+        Parameters
+        ----------
+        token : str
+            The token to encrypt
+
+        Returns
+        -------
+        str
+            The encrypted token
+        """
+        return self.fernet.encrypt(token.encode()).decode()
+
+    def decrypt_token(self, token: str) -> str:
+        """Decrypt a token using the configured key
+
+        Parameters
+        ----------
+        token : str
+            The token to decrypt
+
+        Returns
+        -------
+        str
+            The decrypted token
+        """
+        return self.fernet.decrypt(token.encode()).decode()
