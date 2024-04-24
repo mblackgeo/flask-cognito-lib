@@ -1,4 +1,8 @@
+from base64 import urlsafe_b64encode
+from hashlib import sha256
+
 import pytest
+from cryptography.fernet import Fernet
 from flask import session
 
 from flask_cognito_lib.decorators import remove_from_session
@@ -82,9 +86,11 @@ def test_cognito_login_callback(client, cfg, access_token, token_response):
         response = client.get("/postlogin")
         assert response.status_code == 200
         assert response.data.decode("utf-8") == "ok"
-        assert response.headers["Set-Cookie"].startswith(
-            f"{cfg.COOKIE_NAME}={access_token}"
-        )
+
+        # check that access token is set in the cookie but not the refresh token
+        cookies_set = response.headers.getlist("Set-Cookie")
+        assert cookies_set[0].startswith(f"{cfg.COOKIE_NAME}={access_token}")
+        assert cfg.COOKIE_NAME_REFRESH not in response.headers["Set-Cookie"]
 
         # removes one-time use codes from the session
         assert "code_verifier" not in session
@@ -93,7 +99,60 @@ def test_cognito_login_callback(client, cfg, access_token, token_response):
         # check that user claims and user info are stored in the session
         assert "claims" in session
         assert "user_info" in session
-        assert "refresh_token" in session
+
+
+def test_cognito_login_callback_refresh(
+    client, cfg, access_token, refresh_token, token_response
+):
+    client.application.config["AWS_COGNITO_REFRESH_FLOW_ENABLED"] = True
+    client.application.config["AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"] = False
+
+    with client as c:
+        with c.session_transaction() as sess:
+            sess["code_verifier"] = "1234"
+            sess["state"] = "5678"
+            sess["nonce"] = "MSln6nvPIIBVMhsNUOtUCtssceUKz4dhCRZi5QZRU4A="
+
+        # returns OK and sets the cookie
+        response = client.get("/postlogin")
+        assert response.status_code == 200
+        assert response.data.decode("utf-8") == "ok"
+
+        # check that both access and refresh token is set in the cookie
+        cookies_set = response.headers.getlist("Set-Cookie")
+        assert cookies_set[0].startswith(f"{cfg.COOKIE_NAME}={access_token}")
+        assert cookies_set[1].startswith(f"{cfg.COOKIE_NAME_REFRESH}={refresh_token}")
+
+
+def test_cognito_login_callback_refresh_encrypted(
+    client, cfg, access_token, refresh_token, token_response
+):
+    client.application.config["AWS_COGNITO_REFRESH_FLOW_ENABLED"] = True
+    client.application.config["AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"] = True
+
+    fernet = Fernet(
+        urlsafe_b64encode(sha256(cfg.secret_key.encode()).digest()),
+    )
+
+    with client as c:
+        with c.session_transaction() as sess:
+            sess["code_verifier"] = "1234"
+            sess["state"] = "5678"
+            sess["nonce"] = "MSln6nvPIIBVMhsNUOtUCtssceUKz4dhCRZi5QZRU4A="
+
+        # returns OK and sets the cookie
+        response = client.get("/postlogin")
+        assert response.status_code == 200
+        assert response.data.decode("utf-8") == "ok"
+
+        # check that both access and refresh token is set in the cookie
+        cookies_set = response.headers.getlist("Set-Cookie")
+        assert cookies_set[0].startswith(f"{cfg.COOKIE_NAME}={access_token}")
+        assert cookies_set[1].startswith(f"{cfg.COOKIE_NAME_REFRESH}=")
+
+        # check that the refresh token can be decrypted using Fernet and matches the original
+        refresh_cookie_value = cookies_set[1].split(";")[0].split("=", 1)[1]
+        assert fernet.decrypt(refresh_cookie_value.encode()).decode() == refresh_token
 
 
 def test_cognito_login_cookie_domain(client, cfg, access_token, token_response):
@@ -136,31 +195,29 @@ def test_cognito_login_cookie_samesite(client, cfg, access_token, token_response
         assert "SameSite=Strict" in response.headers["Set-Cookie"]
 
 
-def test_cognito_refresh_missing_token(
+def test_cognito_refresh_disabled(
     client,
     cfg,
     access_token,
     refresh_token_response,
 ):
-    with pytest.raises(
-        CognitoError, match="Refresh token is required to refresh the access token"
-    ):
+    with pytest.raises(CognitoError, match="Refresh flow is not enabled"):
         client.get("/refresh")
 
 
-def test_cognito_refresh_callback(client, cfg, access_token, refresh_token_response):
-    with client as c:
-        with c.session_transaction() as sess:
-            # Set the refresh_token in the session
-            sess["refresh_token"] = "test_refresh_token"
-
+def test_cognito_refresh_callback(
+    client_with_cookie_refresh, cfg, access_token, refresh_token, refresh_token_response
+):
+    with client_with_cookie_refresh:
         # returns OK and sets the cookie
-        response = client.get("/refresh")
+        response = client_with_cookie_refresh.get("/refresh")
         assert response.status_code == 200
         assert response.data.decode("utf-8") == "ok"
-        assert response.headers["Set-Cookie"].startswith(
-            f"{cfg.COOKIE_NAME}={access_token}"
-        )
+
+        # check that both access and refresh token is set in the cookie
+        cookies_set = response.headers.getlist("Set-Cookie")
+        assert cookies_set[0].startswith(f"{cfg.COOKIE_NAME}={access_token}")
+        assert cookies_set[1].startswith(f"{cfg.COOKIE_NAME_REFRESH}={refresh_token}")
 
         # removes one-time use codes from the session
         assert "code_verifier" not in session
@@ -169,7 +226,6 @@ def test_cognito_refresh_callback(client, cfg, access_token, refresh_token_respo
         # check that user claims and user info are stored in the session
         assert "claims" in session
         assert "user_info" in session
-        assert "refresh_token" in session
 
 
 def test_cognito_logout(client, cfg):
@@ -179,22 +235,21 @@ def test_cognito_logout(client, cfg):
     assert response.headers["location"].startswith(cfg.logout_endpoint)
 
 
-def test_cognito_logout_with_refresh_token(client, cfg, mocker):
+def test_cognito_logout_with_refresh_token(client_with_cookie_refresh, cfg, mocker):
     # Mock the refresh token revocation
     mocker.patch(
         "flask_cognito_lib.decorators.cognito_auth.revoke_refresh_token",
     )
 
-    with client as c:
-        with c.session_transaction() as sess:
-            # Set the refresh_token in the session
-            sess["refresh_token"] = "test_refresh_token"
+    # should 302 redirect to cognito
+    response = client_with_cookie_refresh.get("/logout")
+    assert response.status_code == 302
+    assert response.headers["location"].startswith(cfg.logout_endpoint)
 
-        # should 302 redirect to cognito
-        response = c.get("/logout")
-        assert response.status_code == 302
-        assert response.headers["location"].startswith(cfg.logout_endpoint)
-        assert "refresh_token" not in session
+    # check that both access and refresh token is set in the cookie
+    cookies_set = response.headers.getlist("Set-Cookie")
+    assert cookies_set[0].startswith(f"{cfg.COOKIE_NAME}=;")
+    assert cookies_set[1].startswith(f"{cfg.COOKIE_NAME_REFRESH}=;")
 
 
 def test_auth_required_expired_token(client, cfg, app, access_token):

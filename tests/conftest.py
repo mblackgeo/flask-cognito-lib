@@ -196,3 +196,13 @@ def client_with_cookie(app, access_token, cfg):
     cl = app.test_client()
     cl.set_cookie(key=cfg.COOKIE_NAME, value=access_token)
     yield cl
+
+
+@pytest.fixture
+def client_with_cookie_refresh(app, cfg, access_token, refresh_token):
+    cl = app.test_client()
+    cl.application.config["AWS_COGNITO_REFRESH_FLOW_ENABLED"] = True
+    cl.application.config["AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"] = False
+    cl.set_cookie(key=cfg.COOKIE_NAME, value=access_token)
+    cl.set_cookie(key=cfg.COOKIE_NAME_REFRESH, value=refresh_token)
+    yield cl
