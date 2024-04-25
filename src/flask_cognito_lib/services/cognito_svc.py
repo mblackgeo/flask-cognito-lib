@@ -176,7 +176,10 @@ class CognitoService:
         """
         response = self._request(url=self.cfg.token_endpoint, data=data)
 
-        return CognitoTokenResponse(**response.json())
+        try:
+            return CognitoTokenResponse(**response.json())
+        except JSONDecodeError as e:
+            raise CognitoError(str(e)) from e
 
     def _request(self, url: str, data: Dict[str, str]) -> Response:
         """Make a request to the Cognito endpoint
@@ -226,7 +229,8 @@ class CognitoService:
                     error_message += f" - {response_json['error_description']}"
 
                 raise CognitoError(error_message)
-        except JSONDecodeError as e:
-            raise CognitoError(str(e)) from e
+        except JSONDecodeError:
+            # Some responses from Cognito are not JSON,so we can ignore this here.
+            pass
 
         return response

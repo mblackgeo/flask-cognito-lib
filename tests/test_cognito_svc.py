@@ -154,3 +154,16 @@ def test_revoke_refresh_token(cfg, mocker):
 
     cognito = CognitoService(cfg)
     cognito.revoke_refresh_token(refresh_token="test_refresh_token")
+
+
+def test_revoke_refresh_token_error_json(cfg, mocker):
+    mocker.patch(
+        "requests.post",
+        return_value=mocker.Mock(
+            json=lambda: raise_exception(JSONDecodeError("Expecting value", "", 0))
+        ),
+    )
+
+    # Non-JSON response should not raise an exception
+    cognito = CognitoService(cfg)
+    cognito.revoke_refresh_token(refresh_token="test_refresh_token")
