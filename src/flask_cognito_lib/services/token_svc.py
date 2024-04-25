@@ -26,7 +26,7 @@ class TokenService:
         bytes
             The encryption key
         """
-        return urlsafe_b64encode(sha256(cfg.secret_key.encode()).digest())
+        return urlsafe_b64encode(sha256(cfg.secret_key).digest())
 
     def get_public_key(self, token: str) -> PyJWK:
         """Find the public key ID for a given JWT

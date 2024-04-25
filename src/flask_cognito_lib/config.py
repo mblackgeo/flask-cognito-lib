@@ -66,9 +66,12 @@ class Config:
         return get("AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED", required=False, default=True)
 
     @property
-    def secret_key(self) -> bytes | str:
+    def secret_key(self) -> bytes:
         """Return Flask secret key"""
-        return get("SECRET_KEY", required=True)
+        key = get("SECRET_KEY", required=True)
+        if isinstance(key, str):
+            return key.encode()
+        return key
 
     @property
     def user_pool_id(self) -> str:

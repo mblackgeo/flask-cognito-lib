@@ -182,7 +182,7 @@ def test_cognito_login_callback_refresh_encrypted(
     client.application.config["AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"] = True
 
     fernet = Fernet(
-        urlsafe_b64encode(sha256(cfg.secret_key.encode()).digest()),
+        urlsafe_b64encode(sha256(cfg.secret_key).digest()),
     )
 
     with client as c:
@@ -299,7 +299,7 @@ def test_cognito_refresh_callback_encrypted(
     refresh_token_response,
 ):
     fernet = Fernet(
-        urlsafe_b64encode(sha256(cfg.secret_key.encode()).digest()),
+        urlsafe_b64encode(sha256(cfg.secret_key).digest()),
     )
 
     with client_with_cookie_refresh_encrypted as c:
