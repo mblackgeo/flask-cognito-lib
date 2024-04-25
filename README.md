@@ -7,6 +7,8 @@
 
 A Flask extension that supports protecting routes with AWS Cognito following [OAuth 2.1 best practices](https://oauth.net/2.1/). That means the full authorization code flow, including Proof Key for Code Exchange (RFC 7636) to prevent Cross Site Request Forgery (CSRF), along with secure storage of access tokens in HTTP only cookies (to prevent Cross Site Scripting attacks), and additional `nonce` validation (if using ID tokens) to prevent replay attacks.
 
+If refresh flow is enabled, refresh token stored in HTTP only, secure cookie with optional Fernet symmetrical encryption using Flask's `SECRET_KEY` (enabled by default).
+
 **Documentation**: [https://mblackgeo.github.io/flask-cognito-lib](https://mblackgeo.github.io/flask-cognito-lib)
 
 **Source Code**: [https://github.com/mblackgeo/flask-cognito-lib](https://github.com/mblackgeo/flask-cognito-lib)
@@ -47,6 +49,9 @@ app.config["AWS_COGNITO_USER_POOL_CLIENT_ID"] = "asdfghjkl1234asdf"
 app.config["AWS_COGNITO_USER_POOL_CLIENT_SECRET"] = "zxcvbnm1234567890"
 app.config["AWS_COGNITO_REDIRECT_URL"] = "https://example.com/postlogin"
 app.config["AWS_COGNITO_LOGOUT_URL"] = "https://example.com/postlogout"
+app.config["AWS_COGNITO_REFRESH_FLOW_ENABLED"] = True
+app.config["AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"] = True
+
 
 auth = CognitoAuth(app)
 
@@ -86,9 +91,11 @@ def refresh():
     # A route to handle the token refresh with Cognito.
     # The decorator will exchange the refresh token, previously stored in the session,
     # for the new access and refresh tokens.
-    # The new validated access token will be stored in a HTTP only cookie,
-    # the refresh token, the user claims and info are stored in the Flask session:
-    # session["refresh_token"], session["claims"] and session["user_info"].
+    # The new validated access token will be stored in an HTTP only secure cookie.
+    # The refresh token will be symmetrically encrypted(by default)
+    # and stored in an HTTP only secure cookie.
+    # The user claims and info are stored in the Flask session:
+    # session["claims"] and session["user_info"].
     # Do anything after the user has refreshed access token here, e.g. a redirect
     # or perform logic based on the `session["user_info"]`.
     pass

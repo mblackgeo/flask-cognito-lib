@@ -39,6 +39,10 @@ class Config:
     AWS_COGNITO_REDIRECT_URL = environ["AWS_COGNITO_REDIRECT_URL"]
     AWS_COGNITO_LOGOUT_URL = environ["AWS_COGNITO_LOGOUT_URL"]
     AWS_COGNITO_COOKIE_AGE_SECONDS = environ["AWS_COGNITO_COOKIE_AGE_SECONDS"]
+    AWS_COGNITO_REFRESH_FLOW_ENABLED = environ["AWS_COGNITO_REFRESH_FLOW_ENABLED"]
+    AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED = environ[
+        "AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"
+    ]
 
 
 app = Flask(__name__)
@@ -86,9 +90,11 @@ def refresh():
     # A route to handle the token refresh with Cognito.
     # The decorator will exchange the refresh token, previously stored in the session,
     # for the new access and refresh tokens.
-    # The new validated access token will be stored in a HTTP only cookie,
-    # the refresh token, the user claims and info are stored in the Flask session:
-    # session["refresh_token"], session["claims"] and session["user_info"].
+    # The new validated access token will be stored in an HTTP only secure cookie.
+    # The refresh token will be symmetrically encrypted(by default)
+    # and stored in an HTTP only secure cookie.
+    # The user claims and info are stored in the Flask session:
+    # session["claims"] and session["user_info"].
     # Do anything after the user has refreshed access token here, e.g. a redirect
     # or perform logic based on the `session["user_info"]`.
     pass
