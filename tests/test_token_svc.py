@@ -75,3 +75,16 @@ def test_verify_access_token_invalid_client(app, cfg, access_token):
     with pytest.raises(TokenVerifyError):
         serv = TokenService(cfg=cfg)
         serv.verify_access_token(access_token, leeway=1e9)
+
+
+def test_encrypt_token(app, cfg, refresh_token):
+    serv = TokenService(cfg=cfg)
+    encrypted_token = serv.encrypt_token(refresh_token)
+    assert encrypted_token != refresh_token
+    assert serv.decrypt_token(encrypted_token) == refresh_token
+
+
+def test_decrypt_token_error(app, cfg, refresh_token):
+    with pytest.raises(CognitoError, match="Error decrypting token"):
+        serv = TokenService(cfg=cfg)
+        serv.decrypt_token(refresh_token)

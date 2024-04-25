@@ -4,7 +4,7 @@ from typing import Any, Dict, Iterable, Optional
 from urllib.error import HTTPError
 
 import jwt
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 from jwt import PyJWK, PyJWKClient, PyJWKClientError
 
 from flask_cognito_lib.config import Config
@@ -15,9 +15,18 @@ class TokenService:
     def __init__(self, cfg: Config):
         self.cfg = cfg
         self.jwk = PyJWKClient(self.cfg.jwk_endpoint, cache_keys=True)
-        self.fernet = Fernet(
-            urlsafe_b64encode(sha256(cfg.secret_key.encode()).digest()),
-        )
+        self.fernet = Fernet(self.get_encryption_key(self.cfg))
+
+    @staticmethod
+    def get_encryption_key(cfg) -> bytes:
+        """Get the encryption key from the Flask `SECRET_KEY` for the Fernet cipher
+
+        Returns
+        -------
+        bytes
+            The encryption key
+        """
+        return urlsafe_b64encode(sha256(cfg.secret_key.encode()).digest())
 
     def get_public_key(self, token: str) -> PyJWK:
         """Find the public key ID for a given JWT
@@ -196,7 +205,7 @@ class TokenService:
         return claims
 
     def encrypt_token(self, token: str) -> str:
-        """Encrypt a token using the configured key
+        """Symmetrically encrypt a token using Fernet with the Flask `SECRET_KEY`
 
         Parameters
         ----------
@@ -211,7 +220,7 @@ class TokenService:
         return self.fernet.encrypt(token.encode()).decode()
 
     def decrypt_token(self, token: str) -> str:
-        """Decrypt a token using the configured key
+        """Decrypt a Fernet encrypted token using the Flask `SECRET_KEY`
 
         Parameters
         ----------
@@ -222,5 +231,13 @@ class TokenService:
         -------
         str
             The decrypted token
+
+        Raises
+        ------
+        CognitoError
+            If the token cannot be decrypted
         """
-        return self.fernet.decrypt(token.encode()).decode()
+        try:
+            return self.fernet.decrypt(token.encode()).decode()
+        except InvalidToken as err:
+            raise CognitoError("Error decrypting token") from err

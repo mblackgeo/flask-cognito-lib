@@ -5,7 +5,7 @@ import pytest
 from cryptography.fernet import Fernet
 from flask import session
 
-from flask_cognito_lib.decorators import remove_from_session
+from flask_cognito_lib.decorators import get_token_from_cookie, remove_from_session
 from flask_cognito_lib.exceptions import CognitoError, TokenVerifyError
 
 
@@ -18,6 +18,49 @@ def test_remove_from_session(client):
 
     # no-op for non-existant keys
     remove_from_session("b")
+
+
+def test_get_token_from_cookie(mocker):
+    # Test when token is None
+    mocker.patch(
+        "flask_cognito_lib.decorators.request.cookies.get",
+        return_value=None,
+    )
+    assert get_token_from_cookie("cookie_name") is None
+
+    # Test when token is not None and cookie_name is not COOKIE_NAME_REFRESH
+    mocker.patch(
+        "flask_cognito_lib.decorators.request.cookies.get",
+        return_value="token",
+    )
+    assert get_token_from_cookie("cookie_name") == "token"
+
+
+def test_get_token_from_cookie_refresh(
+    client_with_cookie_refresh, mocker, cfg, refresh_token
+):
+    with client_with_cookie_refresh:
+        mocker.patch(
+            "flask_cognito_lib.decorators.request.cookies.get",
+            return_value=refresh_token,
+        )
+
+        assert get_token_from_cookie(cfg.COOKIE_NAME_REFRESH) == refresh_token
+
+
+def test_get_token_from_cookie_refresh_encrypted(
+    client_with_cookie_refresh_encrypted,
+    mocker,
+    cfg,
+    refresh_token,
+    refresh_token_encrypted,
+):
+    with client_with_cookie_refresh_encrypted:
+        mocker.patch(
+            "flask_cognito_lib.decorators.request.cookies.get",
+            return_value=refresh_token_encrypted,
+        )
+        assert get_token_from_cookie(cfg.COOKIE_NAME_REFRESH) == refresh_token
 
 
 def test_cognito_login(client, cfg):
@@ -102,7 +145,11 @@ def test_cognito_login_callback(client, cfg, access_token, token_response):
 
 
 def test_cognito_login_callback_refresh(
-    client, cfg, access_token, refresh_token, token_response
+    client,
+    cfg,
+    access_token,
+    refresh_token,
+    token_response,
 ):
     client.application.config["AWS_COGNITO_REFRESH_FLOW_ENABLED"] = True
     client.application.config["AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"] = False
@@ -114,7 +161,7 @@ def test_cognito_login_callback_refresh(
             sess["nonce"] = "MSln6nvPIIBVMhsNUOtUCtssceUKz4dhCRZi5QZRU4A="
 
         # returns OK and sets the cookie
-        response = client.get("/postlogin")
+        response = c.get("/postlogin")
         assert response.status_code == 200
         assert response.data.decode("utf-8") == "ok"
 
@@ -125,7 +172,11 @@ def test_cognito_login_callback_refresh(
 
 
 def test_cognito_login_callback_refresh_encrypted(
-    client, cfg, access_token, refresh_token, token_response
+    client,
+    cfg,
+    access_token,
+    refresh_token,
+    token_response,
 ):
     client.application.config["AWS_COGNITO_REFRESH_FLOW_ENABLED"] = True
     client.application.config["AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"] = True
@@ -141,7 +192,7 @@ def test_cognito_login_callback_refresh_encrypted(
             sess["nonce"] = "MSln6nvPIIBVMhsNUOtUCtssceUKz4dhCRZi5QZRU4A="
 
         # returns OK and sets the cookie
-        response = client.get("/postlogin")
+        response = c.get("/postlogin")
         assert response.status_code == 200
         assert response.data.decode("utf-8") == "ok"
 
@@ -205,12 +256,28 @@ def test_cognito_refresh_disabled(
         client.get("/refresh")
 
 
-def test_cognito_refresh_callback(
-    client_with_cookie_refresh, cfg, access_token, refresh_token, refresh_token_response
+def test_cognito_refresh_missing_token(
+    client,
+    cfg,
+    access_token,
+    refresh_token_response,
 ):
-    with client_with_cookie_refresh:
+    client.application.config["AWS_COGNITO_REFRESH_FLOW_ENABLED"] = True
+
+    with pytest.raises(CognitoError, match="No refresh token provided"):
+        client.get("/refresh")
+
+
+def test_cognito_refresh_callback(
+    client_with_cookie_refresh,
+    cfg,
+    access_token,
+    refresh_token,
+    refresh_token_response,
+):
+    with client_with_cookie_refresh as c:
         # returns OK and sets the cookie
-        response = client_with_cookie_refresh.get("/refresh")
+        response = c.get("/refresh")
         assert response.status_code == 200
         assert response.data.decode("utf-8") == "ok"
 
@@ -219,9 +286,36 @@ def test_cognito_refresh_callback(
         assert cookies_set[0].startswith(f"{cfg.COOKIE_NAME}={access_token}")
         assert cookies_set[1].startswith(f"{cfg.COOKIE_NAME_REFRESH}={refresh_token}")
 
-        # removes one-time use codes from the session
-        assert "code_verifier" not in session
-        assert "nonce" not in session
+        # check that user claims and user info are stored in the session
+        assert "claims" in session
+        assert "user_info" in session
+
+
+def test_cognito_refresh_callback_encrypted(
+    client_with_cookie_refresh_encrypted,
+    cfg,
+    access_token,
+    refresh_token,
+    refresh_token_response,
+):
+    fernet = Fernet(
+        urlsafe_b64encode(sha256(cfg.secret_key.encode()).digest()),
+    )
+
+    with client_with_cookie_refresh_encrypted as c:
+        # returns OK and sets the cookie
+        response = c.get("/refresh")
+        assert response.status_code == 200
+        assert response.data.decode("utf-8") == "ok"
+
+        # check that both access and refresh token is set in the cookie
+        cookies_set = response.headers.getlist("Set-Cookie")
+        assert cookies_set[0].startswith(f"{cfg.COOKIE_NAME}={access_token}")
+        assert cookies_set[1].startswith(f"{cfg.COOKIE_NAME_REFRESH}=")
+
+        # check that the refresh token can be decrypted using Fernet and matches the original
+        refresh_cookie_value = cookies_set[1].split(";")[0].split("=", 1)[1]
+        assert fernet.decrypt(refresh_cookie_value.encode()).decode() == refresh_token
 
         # check that user claims and user info are stored in the session
         assert "claims" in session

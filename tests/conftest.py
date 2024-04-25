@@ -167,6 +167,15 @@ def refresh_token():
     return "test_refresh_token"
 
 
+@pytest.fixture
+def refresh_token_encrypted():
+    return (
+        "gAAAAABmKjoi8ZL-kR055eHPSn4mH9tT45UB0_c-"
+        "1w9AFA8MzkDZaE515vu0B9vIiOY6ez3ftJJzq4OT"
+        "PLCzO21L2DPFXaoCDlsQMbRX8nu_4ryLY8vhRmo="
+    )
+
+
 @pytest.fixture(autouse=False)
 def token_response(mocker, access_token, id_token, refresh_token):
     mocker.patch(
@@ -205,4 +214,16 @@ def client_with_cookie_refresh(app, cfg, access_token, refresh_token):
     cl.application.config["AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"] = False
     cl.set_cookie(key=cfg.COOKIE_NAME, value=access_token)
     cl.set_cookie(key=cfg.COOKIE_NAME_REFRESH, value=refresh_token)
+    yield cl
+
+
+@pytest.fixture
+def client_with_cookie_refresh_encrypted(
+    app, cfg, access_token, refresh_token_encrypted
+):
+    cl = app.test_client()
+    cl.application.config["AWS_COGNITO_REFRESH_FLOW_ENABLED"] = True
+    cl.application.config["AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"] = True
+    cl.set_cookie(key=cfg.COOKIE_NAME, value=access_token)
+    cl.set_cookie(key=cfg.COOKIE_NAME_REFRESH, value=refresh_token_encrypted)
     yield cl
