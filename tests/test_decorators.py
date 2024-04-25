@@ -284,38 +284,6 @@ def test_cognito_refresh_callback(
         # check that both access and refresh token is set in the cookie
         cookies_set = response.headers.getlist("Set-Cookie")
         assert cookies_set[0].startswith(f"{cfg.COOKIE_NAME}={access_token}")
-        assert cookies_set[1].startswith(f"{cfg.COOKIE_NAME_REFRESH}={refresh_token}")
-
-        # check that user claims and user info are stored in the session
-        assert "claims" in session
-        assert "user_info" in session
-
-
-def test_cognito_refresh_callback_encrypted(
-    client_with_cookie_refresh_encrypted,
-    cfg,
-    access_token,
-    refresh_token,
-    refresh_token_response,
-):
-    fernet = Fernet(
-        urlsafe_b64encode(sha256(cfg.secret_key).digest()),
-    )
-
-    with client_with_cookie_refresh_encrypted as c:
-        # returns OK and sets the cookie
-        response = c.get("/refresh")
-        assert response.status_code == 200
-        assert response.data.decode("utf-8") == "ok"
-
-        # check that both access and refresh token is set in the cookie
-        cookies_set = response.headers.getlist("Set-Cookie")
-        assert cookies_set[0].startswith(f"{cfg.COOKIE_NAME}={access_token}")
-        assert cookies_set[1].startswith(f"{cfg.COOKIE_NAME_REFRESH}=")
-
-        # check that the refresh token can be decrypted using Fernet and matches the original
-        refresh_cookie_value = cookies_set[1].split(";")[0].split("=", 1)[1]
-        assert fernet.decrypt(refresh_cookie_value.encode()).decode() == refresh_token
 
         # check that user claims and user info are stored in the session
         assert "claims" in session

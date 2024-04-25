@@ -43,6 +43,9 @@ class Config:
     AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED = environ[
         "AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"
     ]
+    AWS_COGNITO_REFRESH_COOKIE_AGE_SECONDS = environ[
+        "AWS_COGNITO_REFRESH_COOKIE_AGE_SECONDS"
+    ]
 
 
 app = Flask(__name__)

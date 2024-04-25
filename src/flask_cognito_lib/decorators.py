@@ -57,6 +57,7 @@ def store_tokens(tokens: CognitoTokenResponse, nonce: Optional[str] = None) -> N
 def store_token_in_cookie(
     token: Union[str, None],
     cookie_name: str,
+    max_age: int,
     resp: Response,
     encrypt: bool = False,
 ) -> None:
@@ -68,7 +69,7 @@ def store_token_in_cookie(
     resp.set_cookie(
         key=cookie_name,
         value=token,
-        max_age=cfg.max_cookie_age_seconds,
+        max_age=max_age,
         httponly=True,
         secure=True,
         samesite=cfg.cookie_samesite,
@@ -168,6 +169,7 @@ def cognito_login_callback(fn):
             store_token_in_cookie(
                 token=tokens.access_token,
                 cookie_name=cfg.COOKIE_NAME,
+                max_age=cfg.max_cookie_age_seconds,
                 resp=resp,
             )
 
@@ -176,6 +178,7 @@ def cognito_login_callback(fn):
                 store_token_in_cookie(
                     token=tokens.refresh_token,
                     cookie_name=cfg.COOKIE_NAME_REFRESH,
+                    max_age=cfg.max_refresh_cookie_age_seconds,
                     resp=resp,
                     encrypt=cfg.refresh_cookie_encrypted,
                 )
@@ -214,17 +217,9 @@ def cognito_refresh_callback(fn):
             store_token_in_cookie(
                 token=tokens.access_token,
                 cookie_name=cfg.COOKIE_NAME,
+                max_age=cfg.max_cookie_age_seconds,
                 resp=resp,
             )
-
-            # Grab the refresh token and store in a HTTP only secure cookie
-            if cfg.refresh_flow_enabled and tokens.refresh_token is not None:
-                store_token_in_cookie(
-                    token=tokens.refresh_token,
-                    cookie_name=cfg.COOKIE_NAME_REFRESH,
-                    resp=resp,
-                    encrypt=cfg.refresh_cookie_encrypted,
-                )
 
         return resp
 

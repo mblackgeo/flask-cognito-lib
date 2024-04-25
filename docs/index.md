@@ -51,6 +51,7 @@ app.config["AWS_COGNITO_REDIRECT_URL"] = "https://example.com/postlogin"
 app.config["AWS_COGNITO_LOGOUT_URL"] = "https://example.com/postlogout"
 app.config["AWS_COGNITO_REFRESH_FLOW_ENABLED"] = True
 app.config["AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"] = True
+app.config["AWS_COGNITO_REFRESH_COOKIE_AGE_SECONDS"] = 86400
 
 auth = CognitoAuth(app)
 
