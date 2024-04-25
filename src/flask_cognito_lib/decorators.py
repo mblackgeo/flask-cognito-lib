@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Union
 
 from flask import Response
 from flask import current_app as app
@@ -55,7 +55,7 @@ def store_tokens(tokens: CognitoTokenResponse, nonce: Optional[str] = None) -> N
 
 
 def store_token_in_cookie(
-    token: str | None,
+    token: Union[str, None],
     cookie_name: str,
     resp: Response,
     encrypt: bool = False,
@@ -76,7 +76,7 @@ def store_token_in_cookie(
     )
 
 
-def get_token_from_cookie(cookie_name: str) -> str | None:
+def get_token_from_cookie(cookie_name: str) -> Union[str, None]:
     """Get the token from the cookie"""
     token = request.cookies.get(cookie_name)
 
