@@ -99,7 +99,7 @@ class CognitoService:
 
         return self._request_token(data)
 
-    def refresh_token(
+    def exhange_refresh_token(
         self,
         refresh_token: str,
     ) -> CognitoTokenResponse:

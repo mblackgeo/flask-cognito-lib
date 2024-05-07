@@ -141,7 +141,7 @@ def test_refresh_token(cfg, mocker):
     )
 
     cognito = CognitoService(cfg)
-    token = cognito.refresh_token(refresh_token="test_refresh_token")
+    token = cognito.exhange_refresh_token(refresh_token="test_refresh_token")
 
     assert token.access_token == "new_test_access_token"
     assert token.refresh_token == "new_test_refresh_token"

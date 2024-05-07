@@ -119,7 +119,7 @@ class CognitoAuth:
             code_verifier=code_verifier,
         )
 
-    def refresh_tokens(
+    def exchange_refresh_token(
         self,
         refresh_token: str,
     ) -> CognitoTokenResponse:
@@ -141,7 +141,7 @@ class CognitoAuth:
             If the request to the TOKEN endpoint fails
             If the TOKEN endpoint returns an error code
         """
-        return self.cognito_service.refresh_token(
+        return self.cognito_service.exhange_refresh_token(
             refresh_token=refresh_token,
         )
 

@@ -7,7 +7,7 @@
 
 A Flask extension that supports protecting routes with AWS Cognito following [OAuth 2.1 best practices](https://oauth.net/2.1/). That means the full authorization code flow, including Proof Key for Code Exchange (RFC 7636) to prevent Cross Site Request Forgery (CSRF), along with secure storage of access tokens in HTTP only cookies (to prevent Cross Site Scripting attacks), and additional `nonce` validation (if using ID tokens) to prevent replay attacks.
 
-If refresh flow is enabled, refresh token stored in HTTP only, secure cookie with optional Fernet symmetrical encryption using Flask's `SECRET_KEY` (enabled by default).
+Optionally, OAuth refresh flow can be enabled, with the refresh token stored in a HTTP-only cookie with optional Fernet symmetrical encryption using Flask's `SECRET_KEY` (encryption is enabled by default).
 
 **Documentation**: [https://mblackgeo.github.io/flask-cognito-lib](https://mblackgeo.github.io/flask-cognito-lib)
 
@@ -89,8 +89,7 @@ def postlogin():
 @cognito_refresh_callback
 def refresh():
     # A route to handle the token refresh with Cognito.
-    # The decorator will exchange the refresh token, previously stored in the session,
-    # for the new access and refresh tokens.
+    # The decorator will exchange the refresh token for new access and refresh tokens.
     # The new validated access token will be stored in an HTTP only secure cookie.
     # The refresh token will be symmetrically encrypted(by default)
     # and stored in an HTTP only secure cookie.
@@ -107,7 +106,7 @@ def claims():
     # This route is protected by the Cognito authorisation. If the user is not
     # logged in at this point or their token from Cognito is no longer valid
     # a 401 Authentication Error is thrown, which can be caught by registering
-    # an `@app.error_handler(AuthorisationRequiredError).
+    # an `@app.error_handler(AuthorisationRequiredError)`.
     # If their session is valid, the current session will be shown including
     # their claims and user_info extracted from the Cognito tokens.
     return jsonify(session)
@@ -119,7 +118,7 @@ def admin():
     # This route will only be accessible to a user who is a member of all of
     # groups specified in the "groups" argument on the auth_required decorator
     # If they are not, a 401 Authentication Error is thrown, which can be caught
-    # by registering an `@app.error_handler(CognitoGroupRequiredError).
+    # by registering an `@app.error_handler(CognitoGroupRequiredError)`.
     # If their session is valid, the set of groups the user is a member of will be
     # shown.
 
@@ -141,7 +140,7 @@ def edit():
 def logout():
     # Logout of the Cognito User pool and delete the cookies that were set
     # on login.
-    # Revokes the refresh token to not be used again and removes it from the session.
+    # Revokes the refresh token to not be used again and removes the cookie.
     # No logic is required here as it simply redirects to Cognito.
     pass
 

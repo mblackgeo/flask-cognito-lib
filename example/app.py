@@ -91,8 +91,7 @@ def postlogin():
 @cognito_refresh_callback
 def refresh():
     # A route to handle the token refresh with Cognito.
-    # The decorator will exchange the refresh token, previously stored in the session,
-    # for the new access and refresh tokens.
+    # The decorator will exchange the refresh token for new access and refresh tokens.
     # The new validated access token will be stored in an HTTP only secure cookie.
     # The refresh token will be symmetrically encrypted(by default)
     # and stored in an HTTP only secure cookie.
@@ -158,7 +157,7 @@ def missing_group_error_handler(err):
 def logout():
     # Logout of the Cognito User pool and delete the cookies that were set
     # on login.
-    # Revokes the refresh token to not be used again and removes it from the session.
+    # Revokes the refresh token to not be used again and removes the cookie.
     # No logic is required here as it simply redirects to Cognito.
     pass
 

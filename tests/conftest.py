@@ -191,7 +191,7 @@ def token_response(mocker, access_token, id_token, refresh_token):
 @pytest.fixture(autouse=False)
 def refresh_token_response(mocker, access_token, id_token, refresh_token):
     mocker.patch(
-        "flask_cognito_lib.plugin.CognitoAuth.refresh_tokens",
+        "flask_cognito_lib.plugin.CognitoAuth.exchange_refresh_token",
         return_value=CognitoTokenResponse(
             access_token=access_token,
             id_token=id_token,
