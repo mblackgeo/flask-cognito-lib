@@ -1,5 +1,11 @@
 <!--next-version-placeholder-->
 
+## v1.7.0 (2024-05-15)
+
+### Feature
+
+* Add refresh token flow ([#39](https://github.com/mblackgeo/flask-cognito-lib/issues/39)) ([`e165ab8`](https://github.com/mblackgeo/flask-cognito-lib/commit/e165ab827d6e99da1f8416900d1a572625147e49))
+
 ## v1.6.2 (2024-03-26)
 
 ### Fix
