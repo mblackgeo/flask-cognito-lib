@@ -9,6 +9,7 @@ from flask_cognito_lib.decorators import (
     cognito_login,
     cognito_login_callback,
     cognito_logout,
+    cognito_refresh_callback,
 )
 from flask_cognito_lib.utils import CognitoTokenResponse
 
@@ -56,6 +57,12 @@ def app():
     @cognito_login_callback
     def postlogin():
         # recieves the response from cognito and sets a cookie
+        return make_response("ok")
+
+    @_app.route("/refresh")
+    @cognito_refresh_callback
+    def refresh():
+        # receives the response from cognito and updates a cookie
         return make_response("ok")
 
     @_app.route("/logout")
@@ -155,11 +162,41 @@ def id_token():
     )
 
 
+@pytest.fixture
+def refresh_token():
+    return "test_refresh_token"
+
+
+@pytest.fixture
+def refresh_token_encrypted():
+    return (
+        "gAAAAABmKjoi8ZL-kR055eHPSn4mH9tT45UB0_c-"
+        "1w9AFA8MzkDZaE515vu0B9vIiOY6ez3ftJJzq4OT"
+        "PLCzO21L2DPFXaoCDlsQMbRX8nu_4ryLY8vhRmo="
+    )
+
+
 @pytest.fixture(autouse=False)
-def token_response(mocker, access_token, id_token):
+def token_response(mocker, access_token, id_token, refresh_token):
     mocker.patch(
         "flask_cognito_lib.plugin.CognitoAuth.get_tokens",
-        return_value=CognitoTokenResponse(access_token=access_token, id_token=id_token),
+        return_value=CognitoTokenResponse(
+            access_token=access_token,
+            id_token=id_token,
+            refresh_token=refresh_token,
+        ),
+    )
+
+
+@pytest.fixture(autouse=False)
+def refresh_token_response(mocker, access_token, id_token, refresh_token):
+    mocker.patch(
+        "flask_cognito_lib.plugin.CognitoAuth.exchange_refresh_token",
+        return_value=CognitoTokenResponse(
+            access_token=access_token,
+            id_token=id_token,
+            refresh_token=refresh_token,
+        ),
     )
 
 
@@ -167,4 +204,26 @@ def token_response(mocker, access_token, id_token):
 def client_with_cookie(app, access_token, cfg):
     cl = app.test_client()
     cl.set_cookie(key=cfg.COOKIE_NAME, value=access_token)
+    yield cl
+
+
+@pytest.fixture
+def client_with_cookie_refresh(app, cfg, access_token, refresh_token):
+    cl = app.test_client()
+    cl.application.config["AWS_COGNITO_REFRESH_FLOW_ENABLED"] = True
+    cl.application.config["AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"] = False
+    cl.set_cookie(key=cfg.COOKIE_NAME, value=access_token)
+    cl.set_cookie(key=cfg.COOKIE_NAME_REFRESH, value=refresh_token)
+    yield cl
+
+
+@pytest.fixture
+def client_with_cookie_refresh_encrypted(
+    app, cfg, access_token, refresh_token_encrypted
+):
+    cl = app.test_client()
+    cl.application.config["AWS_COGNITO_REFRESH_FLOW_ENABLED"] = True
+    cl.application.config["AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"] = True
+    cl.set_cookie(key=cfg.COOKIE_NAME, value=access_token)
+    cl.set_cookie(key=cfg.COOKIE_NAME_REFRESH, value=refresh_token_encrypted)
     yield cl

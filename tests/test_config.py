@@ -64,3 +64,11 @@ def test_revoke_endpoint(cfg):
     assert cfg.revoke_endpoint == (
         "https://webapp-test.auth.eu-west-1.amazoncognito.com/oauth2/revoke"
     )
+
+
+def test_secret_key(app, cfg):
+    app.config["SECRET_KEY"] = "very-secure"
+    assert cfg.secret_key == b"very-secure"
+
+    app.config["SECRET_KEY"] = b"very-secure"
+    assert cfg.secret_key == b"very-secure"

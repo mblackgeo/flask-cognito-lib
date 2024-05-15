@@ -9,6 +9,7 @@ from flask_cognito_lib.decorators import (
     cognito_login,
     cognito_login_callback,
     cognito_logout,
+    cognito_refresh_callback,
 )
 from flask_cognito_lib.exceptions import (
     AuthorisationRequiredError,
@@ -38,6 +39,13 @@ class Config:
     AWS_COGNITO_REDIRECT_URL = environ["AWS_COGNITO_REDIRECT_URL"]
     AWS_COGNITO_LOGOUT_URL = environ["AWS_COGNITO_LOGOUT_URL"]
     AWS_COGNITO_COOKIE_AGE_SECONDS = environ["AWS_COGNITO_COOKIE_AGE_SECONDS"]
+    AWS_COGNITO_REFRESH_FLOW_ENABLED = environ["AWS_COGNITO_REFRESH_FLOW_ENABLED"]
+    AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED = environ[
+        "AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"
+    ]
+    AWS_COGNITO_REFRESH_COOKIE_AGE_SECONDS = environ[
+        "AWS_COGNITO_REFRESH_COOKIE_AGE_SECONDS"
+    ]
 
 
 app = Flask(__name__)
@@ -79,10 +87,25 @@ def postlogin():
     return redirect(url_for("claims"))
 
 
+@app.route("/refresh", methods=["POST"])
+@cognito_refresh_callback
+def refresh():
+    # A route to handle the token refresh with Cognito.
+    # The decorator will exchange the refresh token for new access and refresh tokens.
+    # The new validated access token will be stored in an HTTP only secure cookie.
+    # The refresh token will be symmetrically encrypted(by default)
+    # and stored in an HTTP only secure cookie.
+    # The user claims and info are stored in the Flask session:
+    # session["claims"] and session["user_info"].
+    # Do anything after the user has refreshed access token here, e.g. a redirect
+    # or perform logic based on the `session["user_info"]`.
+    pass
+
+
 @app.route("/claims")
 @auth_required()
 def claims():
-    # This route is protected by Cognito authorisation. If the user is not
+    # This route is protected by the Cognito authorisation. If the user is not
     # logged in at this point or their token from Cognito is no longer valid
     # a 401 Authentication Error is thrown, which is caught by the
     # `auth_error_handler` a redirected to the Hosted UI to login.
@@ -118,7 +141,7 @@ def edit():
     # This route will only be accessible to a user who is a member of any of
     # groups specified in the "groups" argument on the auth_required decorator
     # If they are not, a CognitoGroupRequiredError is raised which is handled
-    # below
+    # below.
     return jsonify(session["claims"]["cognito:groups"])
 
 
@@ -134,7 +157,8 @@ def missing_group_error_handler(err):
 def logout():
     # Logout of the Cognito User pool and delete the cookies that were set
     # on login.
-    # No logic is required here as it simply redirects to Cognito
+    # Revokes the refresh token to not be used again and removes the cookie.
+    # No logic is required here as it simply redirects to Cognito.
     pass
 
 

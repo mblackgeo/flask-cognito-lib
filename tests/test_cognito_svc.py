@@ -1,8 +1,15 @@
+import re
+
 import pytest
 import requests
+from requests import JSONDecodeError
 
 from flask_cognito_lib.exceptions import CognitoError
 from flask_cognito_lib.services.cognito_svc import CognitoService
+
+
+def raise_exception(e):
+    raise e
 
 
 def test_base_url(cfg):
@@ -67,11 +74,96 @@ def test_exchange_code_for_token_with_public_client(app, cfg, mocker):
 
 
 def test_exchange_code_for_token_error(cfg, mocker):
+    error_code = "some error code"
     mocker.patch(
         "requests.post",
-        return_value=mocker.Mock(json=lambda: {"error": "some error code"}),
+        return_value=mocker.Mock(
+            json=lambda: {
+                "error": error_code,
+            }
+        ),
     )
 
-    with pytest.raises(CognitoError):
+    with pytest.raises(
+        CognitoError,
+        match=f"CognitoError: {error_code}",
+    ):
         cognito = CognitoService(cfg)
         cognito.exchange_code_for_token(code="", code_verifier="")
+
+
+def test_exchange_code_for_token_error_description(cfg, mocker):
+    error_code = "some error code"
+    error_description = "some error description"
+    mocker.patch(
+        "requests.post",
+        return_value=mocker.Mock(
+            json=lambda: {
+                "error": error_code,
+                "error_description": error_description,
+            }
+        ),
+    )
+
+    with pytest.raises(
+        CognitoError,
+        match=f"CognitoError: {error_code} - {error_description}",
+    ):
+        cognito = CognitoService(cfg)
+        cognito.exchange_code_for_token(code="", code_verifier="")
+
+
+def test_exchange_code_for_token_error_json(cfg, mocker):
+    mocker.patch(
+        "requests.post",
+        return_value=mocker.Mock(
+            json=lambda: raise_exception(JSONDecodeError("Expecting value", "", 0))
+        ),
+    )
+
+    with pytest.raises(
+        CognitoError,
+        match=re.escape("Expecting value: line 1 column 1 (char 0)"),
+    ):
+        cognito = CognitoService(cfg)
+        cognito.exchange_code_for_token(code="", code_verifier="")
+
+
+def test_refresh_token(cfg, mocker):
+    mocker.patch(
+        "requests.post",
+        return_value=mocker.Mock(
+            json=lambda: {
+                "access_token": "new_test_access_token",
+                "refresh_token": "new_test_refresh_token",
+            }
+        ),
+    )
+
+    cognito = CognitoService(cfg)
+    token = cognito.exhange_refresh_token(refresh_token="test_refresh_token")
+
+    assert token.access_token == "new_test_access_token"
+    assert token.refresh_token == "new_test_refresh_token"
+
+
+def test_revoke_refresh_token(cfg, mocker):
+    mocker.patch(
+        "requests.post",
+    )
+
+    cognito = CognitoService(cfg)
+    cognito.revoke_refresh_token(refresh_token="test_refresh_token")
+
+
+def test_revoke_refresh_token_error_json(cfg, mocker):
+    mocker.patch(
+        "requests.post",
+        return_value=mocker.Mock(
+            json=lambda: raise_exception(JSONDecodeError("Expecting value", "", 0))
+        ),
+    )
+
+    # Non-JSON response should not raise an exception
+    cognito = CognitoService(cfg)
+    cognito.revoke_refresh_token(refresh_token="test_refresh_token")

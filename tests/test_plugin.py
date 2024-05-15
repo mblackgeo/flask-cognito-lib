@@ -55,3 +55,30 @@ def test_plugin_get_tokens(app, cfg, mocker):
         code_verifier="",
     )
     assert tokens.access_token == "test_access_token"
+
+
+def test_plugin_exchange_refresh_token(app, cfg, mocker):
+    cls = app.extensions[cfg.APP_EXTENSION_KEY]
+    mocker.patch(
+        "requests.post",
+        return_value=mocker.Mock(
+            json=lambda: {
+                "access_token": "new_test_access_token",
+                "refresh_token": "new_test_refresh_token",
+            }
+        ),
+    )
+    tokens = cls.exchange_refresh_token(
+        refresh_token="test_refresh_token",
+    )
+    assert tokens.access_token == "new_test_access_token"
+    assert tokens.refresh_token == "new_test_refresh_token"
+
+
+def test_plugin_revoke_refresh_token(app, cfg, mocker):
+    cls = app.extensions[cfg.APP_EXTENSION_KEY]
+    mocker.patch(
+        "requests.post",
+    )
+
+    cls.revoke_refresh_token(refresh_token="test_refresh_token")
