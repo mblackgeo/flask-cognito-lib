@@ -135,6 +135,16 @@ def cfg():
     return Config()
 
 
+@pytest.fixture
+def cfg_override():
+    class ConfigOverride(Config):
+        @property
+        def logout_redirect(self) -> str:
+            return "http://localhost:8000/postlogout"
+
+    return ConfigOverride()
+
+
 @pytest.fixture(autouse=True)
 def jwk_patch(mocker, jwks):
     # Return the keys from the user pool without hitting the real endpoint
@@ -226,4 +236,11 @@ def client_with_cookie_refresh_encrypted(
     cl.application.config["AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"] = True
     cl.set_cookie(key=cfg.COOKIE_NAME, value=access_token)
     cl.set_cookie(key=cfg.COOKIE_NAME_REFRESH, value=refresh_token_encrypted)
+    yield cl
+
+
+@pytest.fixture
+def client_with_config_override(app, cfg_override):
+    cl = app.test_client()
+    cl.application.extensions[cfg_override.APP_EXTENSION_KEY].cfg = cfg_override
     yield cl
