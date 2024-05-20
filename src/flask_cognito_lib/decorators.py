@@ -21,9 +21,8 @@ from flask_cognito_lib.utils import (
     secure_random,
 )
 
-cfg = Config()
 cognito_auth: CognitoAuth = LocalProxy(
-    lambda: app.extensions[cfg.APP_EXTENSION_KEY]
+    lambda: app.extensions[Config.APP_EXTENSION_KEY]
 )  # type: ignore
 
 
@@ -43,7 +42,7 @@ def validate_and_store_tokens(
     # validate the JWT and get the claims
     claims = cognito_auth.verify_access_token(
         token=tokens.access_token,
-        leeway=cfg.cognito_expiration_leeway,
+        leeway=cognito_auth.cfg.cognito_expiration_leeway,
     )
     session.update({"claims": claims})
 
@@ -52,7 +51,7 @@ def validate_and_store_tokens(
         user_info = cognito_auth.verify_id_token(
             token=tokens.id_token,
             nonce=nonce,
-            leeway=cfg.cognito_expiration_leeway,
+            leeway=cognito_auth.cfg.cognito_expiration_leeway,
         )
         session.update({"user_info": user_info})
 
@@ -77,8 +76,8 @@ def store_token_in_cookie(
         max_age=max_age,
         httponly=True,
         secure=True,
-        samesite=cfg.cookie_samesite,
-        domain=cfg.cookie_domain,
+        samesite=cognito_auth.cfg.cookie_samesite,
+        domain=cognito_auth.cfg.cookie_domain,
     )
 
 
@@ -88,8 +87,8 @@ def get_token_from_cookie(cookie_name: str) -> Union[str, None]:
 
     if (
         token
-        and cfg.COOKIE_NAME_REFRESH == cookie_name
-        and cfg.refresh_cookie_encrypted
+        and cognito_auth.cfg.COOKIE_NAME_REFRESH == cookie_name
+        and cognito_auth.cfg.refresh_cookie_encrypted
     ):
         # Decrypt the refresh token
         return cognito_auth.token_service.decrypt_token(token)
@@ -126,7 +125,7 @@ def cognito_login(fn):
                 code_challenge=session["code_challenge"],
                 state=session["state"],
                 nonce=session["nonce"],
-                scopes=cfg.cognito_scopes,
+                scopes=cognito_auth.cfg.cognito_scopes,
             )
 
         return redirect(login_url)
@@ -174,18 +173,18 @@ def cognito_login_callback(fn):
             store_token_in_cookie(
                 resp=resp,
                 token=tokens.access_token,
-                cookie_name=cfg.COOKIE_NAME,
-                max_age=cfg.max_cookie_age_seconds,
+                cookie_name=cognito_auth.cfg.COOKIE_NAME,
+                max_age=cognito_auth.cfg.max_cookie_age_seconds,
             )
 
             # Grab the refresh token and store in a HTTP only secure cookie
-            if cfg.refresh_flow_enabled and tokens.refresh_token:
+            if cognito_auth.cfg.refresh_flow_enabled and tokens.refresh_token:
                 store_token_in_cookie(
                     resp=resp,
                     token=tokens.refresh_token,
-                    cookie_name=cfg.COOKIE_NAME_REFRESH,
-                    max_age=cfg.max_refresh_cookie_age_seconds,
-                    encrypt=cfg.refresh_cookie_encrypted,
+                    cookie_name=cognito_auth.cfg.COOKIE_NAME_REFRESH,
+                    max_age=cognito_auth.cfg.max_refresh_cookie_age_seconds,
+                    encrypt=cognito_auth.cfg.refresh_cookie_encrypted,
                 )
 
         return resp
@@ -199,10 +198,10 @@ def cognito_refresh_callback(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         with app.app_context():
-            if not cfg.refresh_flow_enabled:
+            if not cognito_auth.cfg.refresh_flow_enabled:
                 raise CognitoError("Refresh flow is not enabled")
 
-            refresh_token = get_token_from_cookie(cfg.COOKIE_NAME_REFRESH)
+            refresh_token = get_token_from_cookie(cognito_auth.cfg.COOKIE_NAME_REFRESH)
 
             if not refresh_token:
                 raise CognitoError("No refresh token provided")
@@ -222,8 +221,8 @@ def cognito_refresh_callback(fn):
             store_token_in_cookie(
                 resp=resp,
                 token=tokens.access_token,
-                cookie_name=cfg.COOKIE_NAME,
-                max_age=cfg.max_cookie_age_seconds,
+                cookie_name=cognito_auth.cfg.COOKIE_NAME,
+                max_age=cognito_auth.cfg.max_cookie_age_seconds,
             )
 
         return resp
@@ -238,15 +237,19 @@ def cognito_logout(fn):
     def wrapper(*args, **kwargs):
         with app.app_context():
             # logout at cognito and remove the cookies
-            resp = redirect(cfg.logout_endpoint)
-            resp.delete_cookie(key=cfg.COOKIE_NAME, domain=cfg.cookie_domain)
+            resp = redirect(cognito_auth.cfg.logout_endpoint)
+            resp.delete_cookie(
+                key=cognito_auth.cfg.COOKIE_NAME, domain=cognito_auth.cfg.cookie_domain
+            )
 
             # Revoke the refresh token if it exists
-            if refresh_token := get_token_from_cookie(cfg.COOKIE_NAME_REFRESH):
+            if refresh_token := get_token_from_cookie(
+                cognito_auth.cfg.COOKIE_NAME_REFRESH
+            ):
                 cognito_auth.revoke_refresh_token(refresh_token)
                 resp.delete_cookie(
-                    key=cfg.COOKIE_NAME_REFRESH,
-                    domain=cfg.cookie_domain,
+                    key=cognito_auth.cfg.COOKIE_NAME_REFRESH,
+                    domain=cognito_auth.cfg.cookie_domain,
                 )
 
         # Cognito will redirect to the sign-out URL (if set) or else use
@@ -264,15 +267,15 @@ def auth_required(groups: Optional[Iterable[str]] = None, any_group: bool = Fals
         def decorator(*args, **kwargs):
             with app.app_context():
                 # return early if the extension is disabled
-                if cfg.disabled:
+                if cognito_auth.cfg.disabled:
                     return fn(*args, **kwargs)
 
                 # Try and validate the access token stored in the cookie
                 try:
-                    access_token = request.cookies.get(cfg.COOKIE_NAME)
+                    access_token = request.cookies.get(cognito_auth.cfg.COOKIE_NAME)
                     claims = cognito_auth.verify_access_token(
                         token=access_token,
-                        leeway=cfg.cognito_expiration_leeway,
+                        leeway=cognito_auth.cfg.cognito_expiration_leeway,
                     )
                     valid = True
 
