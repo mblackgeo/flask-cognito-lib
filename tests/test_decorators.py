@@ -298,7 +298,8 @@ def test_cognito_logout(client, cfg):
 
 
 def test_cognito_logout_override(client_with_config_override, cfg_override):
-    # should 302 redirect to cognito
+    # should 302 redirect to cognito, logout endpoint should be the overridden
+    # from the custom Config object
     response = client_with_config_override.get("/logout")
     assert response.status_code == 302
     assert response.headers["location"].startswith(cfg_override.logout_endpoint)

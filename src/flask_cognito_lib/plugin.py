@@ -16,6 +16,7 @@ class CognitoAuth:
         app: Optional[Flask] = None,
         _token_service_factory: Callable = token_service_factory,
         _cognito_service_factory: Callable = cognito_service_factory,
+        cfg: Optional[Config] = None,
     ):
         """Instantiate the CognitoAuth manager
 
@@ -24,21 +25,28 @@ class CognitoAuth:
         app : Optional[Flask], optional
             An optional instance of a Flask application. If doing lazy init
             use the `init_app` method instead
+        cfg : Optional[Config], optional
+            Configuration object to use. If not provided, a default Config is used.
         """
         self.token_service_factory = _token_service_factory
         self.cognito_service_factory = _cognito_service_factory
         if app is not None:
-            self.init_app(app)
+            self.init_app(app=app, cfg=cfg)
 
-    def init_app(self, app: Flask):
+    def init_app(self, app: Flask, cfg: Optional[Config] = None):
         """Register the extension with a Flask application
 
         Parameters
         ----------
         app : Flask
             Flask application
+        cfg : Optional[Config], optional
+            Configuration object to use. If not provided, a default Config is used.
         """
-        self.cfg = Config()
+        if cfg:
+            self.cfg = cfg
+        else:
+            self.cfg = Config()
         app.extensions[self.cfg.APP_EXTENSION_KEY] = self
 
     @property
