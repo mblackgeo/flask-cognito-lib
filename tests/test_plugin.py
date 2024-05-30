@@ -11,10 +11,28 @@ def test_plugin_init(cfg):
     assert cfg.APP_EXTENSION_KEY in app.extensions
 
 
+def test_plugin_init_with_config_override(cfg_override):
+    app = Flask(__name__)
+    CognitoAuth(app, cfg=cfg_override)
+    assert (
+        app.extensions[cfg_override.APP_EXTENSION_KEY].cfg.logout_redirect
+        == cfg_override.logout_redirect
+    )
+
+
 def test_plugin_lazy_init(cfg):
     app = Flask(__name__)
     CognitoAuth().init_app(app)
     assert cfg.APP_EXTENSION_KEY in app.extensions
+
+
+def test_plugin_lazy_init_with_config_override(cfg_override):
+    app = Flask(__name__)
+    CognitoAuth().init_app(app, cfg=cfg_override)
+    assert (
+        app.extensions[cfg_override.APP_EXTENSION_KEY].cfg.logout_redirect
+        == cfg_override.logout_redirect
+    )
 
 
 def test_plugin_get_tokens_parameters_state(app, cfg):

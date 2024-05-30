@@ -297,6 +297,14 @@ def test_cognito_logout(client, cfg):
     assert response.headers["location"].startswith(cfg.logout_endpoint)
 
 
+def test_cognito_logout_override(client_with_config_override, cfg_override):
+    # should 302 redirect to cognito, logout endpoint should be the overridden
+    # from the custom Config object
+    response = client_with_config_override.get("/logout")
+    assert response.status_code == 302
+    assert response.headers["location"].startswith(cfg_override.logout_endpoint)
+
+
 def test_cognito_logout_with_refresh_token(client_with_cookie_refresh, cfg, mocker):
     # Mock the refresh token revocation
     mocker.patch(

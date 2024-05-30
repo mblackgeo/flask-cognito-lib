@@ -157,6 +157,41 @@ if __name__ == "__main__":
     app.run()
 ```
 
+## Config class override
+
+There might be some cases where you want to override the default `Config` class to add custom logic. For example, to generate the `redirect_url` and `logout_redirect` dynamically using `url_for`, you can override the `Config` class as follows:
+
+```python
+from flask import url_for
+from flask_cognito_lib.config import Config
+
+class ConfigOverride(Config):
+    """
+    ConfigOverride class to generate URLs dynamically using `url_for`
+    """
+    @property
+    def redirect_url(self) -> str:
+        """Return the Redirect URL (post-login)"""
+        return url_for(endpoint='auth.cognito', _external=True)
+
+    @property
+    def logout_redirect(self) -> str:
+        """Return the Redirect URL (post-logout)"""
+        return url_for(endpoint='auth.cognito_post_logout', _external=True)
+```
+
+Then, pass the object of `ConfigOverride` class when initializing the `CognitoAuth` plugin as follows:
+
+```python
+CognitoAuth(app, cfg=ConfigOverride())
+```
+
+Or if you are using lazy initialization:
+
+```python
+CognitoAuth().init_app(app, cfg=ConfigOverride())
+```
+
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Please make sure to update tests as appropriate and ensure 100% test coverage.
