@@ -1,5 +1,11 @@
 <!--next-version-placeholder-->
 
+## v1.8.0 (2024-05-30)
+
+### Feature
+
+* Allow overriding of configuration object ([#43](https://github.com/mblackgeo/flask-cognito-lib/issues/43)) ([`ece4645`](https://github.com/mblackgeo/flask-cognito-lib/commit/ece4645a1aea239fddfd15720e68ddf3e9814d28))
+
 ## v1.7.0 (2024-05-15)
 
 ### Feature
