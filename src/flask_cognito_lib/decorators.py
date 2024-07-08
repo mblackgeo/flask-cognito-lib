@@ -187,6 +187,15 @@ def cognito_login_callback(fn):
                     encrypt=cognito_auth.cfg.refresh_cookie_encrypted,
                 )
 
+            # Store the ID token in a HTTP only secure cookie
+            if tokens.id_token is not None:
+                store_token_in_cookie(
+                    resp=resp,
+                    token=tokens.id_token,
+                    cookie_name=cognito_auth.cfg.COOKIE_NAME_ID,
+                    max_age=cognito_auth.cfg.max_cookie_age_seconds,
+                )
+
         return resp
 
     return wrapper
@@ -206,7 +215,7 @@ def cognito_refresh_callback(fn):
             if not refresh_token:
                 raise CognitoError("No refresh token provided")
 
-            # Exchange refresh token for the new access token.
+            # Exchange refresh token for the new access/id token.
             tokens = cognito_auth.exchange_refresh_token(
                 refresh_token=refresh_token,
             )
@@ -224,6 +233,15 @@ def cognito_refresh_callback(fn):
                 cookie_name=cognito_auth.cfg.COOKIE_NAME,
                 max_age=cognito_auth.cfg.max_cookie_age_seconds,
             )
+
+            # Store the id token in a HTTP only secure cookie
+            if tokens.id_token is not None:
+                store_token_in_cookie(
+                    resp=resp,
+                    token=tokens.id_token,
+                    cookie_name=cognito_auth.cfg.COOKIE_NAME_ID,
+                    max_age=cognito_auth.cfg.max_cookie_age_seconds,
+                )
 
         return resp
 
@@ -249,6 +267,13 @@ def cognito_logout(fn):
                 cognito_auth.revoke_refresh_token(refresh_token)
                 resp.delete_cookie(
                     key=cognito_auth.cfg.COOKIE_NAME_REFRESH,
+                    domain=cognito_auth.cfg.cookie_domain,
+                )
+
+            # Remove the id token if it exists
+            if get_token_from_cookie(cognito_auth.cfg.COOKIE_NAME_ID):
+                resp.delete_cookie(
+                    key=cognito_auth.cfg.COOKIE_NAME_ID,
                     domain=cognito_auth.cfg.cookie_domain,
                 )
 
