@@ -1,5 +1,11 @@
 <!--next-version-placeholder-->
 
+## v1.8.1 (2024-07-29)
+
+### Fix
+
+* Add descriptions to HTML exceptions ([#47](https://github.com/mblackgeo/flask-cognito-lib/issues/47)) ([`08e251e`](https://github.com/mblackgeo/flask-cognito-lib/commit/08e251e823b00bda106eba76dacd5896267444b3))
+
 ## v1.8.0 (2024-05-30)
 
 ### Feature
