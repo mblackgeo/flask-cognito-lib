@@ -49,6 +49,7 @@ class Config:
     CONTEXT_KEY_TOKEN_SERVICE = "aws_jwt_service"
     COOKIE_NAME = "cognito_access_token"
     COOKIE_NAME_REFRESH = "cognito_refresh_token"
+    COOKIE_NAME_ID = "cognito_id_token"
 
     @property
     def disabled(self) -> bool:
