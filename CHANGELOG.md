@@ -1,5 +1,17 @@
 <!--next-version-placeholder-->
 
+## v1.8.2 (2024-08-27)
+
+### Fix
+
+* Update cryptography pin to address CVE-2024-26130 ([`c37f1e5`](https://github.com/mblackgeo/flask-cognito-lib/commit/c37f1e5b16cb328115158c1ba7b4ca80d69778a3))
+
+## v1.8.1 (2024-07-29)
+
+### Fix
+
+* Add descriptions to HTML exceptions ([#47](https://github.com/mblackgeo/flask-cognito-lib/issues/47)) ([`08e251e`](https://github.com/mblackgeo/flask-cognito-lib/commit/08e251e823b00bda106eba76dacd5896267444b3))
+
 ## v1.8.0 (2024-05-30)
 
 ### Feature

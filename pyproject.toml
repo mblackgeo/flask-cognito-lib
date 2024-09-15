@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flask_cognito_lib"
-version = "1.8.0"
+version = "1.8.2"
 description = "A Flask extension that supports protecting routes with AWS Cognito following OAuth 2.1 best practices"
 license = "MIT"
 authors = ["mblackgeo <18327836+mblackgeo@users.noreply.github.com>"]
@@ -31,7 +31,7 @@ Flask = ">=2.0,<4.0"
 requests = "~=2.0"
 PyJWT = { extras = ["crypto"], version = ">=2.4,<3.0" }
 urllib3 = "<3.0"
-cryptography = "^41.0.5"
+cryptography = "^42.0.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.2"
