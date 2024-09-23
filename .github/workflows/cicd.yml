@@ -88,6 +88,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Semantic release output
+        if: always()
         run: cat out.txt
 
       - name: Build and publish to Test PyPI
