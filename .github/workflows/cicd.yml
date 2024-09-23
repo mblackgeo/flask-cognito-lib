@@ -92,7 +92,10 @@ jobs:
         run: cat out.txt
 
       - name: Build and publish to Test PyPI
-        uses: JRubics/poetry-publish@v1.10
+        uses: JRubics/poetry-publish@v2.0
+        with:
+          python_version: "3.8"
+          poetry_version: "==1.5.1"
         if: ${{ env.TO_RELEASE == '1' }}
         with:
           pypi_token: ${{ secrets.TEST_PYPI_API_TOKEN }}
@@ -107,8 +110,13 @@ jobs:
           --extra-index-url https://pypi.org/simple \
           flask-cognito-lib
 
+      # TODO run unit tests against Test-PyPI installation
+
       - name: Build and publish to PyPI
-        if: ${{ env.TO_RELEASE == '1' }}
+        uses: JRubics/poetry-publish@v2.0
+        with:
+          python_version: "3.8"
+          poetry_version: "==1.5.1"
         uses: JRubics/poetry-publish@v1.10
         with:
           pypi_token: ${{ secrets.PYPI_API_TOKEN }}
