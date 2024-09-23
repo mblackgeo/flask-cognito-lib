@@ -228,6 +228,13 @@ def client_with_cookie_refresh(app, cfg, access_token, refresh_token):
 
 
 @pytest.fixture
+def client_with_cookie_id(app, cfg, id_token):
+    cl = app.test_client()
+    cl.set_cookie(key=cfg.COOKIE_NAME_ID, value=id_token)
+    yield cl
+
+
+@pytest.fixture
 def client_with_cookie_refresh_encrypted(
     app, cfg, access_token, refresh_token_encrypted
 ):

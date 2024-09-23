@@ -322,6 +322,18 @@ def test_cognito_logout_with_refresh_token(client_with_cookie_refresh, cfg, mock
     assert cookies_set[1].startswith(f"{cfg.COOKIE_NAME_REFRESH}=;")
 
 
+def test_cognito_logout_with_id_token(client_with_cookie_id, cfg, mocker):
+    # should 302 redirect to cognito
+    response = client_with_cookie_id.get("/logout")
+    assert response.status_code == 302
+    assert response.headers["location"].startswith(cfg.logout_endpoint)
+
+    # check that both access and refresh token is set in the cookie
+    cookies_set = response.headers.getlist("Set-Cookie")
+    assert cookies_set[0].startswith(f"{cfg.COOKIE_NAME}=;")
+    assert cookies_set[1].startswith(f"{cfg.COOKIE_NAME_ID}=;")
+
+
 def test_auth_required_expired_token(client, cfg, app, access_token):
     # 403 if the token verification has failed
     app.config["AWS_COGNITO_EXPIRATION_LEEWAY"] = 0
