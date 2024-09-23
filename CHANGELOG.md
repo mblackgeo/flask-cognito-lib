@@ -1,5 +1,11 @@
 <!--next-version-placeholder-->
 
+## v1.9.0 (2024-09-23)
+
+### Feature
+
+* Store cognito_id_token in cookie ([#45](https://github.com/mblackgeo/flask-cognito-lib/issues/45)) ([`6933d04`](https://github.com/mblackgeo/flask-cognito-lib/commit/6933d044d9cc08e39cd3665bf85df6a9a202d5a3))
+
 ## v1.8.2 (2024-08-27)
 
 ### Fix
