@@ -1,5 +1,11 @@
 <!--next-version-placeholder-->
 
+## v1.9.1 (2024-09-26)
+
+### Fix
+
+* Update cryptography to address GHSA-h4gh-qq45-vh27 ([`39a22bb`](https://github.com/mblackgeo/flask-cognito-lib/commit/39a22bb7ffad2aa3acfc6b16724602bd48235713))
+
 ## v1.9.0 (2024-09-23)
 
 ### Feature
