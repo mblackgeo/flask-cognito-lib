@@ -75,10 +75,6 @@ jobs:
       - name: Install code
         run: poetry install
 
-      - uses: qoomon/actions--setup-git@v1
-        with:
-          user: bot
-
       - name: Semantic Release
         id: release
         run: |
