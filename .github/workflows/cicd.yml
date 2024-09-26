@@ -82,7 +82,7 @@ jobs:
       - name: Semantic Release
         id: release
         run: |
-          poetry run semantic-release publish 2> out.txt
+          poetry run semantic-release publish -D commit_author='github-actions <action@github.com>' 2> out.txt
           grep -q "No release will be made" out.txt && echo "TO_RELEASE=0" >> "$GITHUB_ENV" || echo "TO_RELEASE=1" >> "$GITHUB_ENV"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
