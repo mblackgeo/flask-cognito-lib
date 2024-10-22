@@ -306,14 +306,19 @@ def auth_required(groups: Optional[Iterable[str]] = None, any_group: bool = Fals
 
                     # Check for required group membership
                     if groups:
+                        if "cognito:groups" not in claims:
+                            raise CognitoGroupRequiredError("No groups found in claims")
+
                         if any_group:
-                            valid = 'cognito:groups' in session['claims'] and any(g in claims["cognito:groups"] for g in groups)
+                            valid = any(g in claims["cognito:groups"] for g in groups)
                         else:
-                            valid = 'cognito:groups' in session['claims'] and all(g in claims["cognito:groups"] for g in groups)
+                            valid = all(g in claims["cognito:groups"] for g in groups)
 
                         if not valid:
                             raise CognitoGroupRequiredError
 
+                except CognitoGroupRequiredError:
+                    raise
                 except (TokenVerifyError, KeyError):
                     valid = False
 
