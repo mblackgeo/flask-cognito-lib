@@ -429,8 +429,7 @@ def test_auth_required_any_group_no_groups(client_with_cookie, mocker):
 
     # Does not have access to this route, not in any valid group
     response = client_with_cookie.get("/any_group")
-    print(response.data.decode("utf-8"))
     assert response.status_code == 403
-    # Check the content of the response
+
     response_data = response.data.decode("utf-8")
     assert "No groups found in claims" in response_data
