@@ -360,6 +360,10 @@ def test_auth_required_all_groups_invalid(client_with_cookie):
     # 403 as the token isn't in this group
     response = client_with_cookie.get("/invalid_group")
     assert response.status_code == 403
+    response_data = response.data.decode("utf-8")
+    assert (
+        "Cognito group membership is required to access this resource" in response_data
+    )
 
 
 def test_auth_required_extension_dislabled(client, app):
@@ -409,3 +413,23 @@ def test_auth_required_any_group_invalid(client_with_cookie, mocker):
     # Does not have access to this route, not in any valid group
     response = client_with_cookie.get("/any_group")
     assert response.status_code == 403
+    response_data = response.data.decode("utf-8")
+    assert (
+        "Cognito group membership is required to access this resource" in response_data
+    )
+
+
+def test_auth_required_any_group_no_groups(client_with_cookie, mocker):
+    # Mock the token verfication to add an extra group for testing
+    # valid groups are "editor" and "admin"
+    mocker.patch(
+        "flask_cognito_lib.decorators.cognito_auth.verify_access_token",
+        return_value={},
+    )
+
+    # Does not have access to this route, not in any valid group
+    response = client_with_cookie.get("/any_group")
+    assert response.status_code == 403
+
+    response_data = response.data.decode("utf-8")
+    assert "No groups found in claims" in response_data

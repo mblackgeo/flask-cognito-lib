@@ -284,6 +284,15 @@ def cognito_logout(fn):
     return wrapper
 
 
+def check_group_membership(claims, groups, any_group):
+    if "cognito:groups" not in claims:
+        raise CognitoGroupRequiredError("No groups found in claims")
+
+    if any_group:
+        return any(g in claims["cognito:groups"] for g in groups)
+    return all(g in claims["cognito:groups"] for g in groups)
+
+
 def auth_required(groups: Optional[Iterable[str]] = None, any_group: bool = False):
     """A decorator to protect a route with AWS Cognito"""
 
@@ -302,25 +311,17 @@ def auth_required(groups: Optional[Iterable[str]] = None, any_group: bool = Fals
                         token=access_token,
                         leeway=cognito_auth.cfg.cognito_expiration_leeway,
                     )
-                    valid = True
-
                     # Check for required group membership
                     if groups:
-                        if any_group:
-                            valid = any(g in claims["cognito:groups"] for g in groups)
-                        else:
-                            valid = all(g in claims["cognito:groups"] for g in groups)
-
-                        if not valid:
+                        if not check_group_membership(claims, groups, any_group):
                             raise CognitoGroupRequiredError
 
-                except (TokenVerifyError, KeyError):
-                    valid = False
-
-                if valid:
                     return fn(*args, **kwargs)
 
-                raise AuthorisationRequiredError
+                except CognitoGroupRequiredError:
+                    raise
+                except (TokenVerifyError, KeyError):
+                    raise AuthorisationRequiredError
 
         return decorator
 
