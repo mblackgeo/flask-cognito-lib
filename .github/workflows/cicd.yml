@@ -78,6 +78,8 @@ jobs:
       - name: Semantic Release
         id: release
         run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "action@github.com"
           poetry run semantic-release publish -D commit_author='github-actions <action@github.com>' 2> out.txt
           grep -q "No release will be made" out.txt && echo "TO_RELEASE=0" >> "$GITHUB_ENV" || echo "TO_RELEASE=1" >> "$GITHUB_ENV"
         env:
