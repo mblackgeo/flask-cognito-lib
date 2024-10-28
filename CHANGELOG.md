@@ -1,5 +1,11 @@
 <!--next-version-placeholder-->
 
+## v1.9.2 (2024-10-28)
+
+### Fix
+
+* Add null check for cognito groups ([#54](https://github.com/mblackgeo/flask-cognito-lib/issues/54)) ([`d4a0cba`](https://github.com/mblackgeo/flask-cognito-lib/commit/d4a0cbada48f0cd6bc4e48fe93862c821f51acf8))
+
 ## v1.9.1 (2024-09-26)
 
 ### Fix
