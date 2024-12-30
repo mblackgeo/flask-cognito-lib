@@ -11,7 +11,7 @@ from flask_cognito_lib.decorators import (
     cognito_logout,
     cognito_refresh_callback,
 )
-from flask_cognito_lib.utils import CognitoTokenResponse
+from flask_cognito_lib.utils import CognitoExtraAuthorizeParams, CognitoTokenResponse
 
 
 @pytest.fixture(autouse=True)
@@ -52,6 +52,33 @@ def app():
     def login():
         # 302 redirects to the cognito UI
         pass
+
+    @_app.route("/login_with_extra_authorize_params")
+    @cognito_login
+    def login_with_extra_authorize_params():
+        # 302 redirects to the cognito UI
+        authorize_params = CognitoExtraAuthorizeParams(
+            lang="en",
+            idp_identifier="an_idp",
+            identity_provider="COGNITO",
+            login_hint="user@example.com",
+        )
+
+        return authorize_params
+
+    @_app.route("/login_with_not_all_extra_authorize_params")
+    @cognito_login
+    def login_with_not_all_extra_authorize_params():
+        # 302 redirects to the cognito UI
+        authorize_params = CognitoExtraAuthorizeParams(lang="en")
+
+        return authorize_params
+
+    @_app.route("/login_with_custom_return")
+    @cognito_login
+    def login_with_custom_return():
+        # perhaps in conditional, passes or returns a custom response
+        return make_response("ok")
 
     @_app.route("/postlogin")
     @cognito_login_callback

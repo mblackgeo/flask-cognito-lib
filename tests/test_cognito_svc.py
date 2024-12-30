@@ -6,6 +6,7 @@ from requests import JSONDecodeError
 
 from flask_cognito_lib.exceptions import CognitoError
 from flask_cognito_lib.services.cognito_svc import CognitoService
+from flask_cognito_lib.utils import CognitoExtraAuthorizeParams
 
 
 def raise_exception(e):
@@ -35,6 +36,60 @@ def test_sign_in_url(cfg):
         "&code_challenge=asdf"
         "&code_challenge_method=S256"
         "&scope=openid+profile"
+    )
+
+
+def test_sign_in_url_with_authorize_params(cfg):
+    cognito = CognitoService(cfg)
+    res = cognito.get_sign_in_url(
+        code_challenge="asdf",
+        state="1234",
+        nonce="6789",
+        scopes=["openid", "profile"],
+        extra_authorize_params=CognitoExtraAuthorizeParams(
+            identity_provider="COGNITO",
+            idp_identifier="an_idp",
+            lang="en",
+            login_hint="user@example.com",
+        ),
+    )
+    assert res == (
+        "https://webapp-test.auth.eu-west-1.amazoncognito.com/oauth2/authorize"
+        "?response_type=code"
+        "&client_id=4lln66726pp3f4gi1krj0sta9h"
+        "&redirect_uri=http%3A//localhost%3A5000/postlogin"
+        "&state=1234"
+        "&nonce=6789"
+        "&code_challenge=asdf"
+        "&code_challenge_method=S256"
+        "&scope=openid+profile"
+        "&identity_provider=COGNITO"
+        "&idp_identifier=an_idp"
+        "&lang=en"
+        "&login_hint=user%40example.com"
+    )
+
+
+def test_sign_in_url_with_not_allauthorize_params(cfg):
+    cognito = CognitoService(cfg)
+    res = cognito.get_sign_in_url(
+        code_challenge="asdf",
+        state="1234",
+        nonce="6789",
+        scopes=["openid", "profile"],
+        extra_authorize_params=CognitoExtraAuthorizeParams(lang="en"),
+    )
+    assert res == (
+        "https://webapp-test.auth.eu-west-1.amazoncognito.com/oauth2/authorize"
+        "?response_type=code"
+        "&client_id=4lln66726pp3f4gi1krj0sta9h"
+        "&redirect_uri=http%3A//localhost%3A5000/postlogin"
+        "&state=1234"
+        "&nonce=6789"
+        "&code_challenge=asdf"
+        "&code_challenge_method=S256"
+        "&scope=openid+profile"
+        "&lang=en"
     )
 
 

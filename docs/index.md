@@ -59,9 +59,13 @@ auth = CognitoAuth(app)
 @app.route("/login")
 @cognito_login
 def login():
-    # A simple route that will redirect to the Cognito Hosted UI.
-    # No logic is required as the decorator handles the redirect to the Cognito
-    # hosted UI for the user to sign in.
+    # A route that will redirect to the Cognito Hosted UI.
+    # The decorator handles the redirect to the Cognito hosted UI for user sign in.
+
+    # Returning an instance of utils.CognitoExtraAuthorizeParams here will
+    # configure authorize endpoint params that are potentially different per request.
+    # For example: return CognitoExtraAuthorizeParams(lang="es")
+
     # An optional "state" value can be set in the current session which will
     # be passed and then used in the postlogin route (after the user has logged
     # into the Cognito hosted UI); this could be used for dynamic redirects,

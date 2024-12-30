@@ -71,6 +71,35 @@ def test_cognito_login(client, cfg):
     assert response.headers["location"].startswith(cfg.authorize_endpoint)
 
 
+def test_cognito_login_with_extra_authorize_params(client, cfg):
+    response = client.get("/login_with_extra_authorize_params")
+
+    # should 302 redirect to cognito
+    assert response.status_code == 302
+    assert response.headers["location"].startswith(cfg.authorize_endpoint)
+    assert response.headers["location"].endswith(
+        "&identity_provider=COGNITO"
+        "&idp_identifier=an_idp"
+        "&lang=en"
+        "&login_hint=user%40example.com"
+    )
+
+
+def test_cognito_login_with_not_all_extra_authorize_params(client, cfg):
+    response = client.get("/login_with_not_all_extra_authorize_params")
+
+    # should 302 redirect to cognito
+    assert response.status_code == 302
+    assert response.headers["location"].startswith(cfg.authorize_endpoint)
+    assert response.headers["location"].endswith("&lang=en")
+
+
+def test_cognito_login_with_custom_return(client, cfg):
+    response = client.get("/login_with_custom_return")
+
+    assert response.status_code == 200
+
+
 def test_cognito_custom_state(client, cfg):
     with client.session_transaction() as sess:
         sess["state"] = "homepage"
