@@ -13,14 +13,14 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         id: cache
         with:
           path: ${{ env.pythonLocation }}
@@ -59,13 +59,13 @@ jobs:
 
     # Define job steps
     steps:
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.11
 
       - name: Check-out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -77,30 +77,25 @@ jobs:
 
       - name: Semantic Release
         id: release
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "action@github.com"
-          poetry run semantic-release publish -D commit_author='github-actions <action@github.com>' 2> out.txt
-          grep -q "No release will be made" out.txt && echo "TO_RELEASE=0" >> "$GITHUB_ENV" || echo "TO_RELEASE=1" >> "$GITHUB_ENV"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Semantic release output
-        if: always()
-        run: cat out.txt
+        uses: python-semantic-release/python-semantic-release@v9.15.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          git_committer_email: action@github.com
+          git_committer_name: github-actions
+          vcs_release: true
 
       - name: Build and publish to Test PyPI
         uses: JRubics/poetry-publish@v2.0
-        if: ${{ env.TO_RELEASE == '1' }}
+        if: steps.release.outputs.released == 'true'
         with:
-          python_version: "3.8"
+          python_version: "3.11"
           poetry_version: "==1.5.1"
           pypi_token: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository_name: "testpypi"
           repository_url: "https://test.pypi.org/legacy/"
 
       - name: Test install from Test PyPI
-        if: ${{ env.TO_RELEASE == '1' }}
+        if: steps.release.outputs.released == 'true'
         run: |
           pip install \
           --index-url https://test.pypi.org/simple/ \
@@ -111,8 +106,8 @@ jobs:
 
       - name: Build and publish to PyPI
         uses: JRubics/poetry-publish@v2.0
-        if: ${{ env.TO_RELEASE == '1' }}
+        if: steps.release.outputs.released == 'true'
         with:
-          python_version: "3.8"
+          python_version: "3.11"
           poetry_version: "==1.5.1"
           pypi_token: ${{ secrets.PYPI_API_TOKEN }}
