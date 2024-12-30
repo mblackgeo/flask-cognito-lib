@@ -39,12 +39,14 @@ def validate_and_store_tokens(
     nonce: Optional[str] = None,
 ) -> None:
     """Validate and store the access token and ID token (if present) in the session"""
-    # validate the JWT and get the claims
-    claims = cognito_auth.verify_access_token(
-        token=tokens.access_token,
-        leeway=cognito_auth.cfg.cognito_expiration_leeway,
-    )
-    session.update({"claims": claims})
+
+    if tokens.access_token is not None:
+        # validate the JWT and get the claims
+        claims = cognito_auth.verify_access_token(
+            token=tokens.access_token,
+            leeway=cognito_auth.cfg.cognito_expiration_leeway,
+        )
+        session.update({"claims": claims})
 
     # Grab the user info from the user endpoint and store in the session
     if tokens.id_token is not None:
@@ -66,19 +68,20 @@ def store_token_in_cookie(
     """Store the token in an HTTP only secure cookie with the given name and max age
 
     Optionally symmetrically encrypt a token using Fernet with the Flask `SECRET_KEY`"""
-    if encrypt:
-        # Encrypt the token
-        token = cognito_auth.token_service.encrypt_token(token)
+    if token is not None:
+        if encrypt:
+            # Encrypt the token
+            token = cognito_auth.token_service.encrypt_token(token)
 
-    resp.set_cookie(
-        key=cookie_name,
-        value=token,
-        max_age=max_age,
-        httponly=True,
-        secure=True,
-        samesite=cognito_auth.cfg.cookie_samesite,
-        domain=cognito_auth.cfg.cookie_domain,
-    )
+        resp.set_cookie(
+            key=cookie_name,
+            value=token,
+            max_age=max_age,
+            httponly=True,
+            secure=True,
+            samesite=cognito_auth.cfg.cookie_samesite,
+            domain=cognito_auth.cfg.cookie_domain,
+        )
 
 
 def get_token_from_cookie(cookie_name: str) -> Union[str, None]:
@@ -112,8 +115,8 @@ def cognito_login(fn):
             }
             session.update(cognito_session)
 
-            # Add suport for custom state values which are appended to a secure
-            # random value for additional CRSF protection
+            # Add support for custom state values which are appended to a secure
+            # random value for additional CSRF protection
             state = secure_random()
             custom_state = session.get("state")
             if custom_state:
@@ -163,8 +166,10 @@ def cognito_login_callback(fn):
 
             # split out the random part of the state value (in case the user
             # specified their own custom state value)
-            state = session.get("state").split("__")[-1]
-            session.update({"state": state})
+            state = session.get("state", None)
+            if state is not None:
+                state = state.split("__")[-1]
+                session.update({"state": state})
 
             # return and set the JWT as a http only cookie
             resp = fn(*args, **kwargs)
