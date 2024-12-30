@@ -216,7 +216,7 @@ class CognitoAuth:
         ----------
         token : str
             The encoded JWT
-        leeway : flaot
+        leeway : float
             A time margin in seconds for the expiration check
         nonce : Optional[str]
             An optional nonce value to validate to prevent replay attacks

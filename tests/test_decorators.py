@@ -366,7 +366,7 @@ def test_auth_required_all_groups_invalid(client_with_cookie):
     )
 
 
-def test_auth_required_extension_dislabled(client, app):
+def test_auth_required_extension_disabled(client, app):
     # Return page with 200 OK if the extension is disabled (bypass Cognito)
     app.config["AWS_COGNITO_DISABLED"] = True
     response = client.get("/private")
@@ -375,7 +375,7 @@ def test_auth_required_extension_dislabled(client, app):
 
 
 def test_auth_required_any_group_valid_group1(client_with_cookie, mocker):
-    # Mock the token verfication to add an extra group for testing
+    # Mock the token verification to add an extra group for testing
     # valid groups are "editor" and "admin"
     mocker.patch(
         "flask_cognito_lib.decorators.cognito_auth.verify_access_token",
@@ -389,7 +389,7 @@ def test_auth_required_any_group_valid_group1(client_with_cookie, mocker):
 
 
 def test_auth_required_any_group_valid_group2(client_with_cookie, mocker):
-    # Mock the token verfication to add an extra group for testing
+    # Mock the token verification to add an extra group for testing
     # valid groups are "editor" and "admin"
     mocker.patch(
         "flask_cognito_lib.decorators.cognito_auth.verify_access_token",
@@ -403,7 +403,7 @@ def test_auth_required_any_group_valid_group2(client_with_cookie, mocker):
 
 
 def test_auth_required_any_group_invalid(client_with_cookie, mocker):
-    # Mock the token verfication to add an extra group for testing
+    # Mock the token verification to add an extra group for testing
     # valid groups are "editor" and "admin"
     mocker.patch(
         "flask_cognito_lib.decorators.cognito_auth.verify_access_token",
@@ -420,7 +420,7 @@ def test_auth_required_any_group_invalid(client_with_cookie, mocker):
 
 
 def test_auth_required_any_group_no_groups(client_with_cookie, mocker):
-    # Mock the token verfication to add an extra group for testing
+    # Mock the token verification to add an extra group for testing
     # valid groups are "editor" and "admin"
     mocker.patch(
         "flask_cognito_lib.decorators.cognito_auth.verify_access_token",

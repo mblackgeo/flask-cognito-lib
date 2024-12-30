@@ -56,7 +56,7 @@ def app():
     @_app.route("/postlogin")
     @cognito_login_callback
     def postlogin():
-        # recieves the response from cognito and sets a cookie
+        # receives the response from cognito and sets a cookie
         return make_response("ok")
 
     @_app.route("/refresh")
