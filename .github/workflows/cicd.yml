@@ -77,16 +77,21 @@ jobs:
 
       - name: Semantic Release
         id: release
-        uses: python-semantic-release/python-semantic-release@v9.15.2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          git_committer_email: action@github.com
-          git_committer_name: github-actions
-          vcs_release: true
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "action@github.com"
+          poetry run semantic-release publish -D commit_author='github-actions <action@github.com>' 2> out.txt
+          grep -q "No release will be made" out.txt && echo "TO_RELEASE=0" >> "$GITHUB_ENV" || echo "TO_RELEASE=1" >> "$GITHUB_ENV"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Semantic release output
+        if: always()
+        run: cat out.txt
 
       - name: Build and publish to Test PyPI
         uses: JRubics/poetry-publish@v2.0
-        if: steps.release.outputs.released == 'true'
+        if: ${{ env.TO_RELEASE == '1' }}
         with:
           python_version: "3.11"
           poetry_version: "==1.5.1"
@@ -95,7 +100,7 @@ jobs:
           repository_url: "https://test.pypi.org/legacy/"
 
       - name: Test install from Test PyPI
-        if: steps.release.outputs.released == 'true'
+        if: ${{ env.TO_RELEASE == '1' }}
         run: |
           pip install \
           --index-url https://test.pypi.org/simple/ \
@@ -106,7 +111,7 @@ jobs:
 
       - name: Build and publish to PyPI
         uses: JRubics/poetry-publish@v2.0
-        if: steps.release.outputs.released == 'true'
+        if: ${{ env.TO_RELEASE == '1' }}
         with:
           python_version: "3.11"
           poetry_version: "==1.5.1"
