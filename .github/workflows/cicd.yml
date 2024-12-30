@@ -82,6 +82,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           git_committer_email: action@github.com
           git_committer_name: github-actions
+          vcs_release: true
 
       - name: Build and publish to Test PyPI
         uses: JRubics/poetry-publish@v2.0
@@ -110,9 +111,3 @@ jobs:
           python_version: "3.11"
           poetry_version: "==1.5.1"
           pypi_token: ${{ secrets.PYPI_API_TOKEN }}
-
-      - name: Publish package distributions to GitHub Releases
-        uses: python-semantic-release/upload-to-gh-release@v9.15.2
-        if: steps.release.outputs.released == 'true'
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
