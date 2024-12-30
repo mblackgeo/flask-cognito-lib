@@ -1,5 +1,11 @@
 <!--next-version-placeholder-->
 
+## v1.9.3 (2024-12-30)
+
+### Fix
+
+* Stricter guards against None values ([#55](https://github.com/mblackgeo/flask-cognito-lib/issues/55)) ([`0184b52`](https://github.com/mblackgeo/flask-cognito-lib/commit/0184b523ad4790e3ff746e4bbd9b7aae105b4bc2))
+
 ## v1.9.2 (2024-10-28)
 
 ### Fix
