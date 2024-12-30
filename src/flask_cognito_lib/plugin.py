@@ -149,7 +149,7 @@ class CognitoAuth:
             If the request to the TOKEN endpoint fails
             If the TOKEN endpoint returns an error code
         """
-        return self.cognito_service.exhange_refresh_token(
+        return self.cognito_service.exchange_refresh_token(
             refresh_token=refresh_token,
         )
 
