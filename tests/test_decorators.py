@@ -71,6 +71,35 @@ def test_cognito_login(client, cfg):
     assert response.headers["location"].startswith(cfg.authorize_endpoint)
 
 
+def test_cognito_login_with_extra_authorize_params(client, cfg):
+    response = client.get("/login_with_extra_authorize_params")
+
+    # should 302 redirect to cognito
+    assert response.status_code == 302
+    assert response.headers["location"].startswith(cfg.authorize_endpoint)
+    assert response.headers["location"].endswith(
+        "&identity_provider=COGNITO"
+        "&idp_identifier=an_idp"
+        "&lang=en"
+        "&login_hint=user%40example.com"
+    )
+
+
+def test_cognito_login_with_not_all_extra_authorize_params(client, cfg):
+    response = client.get("/login_with_not_all_extra_authorize_params")
+
+    # should 302 redirect to cognito
+    assert response.status_code == 302
+    assert response.headers["location"].startswith(cfg.authorize_endpoint)
+    assert response.headers["location"].endswith("&lang=en")
+
+
+def test_cognito_login_with_custom_return(client, cfg):
+    response = client.get("/login_with_custom_return")
+
+    assert response.status_code == 200
+
+
 def test_cognito_custom_state(client, cfg):
     with client.session_transaction() as sess:
         sess["state"] = "homepage"
@@ -366,7 +395,7 @@ def test_auth_required_all_groups_invalid(client_with_cookie):
     )
 
 
-def test_auth_required_extension_dislabled(client, app):
+def test_auth_required_extension_disabled(client, app):
     # Return page with 200 OK if the extension is disabled (bypass Cognito)
     app.config["AWS_COGNITO_DISABLED"] = True
     response = client.get("/private")
@@ -375,7 +404,7 @@ def test_auth_required_extension_dislabled(client, app):
 
 
 def test_auth_required_any_group_valid_group1(client_with_cookie, mocker):
-    # Mock the token verfication to add an extra group for testing
+    # Mock the token verification to add an extra group for testing
     # valid groups are "editor" and "admin"
     mocker.patch(
         "flask_cognito_lib.decorators.cognito_auth.verify_access_token",
@@ -389,7 +418,7 @@ def test_auth_required_any_group_valid_group1(client_with_cookie, mocker):
 
 
 def test_auth_required_any_group_valid_group2(client_with_cookie, mocker):
-    # Mock the token verfication to add an extra group for testing
+    # Mock the token verification to add an extra group for testing
     # valid groups are "editor" and "admin"
     mocker.patch(
         "flask_cognito_lib.decorators.cognito_auth.verify_access_token",
@@ -403,7 +432,7 @@ def test_auth_required_any_group_valid_group2(client_with_cookie, mocker):
 
 
 def test_auth_required_any_group_invalid(client_with_cookie, mocker):
-    # Mock the token verfication to add an extra group for testing
+    # Mock the token verification to add an extra group for testing
     # valid groups are "editor" and "admin"
     mocker.patch(
         "flask_cognito_lib.decorators.cognito_auth.verify_access_token",
@@ -420,7 +449,7 @@ def test_auth_required_any_group_invalid(client_with_cookie, mocker):
 
 
 def test_auth_required_any_group_no_groups(client_with_cookie, mocker):
-    # Mock the token verfication to add an extra group for testing
+    # Mock the token verification to add an extra group for testing
     # valid groups are "editor" and "admin"
     mocker.patch(
         "flask_cognito_lib.decorators.cognito_auth.verify_access_token",
