@@ -195,7 +195,7 @@ CognitoAuth().init_app(app, cfg=ConfigOverride())
 
 ## Development
 
-Prequisites:
+Prerequisites:
 
 * [poetry](https://python-poetry.org/)
 * [pre-commit](https://pre-commit.com/)
@@ -217,4 +217,4 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## Credits
 
-This work started as a fork of the unmaintained [Flask-AWSCognito](https://github.com/cgauge/Flask-AWSCognito) extension, revising the implementation following OAuth 2.1 recommendations, with inspiration from [flask-cognito-auth](https://github.com/shrivastava-v-ankit/flask-cognito-auth). Whilst there are serveral Cognito extensions available for Flask, none of those implement OAuth 2.1 recommendations, with some plugins not even actively maintained.
+This work started as a fork of the unmaintained [Flask-AWSCognito](https://github.com/cgauge/Flask-AWSCognito) extension, revising the implementation following OAuth 2.1 recommendations, with inspiration from [flask-cognito-auth](https://github.com/shrivastava-v-ankit/flask-cognito-auth). Whilst there are several Cognito extensions available for Flask, none of those implement OAuth 2.1 recommendations, with some plugins not even actively maintained.
