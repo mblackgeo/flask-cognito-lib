@@ -35,7 +35,7 @@ cryptography = "^43.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^8.3.4"
-mypy = "^1.6"
+mypy = "^1.14"
 black = "^24.4.0"
 flake8 = "^5.0.4"
 typed-ast = "^1.5.2"
