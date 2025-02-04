@@ -15,6 +15,7 @@ from flask_cognito_lib.exceptions import (
 )
 from flask_cognito_lib.plugin import CognitoAuth
 from flask_cognito_lib.utils import (
+    CognitoExtraAuthorizeParams,
     CognitoTokenResponse,
     generate_code_challenge,
     generate_code_verifier,
@@ -105,6 +106,15 @@ def cognito_login(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         with app.app_context():
+            authorize_params: CognitoExtraAuthorizeParams = fn(*args, **kwargs)
+
+            # return if the decorated function is `pass`ing (None) or returning
+            # a non-CognitoExtraAuthorizeParams object
+            if authorize_params is not None and not isinstance(
+                authorize_params, CognitoExtraAuthorizeParams
+            ):
+                return authorize_params
+
             # store parameters in the session that are passed to Cognito
             # and required for JWT verification
             code_verifier = generate_code_verifier()
@@ -129,6 +139,7 @@ def cognito_login(fn):
                 state=session["state"],
                 nonce=session["nonce"],
                 scopes=cognito_auth.cfg.cognito_scopes,
+                extra_authorize_params=authorize_params,
             )
 
         return redirect(login_url)
