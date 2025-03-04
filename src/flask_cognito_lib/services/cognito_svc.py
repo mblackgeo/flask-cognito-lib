@@ -1,12 +1,13 @@
+from dataclasses import asdict
 from typing import Dict, List, Optional
-from urllib.parse import quote
+from urllib.parse import urlencode, urljoin
 
 import requests
 from requests import JSONDecodeError, Response
 
 from flask_cognito_lib.config import Config
 from flask_cognito_lib.exceptions import CognitoError
-from flask_cognito_lib.utils import CognitoTokenResponse
+from flask_cognito_lib.utils import CognitoExtraAuthorizeParams, CognitoTokenResponse
 
 
 class CognitoService:
@@ -22,6 +23,7 @@ class CognitoService:
         state: str,
         nonce: str,
         scopes: Optional[List[str]] = None,
+        extra_authorize_params: Optional[CognitoExtraAuthorizeParams] = None,
     ) -> str:
         """Generate a sign URL against the AUTHORIZE endpoint
 
@@ -45,21 +47,32 @@ class CognitoService:
         str
             A front channel login URL for the AWS Cognito AUTHORIZE endpoint
         """
-        quoted_redirect_url = quote(self.cfg.redirect_url)
 
-        full_url = (
-            f"{self.cfg.authorize_endpoint}"
-            f"?response_type=code"
-            f"&client_id={self.cfg.user_pool_client_id}"
-            f"&redirect_uri={quoted_redirect_url}"
-            f"&state={state}"
-            f"&nonce={nonce}"
-            f"&code_challenge={code_challenge}"
-            "&code_challenge_method=S256"
-        )
+        query = {
+            "response_type": "code",
+            "client_id": self.cfg.user_pool_client_id,
+            "redirect_uri": self.cfg.redirect_url,
+            "state": state,
+            "nonce": nonce,
+            "code_challenge": code_challenge,
+            "code_challenge_method": "S256",
+        }
 
         if scopes is not None:
-            full_url += f"&scope={'+'.join(scopes)}"
+            query.update({"scope": " ".join(scopes)})
+        if extra_authorize_params is not None:
+            query.update(
+                {
+                    key: value
+                    for key, value in asdict(extra_authorize_params).items()
+                    if value is not None
+                }
+            )
+
+        query_string = urlencode(query, safe="/")
+        full_url = urljoin(
+            self.cfg.authorize_endpoint, "?" + query_string, allow_fragments=False
+        )
 
         return full_url
 
@@ -99,7 +112,7 @@ class CognitoService:
 
         return self._request_token(data)
 
-    def exhange_refresh_token(
+    def exchange_refresh_token(
         self,
         refresh_token: str,
     ) -> CognitoTokenResponse:
@@ -129,6 +142,9 @@ class CognitoService:
         }
 
         return self._request_token(data)
+
+    # TODO: Deprecate misspelled method
+    exhange_refresh_token = exchange_refresh_token
 
     def revoke_refresh_token(
         self,
