@@ -1,5 +1,11 @@
 <!--next-version-placeholder-->
 
+## v1.9.4 (2025-03-04)
+
+### Fix
+
+* Update cryptography package ([#79](https://github.com/mblackgeo/flask-cognito-lib/issues/79)) ([`2a93d21`](https://github.com/mblackgeo/flask-cognito-lib/commit/2a93d2168a9c4b1ebfba0c1f32782aa3c76c324e))
+
 ## v1.9.3 (2024-12-30)
 
 ### Fix
