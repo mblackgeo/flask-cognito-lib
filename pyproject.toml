@@ -41,8 +41,6 @@ Repository = "https://github.com/mblackgeo/flask-cognito-lib"
 dev = [
     "pytest>=8.3.4,<9",
     "mypy~=1.14",
-    "black>=24.4.0,<25",
-    "flake8>=5.0.4,<6",
     "typed-ast>=1.5.2,<2",
     "pylint>=3.2.7,<4",
     "types-requests>=2.27.13,<3",
@@ -52,6 +50,7 @@ dev = [
     "mkdocs-material>=9.6.1,<10",
     "mdx-include>=1.4.1,<2",
     "python-semantic-release>=7.27.0,<8",
+    "ruff>=0.14.0",
 ]
 
 [tool.hatch.build.targets.sdist]
