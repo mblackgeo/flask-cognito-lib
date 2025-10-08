@@ -204,6 +204,7 @@ The Makefile includes helpful commands setting a development environment, get st
 * [Pytest](https://docs.pytest.org/en/) is used for testing the application (see `/tests`).
 * [MkDocs](https://www.mkdocs.org/) is used for generating docs and hosted with GH pages (see `/docs`).
 * Code is linted and formatted using [ruff](https://docs.astral.sh/ruff/)
+* Type hints are validated using [mypy](https://mypy.readthedocs.io/en/stable/)
 * The [Github Actions pipeline](.github/workflows/cicd.yml) runs these checks and tests
 * [Semantic-release](https://python-semantic-release.readthedocs.io/en/latest/) is used with [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for automated releasing to PyPI
 
