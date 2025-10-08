@@ -1,5 +1,16 @@
 <!--next-version-placeholder-->
 
+## v1.9.5 (2025-10-08)
+
+### Fix
+
+* Handle and raise if KeyError rather than possibly cause redirect loop ([`96b9c4e`](https://github.com/mblackgeo/flask-cognito-lib/commit/96b9c4e0ac4f859cbafe6f86e2838ec06715961b))
+* Add test for refresh_token method with corrected typo ([`f6d1d1c`](https://github.com/mblackgeo/flask-cognito-lib/commit/f6d1d1cb4bf19ad95f37b5fb3ad88a75ebaf5ce8))
+* Reorder import statements to keep isort happy ([`5d47373`](https://github.com/mblackgeo/flask-cognito-lib/commit/5d4737317e34d23a578024152092ea5827d2a831))
+* Add error handling for missing session data in cognito_login_callback ([`c803f96`](https://github.com/mblackgeo/flask-cognito-lib/commit/c803f9675368281c6e3b26577abd16fe83a410bb))
+* Correct typo in Config class docstring ([`47cec84`](https://github.com/mblackgeo/flask-cognito-lib/commit/47cec84a8b95f14247fd46b7bd26fc241815b61d))
+* Correct typo in exchange_refresh_token method name ([`1058136`](https://github.com/mblackgeo/flask-cognito-lib/commit/1058136738cf4563aaf8b2b368e4d3b488a96912))
+
 ## v1.9.4 (2025-03-04)
 
 ### Fix
