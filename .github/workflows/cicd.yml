@@ -13,27 +13,22 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - name: Set up uv (with cache and Python)
+        uses: astral-sh/setup-uv@v6
         with:
+          enable-cache: true
           python-version: ${{ matrix.python-version }}
+          cache-suffix: py${{ matrix.python-version }}-flask${{ matrix.flask-version }}
 
-      - uses: actions/cache@v4
-        id: cache
-        with:
-          path: ${{ env.pythonLocation }}
-          key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
 
-      - name: Install poetry
-        run: pip install poetry==1.5.1
-
-      - name: Install code
-        run: poetry install
-
-      - name: Install Flask
-        run: poetry run pip install "flask~=${{ matrix.flask-version }}" --force-reinstall
+      # Override Flask version using the matrix value
+      # This ensures we test against multiple Flask versions
+      - name: Install Flask ${{ matrix.flask-version }}
+        run: uv pip install "flask~=${{ matrix.flask-version }}" --reinstall
 
       - name: Lint
         run: make lint
@@ -41,11 +36,11 @@ jobs:
       - name: Test
         run: make test
 
-      - name: "Upload coverage to Codecov"
+      - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   cd:
     # Only run this job if the "ci" job passes
