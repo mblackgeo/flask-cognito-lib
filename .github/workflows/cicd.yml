@@ -89,50 +89,50 @@ jobs:
       contents: read
 
     steps:
-    - name: Checkout (full history)
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
         with:
-          name: dist
-          path: dist
+          fetch-depth: 0
 
-      # --- 1) Publish to TestPyPI ---
-      - name: Publish to TestPyPI (Trusted Publisher)
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: dist
-          repository-url: https://test.pypi.org/legacy/
+        - name: Download build artifacts
+          uses: actions/download-artifact@v4
+          with:
+            name: dist
+            path: dist
 
-      # --- 2) Install from TestPyPI and run tests against the built wheel/sdist ---
-      - name: Set up uv and Python
-        uses: astral-sh/setup-uv@v6
-        with:
-          enable-cache: true
-          python-version: "3.11"
+        # --- 1) Publish to TestPyPI ---
+        - name: Publish to TestPyPI (Trusted Publisher)
+          uses: pypa/gh-action-pypi-publish@release/v1
+          with:
+            packages-dir: dist
+            repository-url: https://test.pypi.org/legacy/
 
-      - name: Install package from TestPyPI
-        run: |
-          uv pip install \
-            --index-url https://test.pypi.org/simple \
-            --extra-index-url https://pypi.org/simple \
-            flask-cognito-lib
+        # --- 2) Install from TestPyPI and run tests against the built wheel/sdist ---
+        - name: Set up uv and Python
+          uses: astral-sh/setup-uv@v6
+          with:
+            enable-cache: true
+            python-version: "3.11"
 
-      - name: Install test deps
-        run: uv pip install -U pytest
+        - name: Install package from TestPyPI
+          run: |
+            uv pip install \
+              --index-url https://test.pypi.org/simple \
+              --extra-index-url https://pypi.org/simple \
+              flask-cognito-lib
 
-      # Run tests from a clean dir so imports use the INSTALLED package, not the repo source
-      - name: Run tests against installed package
-        run: |
-          mkdir -p tests-run && cp -r tests tests-run/ && cd tests-run
-          uv run python -c "import flask_cognito_lib, sys; print('Using', flask_cognito_lib.__version__, 'on', sys.version)"
-          uv run pytest -ra -vv .
+        - name: Install test deps
+          run: uv pip install -U pytest
 
-      # --- 3) Publish to PyPI ---
-      - name: Publish to PyPI (Trusted Publisher)
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: dist
+        # Run tests from a clean dir so imports use the INSTALLED package, not the repo source
+        - name: Run tests against installed package
+          run: |
+            mkdir -p tests-run && cp -r tests tests-run/ && cd tests-run
+            uv run python -c "import flask_cognito_lib, sys; print('Using', flask_cognito_lib.__version__, 'on', sys.version)"
+            uv run pytest -ra -vv .
+
+        # --- 3) Publish to PyPI ---
+        - name: Publish to PyPI (Trusted Publisher)
+          uses: pypa/gh-action-pypi-publish@release/v1
+          with:
+            packages-dir: dist
