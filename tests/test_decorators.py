@@ -3,13 +3,16 @@ from hashlib import sha256
 
 import pytest
 from cryptography.fernet import Fernet
-from flask import session
+from flask import Flask, session
+from flask.testing import FlaskClient
+from pytest_mock import MockerFixture
 
+from flask_cognito_lib.config import Config
 from flask_cognito_lib.decorators import get_token_from_cookie, remove_from_session
 from flask_cognito_lib.exceptions import CognitoError, TokenVerifyError
 
 
-def test_remove_from_session(client):
+def test_remove_from_session(client: FlaskClient) -> None:
     with client.session_transaction() as sess:
         sess["a"] = 123
 
@@ -20,7 +23,7 @@ def test_remove_from_session(client):
     remove_from_session("b")
 
 
-def test_get_token_from_cookie(mocker):
+def test_get_token_from_cookie(mocker: MockerFixture) -> None:
     # Test when token is None
     mocker.patch(
         "flask_cognito_lib.decorators.request.cookies.get",
@@ -37,8 +40,11 @@ def test_get_token_from_cookie(mocker):
 
 
 def test_get_token_from_cookie_refresh(
-    client_with_cookie_refresh, mocker, cfg, refresh_token
-):
+    client_with_cookie_refresh: FlaskClient,
+    mocker: MockerFixture,
+    cfg: Config,
+    refresh_token: str,
+) -> None:
     with client_with_cookie_refresh:
         mocker.patch(
             "flask_cognito_lib.decorators.request.cookies.get",
@@ -49,12 +55,12 @@ def test_get_token_from_cookie_refresh(
 
 
 def test_get_token_from_cookie_refresh_encrypted(
-    client_with_cookie_refresh_encrypted,
-    mocker,
-    cfg,
-    refresh_token,
-    refresh_token_encrypted,
-):
+    client_with_cookie_refresh_encrypted: FlaskClient,
+    mocker: MockerFixture,
+    cfg: Config,
+    refresh_token: str,
+    refresh_token_encrypted: str,
+) -> None:
     with client_with_cookie_refresh_encrypted:
         mocker.patch(
             "flask_cognito_lib.decorators.request.cookies.get",
@@ -63,7 +69,7 @@ def test_get_token_from_cookie_refresh_encrypted(
         assert get_token_from_cookie(cfg.COOKIE_NAME_REFRESH) == refresh_token
 
 
-def test_cognito_login(client, cfg):
+def test_cognito_login(client: FlaskClient, cfg: Config) -> None:
     response = client.get("/login")
 
     # should 302 redirect to cognito
@@ -71,7 +77,7 @@ def test_cognito_login(client, cfg):
     assert response.headers["location"].startswith(cfg.authorize_endpoint)
 
 
-def test_cognito_custom_state(client, cfg):
+def test_cognito_custom_state(client: FlaskClient, cfg: Config) -> None:
     with client.session_transaction() as sess:
         sess["state"] = "homepage"
 
@@ -83,7 +89,7 @@ def test_cognito_custom_state(client, cfg):
     assert "__homepage&" in response.headers["location"]
 
 
-def test_cognito_custom_scopes(client, app, cfg):
+def test_cognito_custom_scopes(client: FlaskClient, app: Flask, cfg: Config) -> None:
     app.config["AWS_COGNITO_SCOPES"] = ["openid", "profile", "phone", "email"]
     response = client.get("/login")
 
@@ -93,9 +99,13 @@ def test_cognito_custom_scopes(client, app, cfg):
     assert "scope=openid+profile+phone+email" in response.headers["location"]
 
 
-def test_cognito_login_callback_expired(app, client, token_response):
+def test_cognito_login_callback_expired(
+    app: Flask,
+    client: FlaskClient,
+    token_response: None,
+) -> None:
     # Set Cognito response to small value so that tokens have expired
-    app.config.AWS_COGNITO_RESPONSE_LEEWAY = 0
+    app.config.AWS_COGNITO_RESPONSE_LEEWAY = 0  # type: ignore[attr-defined]
 
     with client as c:
         with c.session_transaction() as sess:
@@ -107,7 +117,10 @@ def test_cognito_login_callback_expired(app, client, token_response):
         client.get("/postlogin")
 
 
-def test_cognito_login_callback_invalid_nonce(client, token_response):
+def test_cognito_login_callback_invalid_nonce(
+    client: FlaskClient,
+    token_response: None,
+) -> None:
     with client as c:
         with c.session_transaction() as sess:
             sess["code_verifier"] = "1234"
@@ -118,7 +131,12 @@ def test_cognito_login_callback_invalid_nonce(client, token_response):
         client.get("/postlogin")
 
 
-def test_cognito_login_callback(client, cfg, access_token, token_response):
+def test_cognito_login_callback(
+    client: FlaskClient,
+    cfg: Config,
+    access_token: str,
+    token_response: None,
+) -> None:
     with client as c:
         with c.session_transaction() as sess:
             sess["code_verifier"] = "1234"
@@ -144,7 +162,10 @@ def test_cognito_login_callback(client, cfg, access_token, token_response):
         assert "user_info" in session
 
 
-def test_cognito_login_callback_missing_session(client, cfg):
+def test_cognito_login_callback_missing_session(
+    client: FlaskClient,
+    cfg: Config,
+) -> None:
     with client as c:
         with c.session_transaction() as sess:
             sess["state"] = "notused"
@@ -155,12 +176,12 @@ def test_cognito_login_callback_missing_session(client, cfg):
 
 
 def test_cognito_login_callback_refresh(
-    client,
-    cfg,
-    access_token,
-    refresh_token,
-    token_response,
-):
+    client: FlaskClient,
+    cfg: Config,
+    access_token: str,
+    refresh_token: str,
+    token_response: None,
+) -> None:
     client.application.config["AWS_COGNITO_REFRESH_FLOW_ENABLED"] = True
     client.application.config["AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"] = False
 
@@ -182,12 +203,12 @@ def test_cognito_login_callback_refresh(
 
 
 def test_cognito_login_callback_refresh_encrypted(
-    client,
-    cfg,
-    access_token,
-    refresh_token,
-    token_response,
-):
+    client: FlaskClient,
+    cfg: Config,
+    access_token: str,
+    refresh_token: str,
+    token_response: None,
+) -> None:
     client.application.config["AWS_COGNITO_REFRESH_FLOW_ENABLED"] = True
     client.application.config["AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"] = True
 
@@ -217,7 +238,12 @@ def test_cognito_login_callback_refresh_encrypted(
         assert fernet.decrypt(refresh_cookie_value.encode()).decode() == refresh_token
 
 
-def test_cognito_login_cookie_domain(client, cfg, access_token, token_response):
+def test_cognito_login_cookie_domain(
+    client: FlaskClient,
+    cfg: Config,
+    access_token: str,
+    token_response: None,
+) -> None:
     # set a domain for the cookie
     client.application.config["AWS_COGNITO_COOKIE_DOMAIN"] = ".example.com"
 
@@ -236,7 +262,12 @@ def test_cognito_login_cookie_domain(client, cfg, access_token, token_response):
         assert "Domain=example.com" in response.headers["Set-Cookie"]
 
 
-def test_cognito_login_cookie_samesite(client, cfg, access_token, token_response):
+def test_cognito_login_cookie_samesite(
+    client: FlaskClient,
+    cfg: Config,
+    access_token: str,
+    token_response: None,
+) -> None:
     # set a domain for the cookie
     client.application.config["AWS_COGNITO_COOKIE_DOMAIN"] = ".example.com"
     client.application.config["AWS_COGNITO_COOKIE_SAMESITE"] = "Strict"
@@ -258,21 +289,21 @@ def test_cognito_login_cookie_samesite(client, cfg, access_token, token_response
 
 
 def test_cognito_refresh_disabled(
-    client,
-    cfg,
-    access_token,
-    refresh_token_response,
-):
+    client: FlaskClient,
+    cfg: Config,
+    access_token: str,
+    refresh_token_response: None,
+) -> None:
     with pytest.raises(CognitoError, match="Refresh flow is not enabled"):
         client.get("/refresh")
 
 
 def test_cognito_refresh_missing_token(
-    client,
-    cfg,
-    access_token,
-    refresh_token_response,
-):
+    client: FlaskClient,
+    cfg: Config,
+    access_token: str,
+    refresh_token_response: None,
+) -> None:
     client.application.config["AWS_COGNITO_REFRESH_FLOW_ENABLED"] = True
 
     with pytest.raises(CognitoError, match="No refresh token provided"):
@@ -280,12 +311,12 @@ def test_cognito_refresh_missing_token(
 
 
 def test_cognito_refresh_callback(
-    client_with_cookie_refresh,
-    cfg,
-    access_token,
-    refresh_token,
-    refresh_token_response,
-):
+    client_with_cookie_refresh: FlaskClient,
+    cfg: Config,
+    access_token: str,
+    refresh_token: str,
+    refresh_token_response: None,
+) -> None:
     with client_with_cookie_refresh as c:
         # returns OK and sets the cookie
         response = c.get("/refresh")
@@ -301,14 +332,17 @@ def test_cognito_refresh_callback(
         assert "user_info" in session
 
 
-def test_cognito_logout(client, cfg):
+def test_cognito_logout(client: FlaskClient, cfg: Config) -> None:
     # should 302 redirect to cognito
     response = client.get("/logout")
     assert response.status_code == 302
     assert response.headers["location"].startswith(cfg.logout_endpoint)
 
 
-def test_cognito_logout_override(client_with_config_override, cfg_override):
+def test_cognito_logout_override(
+    client_with_config_override: FlaskClient,
+    cfg_override: Config,
+) -> None:
     # should 302 redirect to cognito, logout endpoint should be the overridden
     # from the custom Config object
     response = client_with_config_override.get("/logout")
@@ -316,7 +350,11 @@ def test_cognito_logout_override(client_with_config_override, cfg_override):
     assert response.headers["location"].startswith(cfg_override.logout_endpoint)
 
 
-def test_cognito_logout_with_refresh_token(client_with_cookie_refresh, cfg, mocker):
+def test_cognito_logout_with_refresh_token(
+    client_with_cookie_refresh: FlaskClient,
+    cfg: Config,
+    mocker: MockerFixture,
+) -> None:
     # Mock the refresh token revocation
     mocker.patch(
         "flask_cognito_lib.decorators.cognito_auth.revoke_refresh_token",
@@ -333,7 +371,11 @@ def test_cognito_logout_with_refresh_token(client_with_cookie_refresh, cfg, mock
     assert cookies_set[1].startswith(f"{cfg.COOKIE_NAME_REFRESH}=;")
 
 
-def test_cognito_logout_with_id_token(client_with_cookie_id, cfg, mocker):
+def test_cognito_logout_with_id_token(
+    client_with_cookie_id: FlaskClient,
+    cfg: Config,
+    mocker: MockerFixture,
+) -> None:
     # should 302 redirect to cognito
     response = client_with_cookie_id.get("/logout")
     assert response.status_code == 302
@@ -345,7 +387,12 @@ def test_cognito_logout_with_id_token(client_with_cookie_id, cfg, mocker):
     assert cookies_set[1].startswith(f"{cfg.COOKIE_NAME_ID}=;")
 
 
-def test_auth_required_expired_token(client, cfg, app, access_token):
+def test_auth_required_expired_token(
+    client: FlaskClient,
+    cfg: Config,
+    app: Flask,
+    access_token: str,
+) -> None:
     # 403 if the token verification has failed
     app.config["AWS_COGNITO_EXPIRATION_LEEWAY"] = 0
     client.set_cookie(key=cfg.COOKIE_NAME, value=access_token)
@@ -353,21 +400,21 @@ def test_auth_required_expired_token(client, cfg, app, access_token):
     assert response.status_code == 403
 
 
-def test_auth_required_valid_token(client_with_cookie):
+def test_auth_required_valid_token(client_with_cookie: FlaskClient) -> None:
     # 200 if the token passes verification
     response = client_with_cookie.get("/private")
     assert response.status_code == 200
     assert response.data.decode("utf-8") == "ok"
 
 
-def test_auth_required_all_groups_valid(client_with_cookie):
+def test_auth_required_all_groups_valid(client_with_cookie: FlaskClient) -> None:
     # Has access to this route as the token has the correct group membership
     response = client_with_cookie.get("/valid_group")
     assert response.status_code == 200
     assert response.data.decode("utf-8") == "ok"
 
 
-def test_auth_required_all_groups_invalid(client_with_cookie):
+def test_auth_required_all_groups_invalid(client_with_cookie: FlaskClient) -> None:
     # 403 as the token isn't in this group
     response = client_with_cookie.get("/invalid_group")
     assert response.status_code == 403
@@ -377,7 +424,10 @@ def test_auth_required_all_groups_invalid(client_with_cookie):
     )
 
 
-def test_auth_required_extension_dislabled(client, app):
+def test_auth_required_extension_dislabled(
+    client: FlaskClient,
+    app: Flask,
+) -> None:
     # Return page with 200 OK if the extension is disabled (bypass Cognito)
     app.config["AWS_COGNITO_DISABLED"] = True
     response = client.get("/private")
@@ -385,7 +435,10 @@ def test_auth_required_extension_dislabled(client, app):
     assert response.data.decode("utf-8") == "ok"
 
 
-def test_auth_required_any_group_valid_group1(client_with_cookie, mocker):
+def test_auth_required_any_group_valid_group1(
+    client_with_cookie: FlaskClient,
+    mocker: MockerFixture,
+) -> None:
     # Mock the token verfication to add an extra group for testing
     # valid groups are "editor" and "admin"
     mocker.patch(
@@ -399,7 +452,10 @@ def test_auth_required_any_group_valid_group1(client_with_cookie, mocker):
     assert response.data.decode("utf-8") == "ok"
 
 
-def test_auth_required_any_group_valid_group2(client_with_cookie, mocker):
+def test_auth_required_any_group_valid_group2(
+    client_with_cookie: FlaskClient,
+    mocker: MockerFixture,
+) -> None:
     # Mock the token verfication to add an extra group for testing
     # valid groups are "editor" and "admin"
     mocker.patch(
@@ -413,7 +469,10 @@ def test_auth_required_any_group_valid_group2(client_with_cookie, mocker):
     assert response.data.decode("utf-8") == "ok"
 
 
-def test_auth_required_any_group_invalid(client_with_cookie, mocker):
+def test_auth_required_any_group_invalid(
+    client_with_cookie: FlaskClient,
+    mocker: MockerFixture,
+) -> None:
     # Mock the token verfication to add an extra group for testing
     # valid groups are "editor" and "admin"
     mocker.patch(
@@ -430,7 +489,10 @@ def test_auth_required_any_group_invalid(client_with_cookie, mocker):
     )
 
 
-def test_auth_required_any_group_no_groups(client_with_cookie, mocker):
+def test_auth_required_any_group_no_groups(
+    client_with_cookie: FlaskClient,
+    mocker: MockerFixture,
+) -> None:
     # Mock the token verfication to add an extra group for testing
     # valid groups are "editor" and "admin"
     mocker.patch(

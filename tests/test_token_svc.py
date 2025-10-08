@@ -1,22 +1,24 @@
 import pytest
+from flask import Flask
 
+from flask_cognito_lib.config import Config
 from flask_cognito_lib.exceptions import CognitoError, TokenVerifyError
 from flask_cognito_lib.services.token_svc import TokenService
 
 
-def test_verify_no_access_token(cfg):
+def test_verify_no_access_token(cfg: Config) -> None:
     serv = TokenService(cfg=cfg)
     with pytest.raises(TokenVerifyError):
-        serv.verify_access_token(None)
+        serv.verify_access_token("")
 
 
-def test_verify_no_id_token(cfg):
+def test_verify_no_id_token(cfg: Config) -> None:
     serv = TokenService(cfg=cfg)
     with pytest.raises(TokenVerifyError):
-        serv.verify_id_token(None)
+        serv.verify_id_token("")
 
 
-def test_get_public_key(cfg):
+def test_get_public_key(cfg: Config) -> None:
     with pytest.raises(CognitoError):
         # Using a dummy token should not find matching key
         TokenService(cfg).get_public_key(
@@ -26,7 +28,7 @@ def test_get_public_key(cfg):
         )
 
 
-def test_verify_access_token(cfg, access_token):
+def test_verify_access_token(cfg: Config, access_token: str) -> None:
     serv = TokenService(cfg=cfg)
     claims = serv.verify_access_token(access_token, leeway=1e9)
     assert claims == {
@@ -47,7 +49,7 @@ def test_verify_access_token(cfg, access_token):
     }
 
 
-def test_verify_id_token(cfg, id_token):
+def test_verify_id_token(cfg: Config, id_token: str) -> None:
     serv = TokenService(cfg=cfg)
     claims = serv.verify_id_token(id_token, leeway=1e9)
     assert claims == {
@@ -70,21 +72,25 @@ def test_verify_id_token(cfg, id_token):
     }
 
 
-def test_verify_access_token_invalid_client(app, cfg, access_token):
+def test_verify_access_token_invalid_client(
+    app: Flask,
+    cfg: Config,
+    access_token: str,
+) -> None:
     app.config["AWS_COGNITO_USER_POOL_CLIENT_ID"] = "wrong"
     with pytest.raises(TokenVerifyError):
         serv = TokenService(cfg=cfg)
         serv.verify_access_token(access_token, leeway=1e9)
 
 
-def test_encrypt_token(app, cfg, refresh_token):
+def test_encrypt_token(app: Flask, cfg: Config, refresh_token: str) -> None:
     serv = TokenService(cfg=cfg)
     encrypted_token = serv.encrypt_token(refresh_token)
     assert encrypted_token != refresh_token
     assert serv.decrypt_token(encrypted_token) == refresh_token
 
 
-def test_decrypt_token_error(app, cfg, refresh_token):
+def test_decrypt_token_error(app: Flask, cfg: Config, refresh_token: str) -> None:
     with pytest.raises(CognitoError, match="Error decrypting token"):
         serv = TokenService(cfg=cfg)
         serv.decrypt_token(refresh_token)

@@ -17,7 +17,7 @@ test:  ## Run the test suite using pytest with coverage
 lint:  ## Run linting checks with ruff
 	uv run ruff check .
 	uv run ruff format --check .
-	uv run mypy --check src/
+	uv run mypy --check src/ tests/
 
 .PHONY: format
 format:  ## Run ruff to format the code
