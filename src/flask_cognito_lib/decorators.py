@@ -314,6 +314,10 @@ def auth_required(groups: Optional[Iterable[str]] = None, any_group: bool = Fals
                 # Try and validate the access token stored in the cookie
                 try:
                     access_token = request.cookies.get(cognito_auth.cfg.COOKIE_NAME)
+
+                    if access_token is None:
+                        raise AuthorisationRequiredError
+
                     claims = cognito_auth.verify_access_token(
                         token=access_token,
                         leeway=cognito_auth.cfg.cognito_expiration_leeway,
