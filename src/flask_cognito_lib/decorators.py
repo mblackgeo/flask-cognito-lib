@@ -1,8 +1,9 @@
 from functools import wraps
-from typing import Iterable, Optional, Union
+from typing import Any, Callable, Dict, Iterable, Optional, TypeVar, Union, cast
 
 from flask import Response, redirect, request, session
 from flask import current_app as app
+from typing_extensions import ParamSpec
 from werkzeug.local import LocalProxy
 
 from flask_cognito_lib.config import Config
@@ -20,10 +21,13 @@ from flask_cognito_lib.utils import (
     secure_random,
 )
 
+P = ParamSpec("P")
+R = TypeVar("R", bound=Response)
+
 cognito_auth: CognitoAuth = LocalProxy(lambda: app.extensions[Config.APP_EXTENSION_KEY])  # type: ignore
 
 
-def remove_from_session(keys: Iterable[str]):
+def remove_from_session(keys: Iterable[str]) -> None:
     """Remove an entry from the session"""
     with app.app_context():
         for key in keys:
@@ -96,11 +100,11 @@ def get_token_from_cookie(cookie_name: str) -> Union[str, None]:
     return token
 
 
-def cognito_login(fn):
+def cognito_login(fn: Callable[P, Any]) -> Callable[P, Response]:
     """A decorator that redirects to the Cognito hosted UI"""
 
     @wraps(fn)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Response:
         with app.app_context():
             # store parameters in the session that are passed to Cognito
             # and required for JWT verification
@@ -128,19 +132,19 @@ def cognito_login(fn):
                 scopes=cognito_auth.cfg.cognito_scopes,
             )
 
-        return redirect(login_url)
+        return redirect(login_url)  # type: ignore[return-value]
 
     return wrapper
 
 
-def cognito_login_callback(fn):
+def cognito_login_callback(fn: Callable[P, Any]) -> Callable[P, Response]:
     """
     A decorator to wrap the redirect after a user has logged in with Cognito.
     Stores the Cognito JWT in a http only cookie.
     """
 
     @wraps(fn)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Response:
         with app.app_context():
             # Get the access token return after auth flow with Cognito
             # Sometimes this can fail so raise an error if it does
@@ -208,11 +212,11 @@ def cognito_login_callback(fn):
     return wrapper
 
 
-def cognito_refresh_callback(fn):
+def cognito_refresh_callback(fn: Callable[P, Any]) -> Callable[P, Response]:
     """A decorator that handles token refresh with Cognito"""
 
     @wraps(fn)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Response:
         with app.app_context():
             if not cognito_auth.cfg.refresh_flow_enabled:
                 raise CognitoError("Refresh flow is not enabled")
@@ -255,11 +259,11 @@ def cognito_refresh_callback(fn):
     return wrapper
 
 
-def cognito_logout(fn):
+def cognito_logout(fn: Callable[P, Any]) -> Callable[P, Response]:
     """A decorator that handles logging out with Cognito"""
 
     @wraps(fn)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Response:
         with app.app_context():
             # logout at cognito and remove the cookies
             resp = redirect(cognito_auth.cfg.logout_endpoint)
@@ -286,12 +290,16 @@ def cognito_logout(fn):
 
         # Cognito will redirect to the sign-out URL (if set) or else use
         # the callback URL
-        return resp
+        return resp  # type: ignore[return-value]
 
     return wrapper
 
 
-def check_group_membership(claims, groups, any_group):
+def check_group_membership(
+    claims: Dict[str, Iterable[str]],
+    groups: Iterable[str],
+    any_group: bool,
+) -> bool:
     if "cognito:groups" not in claims:
         raise CognitoGroupRequiredError("No groups found in claims")
 
@@ -300,12 +308,15 @@ def check_group_membership(claims, groups, any_group):
     return all(g in claims["cognito:groups"] for g in groups)
 
 
-def auth_required(groups: Optional[Iterable[str]] = None, any_group: bool = False):
+def auth_required(
+    groups: Optional[Iterable[str]] = None,
+    any_group: bool = False,
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """A decorator to protect a route with AWS Cognito"""
 
-    def wrapper(fn):
+    def wrapper(fn: Callable[P, R]) -> Callable[P, R]:
         @wraps(fn)
-        def decorator(*args, **kwargs):
+        def decorator(*args: P.args, **kwargs: P.kwargs) -> R:
             with app.app_context():
                 # return early if the extension is disabled
                 if cognito_auth.cfg.disabled:
@@ -324,7 +335,8 @@ def auth_required(groups: Optional[Iterable[str]] = None, any_group: bool = Fals
                     )
                     # Check for required group membership
                     if groups:
-                        if not check_group_membership(claims, groups, any_group):
+                        req_groups = cast(Iterable[str], groups)
+                        if not check_group_membership(claims, req_groups, any_group):
                             raise CognitoGroupRequiredError
 
                     return fn(*args, **kwargs)

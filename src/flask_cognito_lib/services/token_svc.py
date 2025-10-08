@@ -18,7 +18,7 @@ class TokenService:
         self.fernet = Fernet(self.get_encryption_key(self.cfg))
 
     @staticmethod
-    def get_encryption_key(cfg) -> bytes:
+    def get_encryption_key(cfg: Config) -> bytes:
         """Get the encryption key from the Flask `SECRET_KEY` for the Fernet cipher
 
         Returns
