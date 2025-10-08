@@ -144,6 +144,16 @@ def test_cognito_login_callback(client, cfg, access_token, token_response):
         assert "user_info" in session
 
 
+def test_cognito_login_callback_missing_session(client, cfg):
+    with client as c:
+        with c.session_transaction() as sess:
+            sess["state"] = "notused"
+            sess["nonce"] = "notused"
+
+        with pytest.raises(CognitoError, match="Session data missing or expired"):
+            client.get("/postlogin")
+
+
 def test_cognito_login_callback_refresh(
     client,
     cfg,

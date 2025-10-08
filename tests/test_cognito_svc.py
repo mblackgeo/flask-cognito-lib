@@ -141,6 +141,25 @@ def test_refresh_token(cfg, mocker):
     )
 
     cognito = CognitoService(cfg)
+    token = cognito.exchange_refresh_token(refresh_token="test_refresh_token")
+
+    assert token.access_token == "new_test_access_token"
+    assert token.refresh_token == "new_test_refresh_token"
+
+
+def test_refresh_token_typo(cfg, mocker):
+    # Check the function works under the old name that had a typo
+    mocker.patch(
+        "requests.post",
+        return_value=mocker.Mock(
+            json=lambda: {
+                "access_token": "new_test_access_token",
+                "refresh_token": "new_test_refresh_token",
+            }
+        ),
+    )
+
+    cognito = CognitoService(cfg)
     token = cognito.exhange_refresh_token(refresh_token="test_refresh_token")
 
     assert token.access_token == "new_test_access_token"

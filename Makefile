@@ -9,7 +9,7 @@ install:  ## Create a new environment with poetry and install with pre-commit ho
 
 .PHONY: test
 test:  ## Run the test suite using pytest
-	poetry run pytest --cov flask_cognito_lib --cov-report term-missing --cov-report=xml
+	poetry run pytest --cov flask_cognito_lib --cov-report term-missing --cov-report=xml -ra -vv
 
 .PHONY: lint
 lint:  ## Run linting checks with flake8, isort, and black

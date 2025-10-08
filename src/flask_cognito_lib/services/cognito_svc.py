@@ -99,7 +99,7 @@ class CognitoService:
 
         return self._request_token(data)
 
-    def exhange_refresh_token(
+    def exchange_refresh_token(
         self,
         refresh_token: str,
     ) -> CognitoTokenResponse:
@@ -129,6 +129,9 @@ class CognitoService:
         }
 
         return self._request_token(data)
+
+    # Original typo in method name - keep for backward compatibility.
+    exhange_refresh_token = exchange_refresh_token
 
     def revoke_refresh_token(
         self,

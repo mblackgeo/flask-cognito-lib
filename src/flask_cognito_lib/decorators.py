@@ -146,9 +146,14 @@ def cognito_login_callback(fn):
     def wrapper(*args, **kwargs):
         with app.app_context():
             # Get the access token return after auth flow with Cognito
-            code_verifier = session["code_verifier"]
-            state = session["state"]
-            nonce = session["nonce"]
+            # Sometimes this can fail so raise an error if it does
+            # See: https://github.com/mblackgeo/flask-cognito-lib/issues/81
+            try:
+                code_verifier = session["code_verifier"]
+                state = session["state"]
+                nonce = session["nonce"]
+            except KeyError as err:
+                raise CognitoError("Session data missing or expired") from err
 
             # exchange the code for an access token
             # also confirms the returned state is correct
