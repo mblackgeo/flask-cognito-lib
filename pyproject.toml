@@ -39,18 +39,15 @@ build = ["uv ~= 0.7"] # required for python sematic release in CI
 
 [dependency-groups]
 dev = [
-    "pytest>=8.3.4,<9",
-    "mypy~=1.14",
-    "typed-ast>=1.5.2,<2",
-    "pylint>=3.2.7,<4",
-    "types-requests>=2.27.13,<3",
-    "pytest-mock>=3.7.0,<4",
-    "pytest-cov>=5.0.0,<6",
-    "python-dotenv>=1.0.1,<2",
-    "mkdocs-material>=9.6.1,<10",
     "mdx-include>=1.4.1,<2",
+    "mkdocs-material>=9.6.1,<10",
+    "mypy~=1.0",
+    "pytest-cov>=5.0,<8",
+    "pytest-mock~=3.0",
+    "pytest~=8.0",
     "python-semantic-release~=10.0",
     "ruff>=0.14.0",
+    "types-requests~=2.0",
 ]
 
 [tool.hatch.build.targets.sdist]
