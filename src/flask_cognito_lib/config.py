@@ -40,7 +40,7 @@ def get(key: str, required: bool = False, default: Optional[Any] = None) -> Any:
 
 class Config:
     """
-    Helper class to hold the congfiguration
+    Helper class to hold the configuration
     """
 
     # Constants
