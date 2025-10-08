@@ -35,11 +35,14 @@ docs:  ## Run mkdocs locally
 build-docs:  ## Build the mkdocs documentation
 	uv run mkdocs build --strict
 
+# Note - in most cases CI/CD will handle releases automatically
+# These targets are for manual "break-glass" releases only
 .PHONY: test-release
-test-release:  ## Build the package and release to test-PyPI
-	poetry config repositories.testpypi https://test.pypi.org/legacy/
-	poetry publish --build -r testpypi
+test-release:  ## Build & upload to TestPyPI (manual)
+	uv build
+	uv publish --publish-url https://test.pypi.org/legacy/ --token $${TEST_PYPI_TOKEN}
 
 .PHONY: release
-release:  ## Build the package and release to PyPI
-	poetry publish
+release:  ## Build & upload to PyPI (manual)
+	uv build
+	uv publish --publish-url https://upload.pypi.org/legacy/ --token $${PYPI_API_TOKEN}
