@@ -28,6 +28,7 @@ dependencies = [
     "PyJWT[crypto]>=2.4,<3.0",
     "urllib3<3.0",
     "cryptography",
+    "typing-extensions~=4.0 ; python_full_version < '3.10'",
 ]
 
 [project.urls]
@@ -48,7 +49,6 @@ dev = [
     "python-semantic-release~=10.0",
     "ruff>=0.14.0",
     "types-requests~=2.0",
-    "typing-extensions~=4.0",
 ]
 
 [tool.hatch.build.targets.sdist]
