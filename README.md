@@ -201,10 +201,9 @@ Prerequisites:
 
 The Makefile includes helpful commands setting a development environment, get started by installing the package into a new environment by running `make install`. Run `make help` to see additional available commands (e.g. linting, testing and so on).
 
-* [Pytest](https://docs.pytest.org/en/6.2.x/) is used for testing the application (see `/tests`).
+* [Pytest](https://docs.pytest.org/en/) is used for testing the application (see `/tests`).
 * [MkDocs](https://www.mkdocs.org/) is used for generating docs and hosted with GH pages (see `/docs`).
-* Code is linted using [flake8](https://flake8.pycqa.org/en/latest/)
-* Code formatting is validated using [Black](https://github.com/psf/black)
+* Code is linted and formatted using [ruff](https://docs.astral.sh/ruff/)
 * The [Github Actions pipeline](.github/workflows/cicd.yml) runs these checks and tests
 * [Semantic-release](https://python-semantic-release.readthedocs.io/en/latest/) is used with [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for automated releasing to PyPI
 
