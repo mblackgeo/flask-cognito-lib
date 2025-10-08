@@ -1,4 +1,3 @@
-import logging
 from functools import wraps
 from typing import Iterable, Optional, Union
 
@@ -147,16 +146,14 @@ def cognito_login_callback(fn):
     def wrapper(*args, **kwargs):
         with app.app_context():
             # Get the access token return after auth flow with Cognito
-            # Sometimes this can fail so catch exceptions and return back to
-            # cognito to prompt login again
+            # Sometimes this can fail so raise an error if it does
             # See: https://github.com/mblackgeo/flask-cognito-lib/issues/81
             try:
                 code_verifier = session["code_verifier"]
                 state = session["state"]
                 nonce = session["nonce"]
             except KeyError as err:
-                logging.warning("There was an error retrieving session data: %s", err)
-                return cognito_login_callback(fn)(*args, **kwargs)
+                raise CognitoError("Session data missing or expired") from err
 
             # exchange the code for an access token
             # also confirms the returned state is correct
