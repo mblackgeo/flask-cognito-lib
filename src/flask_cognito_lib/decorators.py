@@ -1,9 +1,9 @@
+import logging
 from functools import wraps
 from typing import Iterable, Optional, Union
 
-from flask import Response
+from flask import Response, redirect, request, session
 from flask import current_app as app
-from flask import redirect, request, session
 from werkzeug.local import LocalProxy
 
 from flask_cognito_lib.config import Config
@@ -146,9 +146,16 @@ def cognito_login_callback(fn):
     def wrapper(*args, **kwargs):
         with app.app_context():
             # Get the access token return after auth flow with Cognito
-            code_verifier = session["code_verifier"]
-            state = session["state"]
-            nonce = session["nonce"]
+            # Sometimes this can fail so catch exceptions and return back to
+            # cognito to prompt login again
+            # See: https://github.com/mblackgeo/flask-cognito-lib/issues/81
+            try:
+                code_verifier = session["code_verifier"]
+                state = session["state"]
+                nonce = session["nonce"]
+            except KeyError as err:
+                logging.warning("There was an error retrieving session data: %s", err)
+                return cognito_login_callback(fn)(*args, **kwargs)
 
             # exchange the code for an access token
             # also confirms the returned state is correct
