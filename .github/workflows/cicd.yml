@@ -89,6 +89,11 @@ jobs:
       contents: read
 
     steps:
+    - name: Checkout (full history)
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -117,16 +122,14 @@ jobs:
             flask-cognito-lib
 
       - name: Install test deps
-        run: uv pip install -U pytest pytest-cov
+        run: uv pip install -U pytest
 
       # Run tests from a clean dir so imports use the INSTALLED package, not the repo source
       - name: Run tests against installed package
         run: |
-          mkdir -p tests-run
-          cp -r tests tests-run/
-          cd tests-run
+          mkdir -p tests-run && cp -r tests tests-run/ && cd tests-run
           uv run python -c "import flask_cognito_lib, sys; print('Using', flask_cognito_lib.__version__, 'on', sys.version)"
-          uv run pytest -q
+          uv run pytest -ra -vv .
 
       # --- 3) Publish to PyPI ---
       - name: Publish to PyPI (Trusted Publisher)
