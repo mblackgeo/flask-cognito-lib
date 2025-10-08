@@ -2,16 +2,13 @@
 name = "flask_cognito_lib"
 version = "1.9.5"
 description = "A Flask extension that supports protecting routes with AWS Cognito following OAuth 2.1 best practices"
-authors = [{ name = "mblackgeo", email = "18327836+mblackgeo@users.noreply.github.com" }]
+authors = [
+    { name = "mblackgeo", email = "18327836+mblackgeo@users.noreply.github.com" },
+]
 requires-python = ">=3.8,<4.0,!=3.9.0,!=3.9.1"
 readme = "README.md"
 license = "MIT"
-keywords = [
-    "Flask",
-    "Extension",
-    "OAuth",
-    "Cognito",
-]
+keywords = ["Flask", "Extension", "OAuth", "Cognito"]
 classifiers = [
     "Framework :: Flask",
     "Environment :: Web Environment",
@@ -66,36 +63,25 @@ include = ["src/flask_cognito_lib"]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.black]
+[tool.ruff]
+target-version = "py38"
 line-length = 88
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
 
-[tool.isort]
-profile = "black"
-multi_line_output = 3
-line_length = 88
-known_first_party = ["flask_cognito_lib"]
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = []
+
+# Optional per-file ignores
+# [tool.ruff.lint.per-file-ignores]
+# "tests/**.py" = ["S101"]
+
+[tool.ruff.format]
+quote-style = "double"
+docstring-code-format = true
 
 [tool.semantic_release]
-version_variable = [
-    "src/flask_cognito_lib/__init__.py:__version__"
-]
-version_toml = [
-    "pyproject.toml:tool.poetry.version"
-]
+version_variable = ["src/flask_cognito_lib/__init__.py:__version__"]
+version_toml = ["pyproject.toml:tool.poetry.version"]
 major_on_zero = false
 branch = "main"
 upload_to_repository = false

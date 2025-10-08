@@ -211,7 +211,8 @@ def test_cognito_login_callback_refresh_encrypted(
         assert cookies_set[0].startswith(f"{cfg.COOKIE_NAME}={access_token}")
         assert cookies_set[1].startswith(f"{cfg.COOKIE_NAME_REFRESH}=")
 
-        # check that the refresh token can be decrypted using Fernet and matches the original
+        # check that the refresh token can be decrypted using Fernet
+        # and matches the original
         refresh_cookie_value = cookies_set[1].split(";")[0].split("=", 1)[1]
         assert fernet.decrypt(refresh_cookie_value.encode()).decode() == refresh_token
 

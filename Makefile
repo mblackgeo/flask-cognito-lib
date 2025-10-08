@@ -14,15 +14,14 @@ test:  ## Run the test suite using pytest with coverage
 	uv run pytest --cov flask_cognito_lib --cov-report term-missing --cov-report=xml -ra -vv
 
 .PHONY: lint
-lint:  ## Run linting checks with flake8, isort, and black
-	poetry run flake8 .
-	poetry run black --check .
-	poetry run isort -c .
+lint:  ## Run linting checks with ruff
+	uv run ruff check .
+	uv run ruff format --check .
 
 .PHONY: format
-format:  ## Run black and isort to format the code
-	poetry run black .
-	poetry run isort .
+format:  ## Run ruff to format the code
+	uv run ruff check --fix .
+	uv run ruff format .
 
 .PHONY: example
 example:  ## Run the example Flask app locally
