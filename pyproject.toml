@@ -83,18 +83,30 @@ quote-style = "double"
 docstring-code-format = true
 
 [tool.semantic_release]
-version_variable = ["src/flask_cognito_lib/__init__.py:__version__"]
-version_toml = ["pyproject.toml:tool.poetry.version"]
+version_toml = ["pyproject.toml:project.version"]
+version_variables = ["src/flask_cognito_lib/__init__.py:__version__"]
+commit_parser = "conventional"
+changelog_file = "CHANGELOG.md"
+dist_path = "dist/"
 major_on_zero = false
-branch = "main"
-upload_to_repository = false
-upload_to_release = true
+patch_without_tag = false
+
+# Build with uv and keep uv.lock in sync after PSR bumps the version
 build_command = """
   python -m pip install -e '.[build]'
   uv lock --upgrade-package "$PACKAGE_NAME"
   git add uv.lock
   uv build
 """
-dist_path = "dist/"
-changelog_file = "CHANGELOG.md"
-patch_without_tag = false
+
+# --- Multibranch release groups ---
+# Full releases only from main/master
+[tool.semantic_release.branches.main]
+match = "(main|master)"
+prerelease = false
+
+# RC prereleases from ANY other branch (manual or CI-dispatched)
+[tool.semantic_release.branches."rc-any"]
+match = ".*"
+prerelease = true
+prerelease_token = "rc"
