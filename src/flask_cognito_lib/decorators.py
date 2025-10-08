@@ -2,8 +2,9 @@ import logging
 from functools import wraps
 from typing import Iterable, Optional, Union
 
-from flask import Response, redirect, request, session
+from flask import Response
 from flask import current_app as app
+from flask import redirect, request, session
 from werkzeug.local import LocalProxy
 
 from flask_cognito_lib.config import Config
