@@ -197,7 +197,7 @@ CognitoAuth().init_app(app, cfg=ConfigOverride())
 
 Prerequisites:
 
-* [poetry](https://python-poetry.org/)
+* [uv](https://docs.astral.sh/uv/)
 
 The Makefile includes helpful commands setting a development environment, get started by installing the package into a new environment by running `make install`. Run `make help` to see additional available commands (e.g. linting, testing and so on).
 
