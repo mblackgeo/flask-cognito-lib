@@ -1,9 +1,8 @@
 from functools import wraps
 from typing import Iterable, Optional, Union
 
-from flask import Response
+from flask import Response, redirect, request, session
 from flask import current_app as app
-from flask import redirect, request, session
 from werkzeug.local import LocalProxy
 
 from flask_cognito_lib.config import Config
@@ -21,9 +20,7 @@ from flask_cognito_lib.utils import (
     secure_random,
 )
 
-cognito_auth: CognitoAuth = LocalProxy(
-    lambda: app.extensions[Config.APP_EXTENSION_KEY]
-)  # type: ignore
+cognito_auth: CognitoAuth = LocalProxy(lambda: app.extensions[Config.APP_EXTENSION_KEY])  # type: ignore
 
 
 def remove_from_session(keys: Iterable[str]):
