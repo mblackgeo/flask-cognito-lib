@@ -1,12 +1,12 @@
 name: cicd
 
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   ci:
     runs-on: ubuntu-latest
-
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
         flask-version: ["2.0", "3.0"]
@@ -43,14 +43,9 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   cd:
-    # Only run this job if the "ci" job passes
     needs: ci
     runs-on: ubuntu-latest
-
-    # Only run this job if new work is pushed to the "main" branch
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    # allow python-sematic-release to push tag & create release
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
     permissions:
       contents: write
 
@@ -85,54 +80,59 @@ jobs:
     if: needs.cd.outputs.released == 'true'
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
+      id-token: write   # Trusted Publishing
       contents: read
+    env:
+      UV_PROJECT_ENVIRONMENT: .venv
 
     steps:
-      - name: Checkout (full history)
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Publish to TestPyPI (Trusted Publisher)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist
+          repository-url: https://test.pypi.org/legacy/
+          # skip-existing: true   # optional safety for reruns
+
+      - name: Checkout repo (to get tests/)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-        - name: Download build artifacts
-          uses: actions/download-artifact@v4
-          with:
-            name: dist
-            path: dist
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          python-version: "3.11"
 
-        # --- 1) Publish to TestPyPI ---
-        - name: Publish to TestPyPI (Trusted Publisher)
-          uses: pypa/gh-action-pypi-publish@release/v1
-          with:
-            packages-dir: dist
-            repository-url: https://test.pypi.org/legacy/
+      - name: Install package from TestPyPI
+        run: |
+          uv pip install \
+            --index-url https://test.pypi.org/simple \
+            --extra-index-url https://pypi.org/simple \
+            flask-cognito-lib
 
-        # --- 2) Install from TestPyPI and run tests against the built wheel/sdist ---
-        - name: Set up uv and Python
-          uses: astral-sh/setup-uv@v6
-          with:
-            enable-cache: true
-            python-version: "3.11"
+      - name: Install test deps
+        run: uv pip install -U pytest
 
-        - name: Install package from TestPyPI
-          run: |
-            uv pip install \
-              --index-url https://test.pypi.org/simple \
-              --extra-index-url https://pypi.org/simple \
-              flask-cognito-lib
+      - name: Run tests against installed package (isolated)
+        run: |
+          tmpdir="$(mktemp -d)"
+          cp -r tests "$tmpdir/tests"
+          cd "$tmpdir"
+          uv run python -c "import flask_cognito_lib, sys; print('Using', flask_cognito_lib.__version__, 'on', sys.version)"
+          uv run pytest -ra -vv tests
 
-        - name: Install test deps
-          run: uv pip install -U pytest
+      # Only publish to PyPI on main and for a *final* (non-prerelease) version
+      - name: Publish to PyPI (Trusted Publisher)
+        if: github.ref == 'refs/heads/main' && !contains(needs.cd.outputs.version, '-')
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist
+          # skip-existing: true   # optional safety for reruns
 
-        # Run tests from a clean dir so imports use the INSTALLED package, not the repo source
-        - name: Run tests against installed package
-          run: |
-            mkdir -p tests-run && cp -r tests tests-run/ && cd tests-run
-            uv run python -c "import flask_cognito_lib, sys; print('Using', flask_cognito_lib.__version__, 'on', sys.version)"
-            uv run pytest -ra -vv .
-
-        # --- 3) Publish to PyPI ---
-        - name: Publish to PyPI (Trusted Publisher)
-          uses: pypa/gh-action-pypi-publish@release/v1
-          with:
-            packages-dir: dist
