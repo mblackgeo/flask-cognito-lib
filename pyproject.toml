@@ -48,6 +48,7 @@ dev = [
     "python-semantic-release~=10.0",
     "ruff>=0.14.0",
     "types-requests~=2.0",
+    "typing-extensions~=4.0",
 ]
 
 [tool.hatch.build.targets.sdist]

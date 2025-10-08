@@ -474,6 +474,7 @@ dev = [
     { name = "python-semantic-release" },
     { name = "ruff" },
     { name = "types-requests" },
+    { name = "typing-extensions" },
 ]
 
 [package.metadata]
@@ -498,6 +499,7 @@ dev = [
     { name = "python-semantic-release", specifier = "~=10.0" },
     { name = "ruff", specifier = ">=0.14.0" },
     { name = "types-requests", specifier = "~=2.0" },
+    { name = "typing-extensions", specifier = "~=4.0" },
 ]
 
 [[package]]
