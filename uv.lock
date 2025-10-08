@@ -490,7 +490,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cryptography", specifier = ">=44.0.2,<45" },
+    { name = "cryptography" },
     { name = "flask", specifier = ">=2.0,<4.0" },
     { name = "pyjwt", extras = ["crypto"], specifier = ">=2.4,<3.0" },
     { name = "requests", specifier = "~=2.0" },

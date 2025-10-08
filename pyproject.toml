@@ -27,7 +27,7 @@ dependencies = [
     "requests~=2.0",
     "PyJWT[crypto]>=2.4,<3.0",
     "urllib3<3.0",
-    "cryptography>=44.0.2,<45",
+    "cryptography",
 ]
 
 [project.urls]
