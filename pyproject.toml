@@ -34,6 +34,9 @@ dependencies = [
 Homepage = "https://github.com/mblackgeo/flask-cognito-lib"
 Repository = "https://github.com/mblackgeo/flask-cognito-lib"
 
+[project.optional-dependencies]
+build = ["uv ~= 0.7"] # required for python sematic release in CI
+
 [dependency-groups]
 dev = [
     "pytest>=8.3.4,<9",
@@ -86,7 +89,12 @@ major_on_zero = false
 branch = "main"
 upload_to_repository = false
 upload_to_release = true
-build_command = "poetry build"
+build_command = """
+  python -m pip install -e '.[build]'
+  uv lock --upgrade-package "$PACKAGE_NAME"
+  git add uv.lock
+  uv build
+"""
 dist_path = "dist/"
 changelog_file = "CHANGELOG.md"
 patch_without_tag = false

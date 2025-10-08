@@ -45,69 +45,91 @@ jobs:
   cd:
     # Only run this job if the "ci" job passes
     needs: ci
+    runs-on: ubuntu-latest
 
     # Only run this job if new work is pushed to the "main" branch
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
-    # Set up operating system
-    runs-on: ubuntu-latest
+    # allow python-sematic-release to push tag & create release
+    permissions:
+      contents: write
 
-    # Define job steps
+    outputs:
+      released: ${{ steps.release.outputs.released }}
+      version: ${{ steps.release.outputs.version }}
+
     steps:
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.11
-
-      - name: Check-out repository
+      - name: Checkout (full history)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Install poetry
-        run: pip install poetry==1.5.1
-
-      - name: Install code
-        run: poetry install
-
-      - name: Semantic Release
+      - name: Semantic Release (version, tag, GitHub Release)
         id: release
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "action@github.com"
-          poetry run semantic-release publish -D commit_author='github-actions <action@github.com>' 2> out.txt
-          grep -q "No release will be made" out.txt && echo "TO_RELEASE=0" >> "$GITHUB_ENV" || echo "TO_RELEASE=1" >> "$GITHUB_ENV"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Semantic release output
-        if: always()
-        run: cat out.txt
-
-      - name: Build and publish to Test PyPI
-        uses: JRubics/poetry-publish@v2.0
-        if: ${{ env.TO_RELEASE == '1' }}
+        uses: python-semantic-release/python-semantic-release@v10.4.1
         with:
-          python_version: "3.11"
-          poetry_version: "==1.5.1"
-          pypi_token: ${{ secrets.TEST_PYPI_API_TOKEN }}
-          repository_name: "testpypi"
-          repository_url: "https://test.pypi.org/legacy/"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          git_committer_name: "github-actions"
+          git_committer_email: "actions@users.noreply.github.com"
 
-      - name: Test install from Test PyPI
-        if: ${{ env.TO_RELEASE == '1' }}
-        run: |
-          pip install \
-          --index-url https://test.pypi.org/simple/ \
-          --extra-index-url https://pypi.org/simple \
-          flask-cognito-lib
-
-      # TODO run unit tests against Test-PyPI installation
-
-      - name: Build and publish to PyPI
-        uses: JRubics/poetry-publish@v2.0
-        if: ${{ env.TO_RELEASE == '1' }}
+      - name: Upload dist artifacts
+        if: steps.release.outputs.released == 'true'
+        uses: actions/upload-artifact@v4
         with:
-          python_version: "3.11"
-          poetry_version: "==1.5.1"
-          pypi_token: ${{ secrets.PYPI_API_TOKEN }}
+          name: dist
+          path: dist
+          if-no-files-found: error
+
+  publish:
+    needs: cd
+    if: needs.cd.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      # --- 1) Publish to TestPyPI ---
+      - name: Publish to TestPyPI (Trusted Publisher)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist
+          repository-url: https://test.pypi.org/legacy/
+
+      # --- 2) Install from TestPyPI and run tests against the built wheel/sdist ---
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          python-version: "3.11"
+
+      - name: Install package from TestPyPI
+        run: |
+          uv pip install \
+            --index-url https://test.pypi.org/simple \
+            --extra-index-url https://pypi.org/simple \
+            flask-cognito-lib
+
+      - name: Install test deps
+        run: uv pip install -U pytest pytest-cov
+
+      # Run tests from a clean dir so imports use the INSTALLED package, not the repo source
+      - name: Run tests against installed package
+        run: |
+          mkdir -p tests-run
+          cp -r tests tests-run/
+          cd tests-run
+          uv run python -c "import flask_cognito_lib, sys; print('Using', flask_cognito_lib.__version__, 'on', sys.version)"
+          uv run pytest -q
+
+      # --- 3) Publish to PyPI ---
+      - name: Publish to PyPI (Trusted Publisher)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist
