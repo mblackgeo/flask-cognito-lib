@@ -13,18 +13,17 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v5
 
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
+      - name: Set up uv (with cache & Python)
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: 3.8
+          enable-cache: true
+          python-version: "3.11"
 
-      - name: Install poetry
-        run: pip install poetry==1.5.1
+      - name: Install deps for docs
+        run: uv sync --locked --dev --all-extras
 
-      - name: Install code
-        run: poetry install
-
-      - name: Publish to Github pages
-        run: poetry run mkdocs gh-deploy --force
+      - name: Publish to GitHub Pages
+        run: uv run mkdocs gh-deploy --force
