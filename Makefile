@@ -2,10 +2,8 @@ help:
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
 .PHONY: install
-install:  ## Create a new environment with poetry and install with pre-commit hooks
+install:  ## Create a new environment with uv and install dependencies
 	poetry install
-	pre-commit install
-	pre-commit install --hook-type commit-msg
 
 .PHONY: test
 test:  ## Run the test suite using pytest
