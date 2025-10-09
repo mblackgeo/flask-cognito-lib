@@ -455,7 +455,7 @@ dependencies = [
     { name = "flask" },
     { name = "pyjwt", extra = ["crypto"] },
     { name = "requests" },
-    { name = "typing-extensions", marker = "python_full_version < '3.10'" },
+    { name = "typing-extensions" },
     { name = "urllib3" },
 ]
 
@@ -483,7 +483,7 @@ requires-dist = [
     { name = "flask", specifier = ">=2.0,<4.0" },
     { name = "pyjwt", extras = ["crypto"], specifier = ">=2.4,<3.0" },
     { name = "requests", specifier = "~=2.0" },
-    { name = "typing-extensions", marker = "python_full_version < '3.10'", specifier = "~=4.0" },
+    { name = "typing-extensions", specifier = "~=4.0" },
     { name = "urllib3", specifier = "<3.0" },
     { name = "uv", marker = "extra == 'build'", specifier = "~=0.7" },
 ]
