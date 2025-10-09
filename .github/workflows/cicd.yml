@@ -102,9 +102,6 @@ jobs:
           name: dist
           path: dist
 
-      - name: Sanity check version
-        run: echo "Releasing version: ${{ needs.cd.outputs.version }}"
-
       - name: Publish to TestPyPI (Trusted Publisher)
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
