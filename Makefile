@@ -7,7 +7,7 @@ export UV_PROJECT_ENVIRONMENT
 
 .PHONY: install
 install:  ## Create a new environment with uv and install with pre-commit hooks
-	uv sync --dev --all-extras
+	uv sync --dev --all-extras --python 3.9  # lowest supported version
 
 .PHONY: test
 test:  ## Run the test suite using pytest with coverage

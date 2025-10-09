@@ -118,7 +118,7 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-          python-version: "3.11"
+          python-version: "3.9"
           activate-environment: true
 
       - name: Install package from TestPyPI
