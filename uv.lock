@@ -408,7 +408,7 @@ wheels = [
 
 [[package]]
 name = "flask-cognito-lib"
-version = "1.9.6rc3"
+version = "1.9.6"
 source = { editable = "." }
 dependencies = [
     { name = "cryptography" },

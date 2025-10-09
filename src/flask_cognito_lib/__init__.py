@@ -1,4 +1,4 @@
-__version__ = "1.9.6-rc.3"
+__version__ = "1.9.6"
 
 from .plugin import CognitoAuth
 
