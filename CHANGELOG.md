@@ -1,5 +1,17 @@
 <!--next-version-placeholder-->
 
+## v1.9.6 (2025-10-09)
+
+### Fix
+- Add py.typed marker ([`1ef35ce`](https://github.com/mblackgeo/flask-cognito-lib/commit/1ef35cee22deac4247cb01d497a3000ffb35252b))
+- Ensure typing_extensions is added to project dependencies ([`1e8bf57`](https://github.com/mblackgeo/flask-cognito-lib/commit/1e8bf574a0f762f2dab49b081e1ab043a4df558b))
+- Drop support for python 3.8 ([`9a45e49`](https://github.com/mblackgeo/flask-cognito-lib/commit/9a45e49a45bec842c4873ca6eb2db514ec04d441))
+
+### Documentation
+- Add mypy validation note to README ([`1979383`](https://github.com/mblackgeo/flask-cognito-lib/commit/197938369076a286bc18ba43340df429e31494bf))
+- Replace poetry link with uv ([`abe5aa7`](https://github.com/mblackgeo/flask-cognito-lib/commit/abe5aa75d57508233be6ab142946bb147429d717))
+- Update README to reflect migration from flake8 and Black to ruff for linting and formatting ([`8273a7f`](https://github.com/mblackgeo/flask-cognito-lib/commit/8273a7f6c400d97d67db115cda238d50af3cf42b))
+
 ## v1.9.5 (2025-10-08)
 
 ### Fix
