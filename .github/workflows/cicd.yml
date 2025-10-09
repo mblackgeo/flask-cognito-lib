@@ -46,7 +46,10 @@ jobs:
       - name: Test
         run: make test
 
+      # Coverage upload only from one job in the matrix to avoid duplicates
+      # Currently: Python 3.11 + Flask 3.0, on PRs and main branch
       - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.11' && matrix.flask-version == '3.0' && (github.event_name == 'pull_request' || github.ref == 'refs/heads/main')
         uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
