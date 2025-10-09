@@ -125,8 +125,9 @@ jobs:
         run: |
           VERSION='${{ needs.cd.outputs.version }}'
           uv pip install \
-            --index-url https://test.pypi.org/simple \
-            --extra-index-url https://pypi.org/simple \
+            --extra-index-url https://test.pypi.org/simple \
+            --index-url https://pypi.org/simple \
+            --index-strategy unsafe-best-match \
             "flask-cognito-lib==${VERSION}"
 
       # TODO - need a better way to get test dependencies (i.e. from pyproject.toml)
