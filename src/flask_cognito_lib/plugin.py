@@ -1,6 +1,7 @@
 from typing import Any, Callable, Dict, Optional
 
 from flask import Flask, g
+from typing_extensions import Self
 
 from flask_cognito_lib.config import Config
 from flask_cognito_lib.exceptions import CognitoError
@@ -17,7 +18,7 @@ class CognitoAuth:
         _token_service_factory: Callable = token_service_factory,
         _cognito_service_factory: Callable = cognito_service_factory,
         cfg: Optional[Config] = None,
-    ):
+    ) -> None:
         """Instantiate the CognitoAuth manager
 
         Parameters
@@ -33,7 +34,7 @@ class CognitoAuth:
         if app is not None:
             self.init_app(app=app, cfg=cfg)
 
-    def init_app(self, app: Flask, cfg: Optional[Config] = None):
+    def init_app(self: Self, app: Flask, cfg: Optional[Config] = None) -> None:
         """Register the extension with a Flask application
 
         Parameters
@@ -50,7 +51,7 @@ class CognitoAuth:
         app.extensions[self.cfg.APP_EXTENSION_KEY] = self
 
     @property
-    def token_service(self) -> TokenService:
+    def token_service(self: Self) -> TokenService:
         """Instantiate an instance of the TokenService within the app context
 
         Returns
@@ -64,7 +65,7 @@ class CognitoAuth:
         return getattr(g, self.cfg.CONTEXT_KEY_TOKEN_SERVICE)
 
     @property
-    def cognito_service(self) -> CognitoService:
+    def cognito_service(self: Self) -> CognitoService:
         """Instantiate an instance of the CognitoService within the app context
 
         Returns
@@ -78,7 +79,7 @@ class CognitoAuth:
         return getattr(g, self.cfg.CONTEXT_KEY_COGNITO_SERVICE)
 
     def get_tokens(
-        self,
+        self: Self,
         request_args: Dict[str, str],
         expected_state: str,
         code_verifier: str,
@@ -128,7 +129,7 @@ class CognitoAuth:
         )
 
     def exchange_refresh_token(
-        self,
+        self: Self,
         refresh_token: str,
     ) -> CognitoTokenResponse:
         """Exchange a refresh token for a new set of tokens
@@ -154,7 +155,7 @@ class CognitoAuth:
         )
 
     def revoke_refresh_token(
-        self,
+        self: Self,
         refresh_token: str,
     ) -> None:
         """Revoke a refresh token
@@ -176,7 +177,7 @@ class CognitoAuth:
             refresh_token=refresh_token,
         )
 
-    def verify_access_token(self, token: str, leeway: float) -> Dict[str, Any]:
+    def verify_access_token(self: Self, token: str, leeway: float) -> Dict[str, Any]:
         """Verify the claims & signature of an access token in JWT format from Cognito
 
         This will check the audience, issuer, expiry and validate the signature
@@ -202,7 +203,7 @@ class CognitoAuth:
         return self.token_service.verify_access_token(token=token, leeway=leeway)
 
     def verify_id_token(
-        self,
+        self: Self,
         token: str,
         leeway: float,
         nonce: Optional[str] = None,

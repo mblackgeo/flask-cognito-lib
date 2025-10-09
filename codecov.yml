@@ -1,5 +1,9 @@
 coverage:
   status:
+    project:
+      default:
+        target: 95% # fail if overall coverage drops below 95%
+
     patch:
       default:
-        target: 95%
+        informational: true  # show patch coverage but don't fail on it

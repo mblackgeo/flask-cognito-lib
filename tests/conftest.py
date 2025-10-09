@@ -1,6 +1,10 @@
+from typing import Dict, Generator, List
+
 import pytest
-from flask import Flask, make_response
+from flask import Flask, Response, make_response
+from flask.testing import FlaskClient
 from jwt import PyJWKSet
+from pytest_mock import MockerFixture
 
 from flask_cognito_lib import CognitoAuth
 from flask_cognito_lib.config import Config
@@ -15,7 +19,7 @@ from flask_cognito_lib.utils import CognitoTokenResponse
 
 
 @pytest.fixture(autouse=True)
-def app():
+def app() -> Generator[Flask, None, None]:
     """Create application for the tests."""
 
     _app = Flask(__name__)
@@ -49,51 +53,51 @@ def app():
 
     @_app.route("/login")
     @cognito_login
-    def login():
+    def login() -> None:
         # 302 redirects to the cognito UI
         pass
 
     @_app.route("/postlogin")
     @cognito_login_callback
-    def postlogin():
+    def postlogin() -> Response:
         # recieves the response from cognito and sets a cookie
         return make_response("ok")
 
     @_app.route("/refresh")
     @cognito_refresh_callback
-    def refresh():
+    def refresh() -> Response:
         # receives the response from cognito and updates a cookie
         return make_response("ok")
 
     @_app.route("/logout")
     @cognito_logout
-    def logout():
+    def logout() -> None:
         # 302 redirects to the cognito UI to logout and deletes a cookie
         pass
 
     @_app.route("/private")
     @auth_required()
-    def auth_req():
+    def auth_req() -> Response:
         # requires a valid access token to get a response
         # else raises AuthorisationRequiredError
         return make_response("ok")
 
     @_app.route("/valid_group")
     @auth_required(groups=["admin"])
-    def group_req_valid():
+    def group_req_valid() -> Response:
         # sample token has admin group in "cognito:groups"
         return make_response("ok")
 
     @_app.route("/invalid_group")
     @auth_required(groups=["not_a_group"])
-    def group_req_invalid():
+    def group_req_invalid() -> Response:
         # Should throw 403 CognitoGroupRequiredError as the token is not in
         # the required group
         return make_response("ok")
 
     @_app.route("/any_group")
     @auth_required(groups=["admin", "editor"], any_group=True)
-    def any_group_req_valid():
+    def any_group_req_valid() -> Response:
         return make_response("ok")
 
     yield _app
@@ -101,13 +105,13 @@ def app():
 
 
 @pytest.fixture
-def client(app):
+def client(app: Flask) -> Generator[FlaskClient, None, None]:
     cl = app.test_client()
     yield cl
 
 
 @pytest.fixture
-def jwks():
+def jwks() -> Dict[str, List[Dict[str, str]]]:
     return {
         "keys": [
             {
@@ -131,12 +135,12 @@ def jwks():
 
 
 @pytest.fixture
-def cfg():
+def cfg() -> Config:
     return Config()
 
 
 @pytest.fixture
-def cfg_override():
+def cfg_override() -> Config:
     class ConfigOverride(Config):
         @property
         def logout_redirect(self) -> str:
@@ -146,7 +150,7 @@ def cfg_override():
 
 
 @pytest.fixture(autouse=True)
-def jwk_patch(mocker, jwks):
+def jwk_patch(mocker: MockerFixture, jwks: Dict[str, List[Dict[str, str]]]) -> None:
     # Return the keys from the user pool without hitting the real endpoint
     mocker.patch(
         "jwt.jwks_client.PyJWKClient.get_jwk_set",
@@ -155,7 +159,7 @@ def jwk_patch(mocker, jwks):
 
 
 @pytest.fixture
-def access_token():
+def access_token() -> str:
     return (
         "eyJraWQiOiIyZ0g0MkZIQkxkZlN2MVlRd21xbDZiaTQ1c1gzZG92c3Z2dUNYUVE2VWF3PSIsImFsZyI6IlJTMjU2In0."
         "eyJzdWIiOiI5MDQ4ZDM4Zi04MTc0LTQ5YjktOGQ1OS0zMjM4MTcyODIzZDgiLCJjb2duaXRvOmdyb3VwcyI6WyJhZG1pbiJdLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtd2VzdC0xLmFtYXpvbmF3cy5jb21cL2V1LXdlc3QtMV9jN085MFNOREYiLCJ2ZXJzaW9uIjoyLCJjbGllbnRfaWQiOiI0bGxuNjY3MjZwcDNmNGdpMWtyajBzdGE5aCIsIm9yaWdpbl9qdGkiOiJkNDgxMWJmMS0yNzk4LTRkMzMtYjY1Yy0yZjgyNTQ3MjlkZDIiLCJldmVudF9pZCI6IjE4ODI4ZDE4LWI0NjUtNDcwZS04NGI2LTE3NTIwZGVkMjk5YiIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoicGhvbmUgb3BlbmlkIGVtYWlsIiwiYXV0aF90aW1lIjoxNjQ3OTYxNDkzLCJleHAiOjE2NDc5NjUwOTMsImlhdCI6MTY0Nzk2MTQ5MywianRpIjoiMGZlMjlhOWUtNmU5NC00NzliLTk4N2ItZTQ1Njk2ZDU4NDNhIiwidXNlcm5hbWUiOiJtYmxhY2sifQ."
@@ -164,7 +168,7 @@ def access_token():
 
 
 @pytest.fixture
-def id_token():
+def id_token() -> str:
     return (
         "eyJraWQiOiJzcHZVVmF0NmNsWFN0cG9JaDZuQ1V0dFQ2eTZBbVBvUEF0eStVTU52UTJZPSIsImFsZyI6IlJTMjU2In0."
         "eyJhdF9oYXNoIjoiV3FUZ0JON3VGUG5uSlJneWQ4NldMQSIsInN1YiI6IjkwNDhkMzhmLTgxNzQtNDliOS04ZDU5LTMyMzgxNzI4MjNkOCIsImNvZ25pdG86Z3JvdXBzIjpbImFkbWluIl0sImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLmV1LXdlc3QtMS5hbWF6b25hd3MuY29tXC9ldS13ZXN0LTFfYzdPOTBTTkRGIiwiY29nbml0bzp1c2VybmFtZSI6Im1ibGFjayIsIm5vbmNlIjoiTVNsbjZudlBJSUJWTWhzTlVPdFVDdHNzY2VVS3o0ZGhDUlppNVFaUlU0QT0iLCJvcmlnaW5fanRpIjoiZDQ4MTFiZjEtMjc5OC00ZDMzLWI2NWMtMmY4MjU0NzI5ZGQyIiwiYXVkIjoiNGxsbjY2NzI2cHAzZjRnaTFrcmowc3RhOWgiLCJldmVudF9pZCI6IjE4ODI4ZDE4LWI0NjUtNDcwZS04NGI2LTE3NTIwZGVkMjk5YiIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNjQ3OTYxNDkzLCJleHAiOjE2NDc5NjUwOTMsImlhdCI6MTY0Nzk2MTQ5MywianRpIjoiMDU0YjhlNjYtNTg1My00MTI3LTlkNTUtZTNhMjlkYmQ4NGJkIiwiZW1haWwiOiJtYmxhY2tAc3BhcmtnZW8uY29tIn0."
@@ -173,12 +177,12 @@ def id_token():
 
 
 @pytest.fixture
-def refresh_token():
+def refresh_token() -> str:
     return "test_refresh_token"
 
 
 @pytest.fixture
-def refresh_token_encrypted():
+def refresh_token_encrypted() -> str:
     return (
         "gAAAAABmKjoi8ZL-kR055eHPSn4mH9tT45UB0_c-"
         "1w9AFA8MzkDZaE515vu0B9vIiOY6ez3ftJJzq4OT"
@@ -187,7 +191,12 @@ def refresh_token_encrypted():
 
 
 @pytest.fixture(autouse=False)
-def token_response(mocker, access_token, id_token, refresh_token):
+def token_response(
+    mocker: MockerFixture,
+    access_token: str,
+    id_token: str,
+    refresh_token: str,
+) -> None:
     mocker.patch(
         "flask_cognito_lib.plugin.CognitoAuth.get_tokens",
         return_value=CognitoTokenResponse(
@@ -199,7 +208,12 @@ def token_response(mocker, access_token, id_token, refresh_token):
 
 
 @pytest.fixture(autouse=False)
-def refresh_token_response(mocker, access_token, id_token, refresh_token):
+def refresh_token_response(
+    mocker: MockerFixture,
+    access_token: str,
+    id_token: str,
+    refresh_token: str,
+) -> None:
     mocker.patch(
         "flask_cognito_lib.plugin.CognitoAuth.exchange_refresh_token",
         return_value=CognitoTokenResponse(
@@ -211,14 +225,23 @@ def refresh_token_response(mocker, access_token, id_token, refresh_token):
 
 
 @pytest.fixture
-def client_with_cookie(app, access_token, cfg):
+def client_with_cookie(
+    app: Flask,
+    access_token: str,
+    cfg: Config,
+) -> Generator[FlaskClient, None, None]:
     cl = app.test_client()
     cl.set_cookie(key=cfg.COOKIE_NAME, value=access_token)
     yield cl
 
 
 @pytest.fixture
-def client_with_cookie_refresh(app, cfg, access_token, refresh_token):
+def client_with_cookie_refresh(
+    app: Flask,
+    cfg: Config,
+    access_token: str,
+    refresh_token: str,
+) -> Generator[FlaskClient, None, None]:
     cl = app.test_client()
     cl.application.config["AWS_COGNITO_REFRESH_FLOW_ENABLED"] = True
     cl.application.config["AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"] = False
@@ -228,7 +251,11 @@ def client_with_cookie_refresh(app, cfg, access_token, refresh_token):
 
 
 @pytest.fixture
-def client_with_cookie_id(app, cfg, id_token):
+def client_with_cookie_id(
+    app: Flask,
+    cfg: Config,
+    id_token: str,
+) -> Generator[FlaskClient, None, None]:
     cl = app.test_client()
     cl.set_cookie(key=cfg.COOKIE_NAME_ID, value=id_token)
     yield cl
@@ -236,8 +263,11 @@ def client_with_cookie_id(app, cfg, id_token):
 
 @pytest.fixture
 def client_with_cookie_refresh_encrypted(
-    app, cfg, access_token, refresh_token_encrypted
-):
+    app: Flask,
+    cfg: Config,
+    access_token: str,
+    refresh_token_encrypted: str,
+) -> Generator[FlaskClient, None, None]:
     cl = app.test_client()
     cl.application.config["AWS_COGNITO_REFRESH_FLOW_ENABLED"] = True
     cl.application.config["AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED"] = True
@@ -247,7 +277,10 @@ def client_with_cookie_refresh_encrypted(
 
 
 @pytest.fixture
-def client_with_config_override(app, cfg_override):
+def client_with_config_override(
+    app: Flask,
+    cfg_override: Config,
+) -> Generator[FlaskClient, None, None]:
     cl = app.test_client()
     cl.application.extensions[cfg_override.APP_EXTENSION_KEY].cfg = cfg_override
     yield cl

@@ -2,22 +2,25 @@ import re
 
 import pytest
 import requests
+from flask import Flask
+from pytest_mock import MockerFixture
 from requests import JSONDecodeError
 
+from flask_cognito_lib.config import Config
 from flask_cognito_lib.exceptions import CognitoError
 from flask_cognito_lib.services.cognito_svc import CognitoService
 
 
-def raise_exception(e):
+def raise_exception(e: Exception) -> None:
     raise e
 
 
-def test_base_url(cfg):
+def test_base_url(cfg: Config) -> None:
     cognito = CognitoService(cfg)
     assert cognito.cfg.domain == "https://webapp-test.auth.eu-west-1.amazoncognito.com"
 
 
-def test_sign_in_url(cfg):
+def test_sign_in_url(cfg: Config) -> None:
     cognito = CognitoService(cfg)
     res = cognito.get_sign_in_url(
         code_challenge="asdf",
@@ -38,7 +41,10 @@ def test_sign_in_url(cfg):
     )
 
 
-def test_exchange_code_for_token_requests_error(cfg, mocker):
+def test_exchange_code_for_token_requests_error(
+    cfg: Config,
+    mocker: MockerFixture,
+) -> None:
     mocker.patch(
         "requests.post",
         side_effect=requests.exceptions.RequestException("404"),
@@ -49,7 +55,10 @@ def test_exchange_code_for_token_requests_error(cfg, mocker):
         cognito.exchange_code_for_token(code="", code_verifier="")
 
 
-def test_exchange_code_for_token(cfg, mocker):
+def test_exchange_code_for_token(
+    cfg: Config,
+    mocker: MockerFixture,
+) -> None:
     mocker.patch(
         "requests.post",
         return_value=mocker.Mock(json=lambda: {"access_token": "test_access_token"}),
@@ -60,7 +69,11 @@ def test_exchange_code_for_token(cfg, mocker):
     assert token.access_token == "test_access_token"
 
 
-def test_exchange_code_for_token_with_public_client(app, cfg, mocker):
+def test_exchange_code_for_token_with_public_client(
+    app: Flask,
+    cfg: Config,
+    mocker: MockerFixture,
+) -> None:
     mocker.patch(
         "requests.post",
         return_value=mocker.Mock(json=lambda: {"access_token": "test_access_token"}),
@@ -73,7 +86,10 @@ def test_exchange_code_for_token_with_public_client(app, cfg, mocker):
     assert token.access_token == "test_access_token"
 
 
-def test_exchange_code_for_token_error(cfg, mocker):
+def test_exchange_code_for_token_error(
+    cfg: Config,
+    mocker: MockerFixture,
+) -> None:
     error_code = "some error code"
     mocker.patch(
         "requests.post",
@@ -92,7 +108,10 @@ def test_exchange_code_for_token_error(cfg, mocker):
         cognito.exchange_code_for_token(code="", code_verifier="")
 
 
-def test_exchange_code_for_token_error_description(cfg, mocker):
+def test_exchange_code_for_token_error_description(
+    cfg: Config,
+    mocker: MockerFixture,
+) -> None:
     error_code = "some error code"
     error_description = "some error description"
     mocker.patch(
@@ -113,7 +132,10 @@ def test_exchange_code_for_token_error_description(cfg, mocker):
         cognito.exchange_code_for_token(code="", code_verifier="")
 
 
-def test_exchange_code_for_token_error_json(cfg, mocker):
+def test_exchange_code_for_token_error_json(
+    cfg: Config,
+    mocker: MockerFixture,
+) -> None:
     mocker.patch(
         "requests.post",
         return_value=mocker.Mock(
@@ -129,7 +151,10 @@ def test_exchange_code_for_token_error_json(cfg, mocker):
         cognito.exchange_code_for_token(code="", code_verifier="")
 
 
-def test_refresh_token(cfg, mocker):
+def test_refresh_token(
+    cfg: Config,
+    mocker: MockerFixture,
+) -> None:
     mocker.patch(
         "requests.post",
         return_value=mocker.Mock(
@@ -147,7 +172,10 @@ def test_refresh_token(cfg, mocker):
     assert token.refresh_token == "new_test_refresh_token"
 
 
-def test_refresh_token_typo(cfg, mocker):
+def test_refresh_token_typo(
+    cfg: Config,
+    mocker: MockerFixture,
+) -> None:
     # Check the function works under the old name that had a typo
     mocker.patch(
         "requests.post",
@@ -166,7 +194,10 @@ def test_refresh_token_typo(cfg, mocker):
     assert token.refresh_token == "new_test_refresh_token"
 
 
-def test_revoke_refresh_token(cfg, mocker):
+def test_revoke_refresh_token(
+    cfg: Config,
+    mocker: MockerFixture,
+) -> None:
     mocker.patch(
         "requests.post",
     )
@@ -175,7 +206,10 @@ def test_revoke_refresh_token(cfg, mocker):
     cognito.revoke_refresh_token(refresh_token="test_refresh_token")
 
 
-def test_revoke_refresh_token_error_json(cfg, mocker):
+def test_revoke_refresh_token_error_json(
+    cfg: Config,
+    mocker: MockerFixture,
+) -> None:
     mocker.patch(
         "requests.post",
         return_value=mocker.Mock(

@@ -1,17 +1,19 @@
 import pytest
 from flask import Flask
+from pytest_mock import MockerFixture
 
 from flask_cognito_lib import CognitoAuth
+from flask_cognito_lib.config import Config
 from flask_cognito_lib.exceptions import CognitoError
 
 
-def test_plugin_init(cfg):
+def test_plugin_init(cfg: Config) -> None:
     app = Flask(__name__)
     CognitoAuth(app)
     assert cfg.APP_EXTENSION_KEY in app.extensions
 
 
-def test_plugin_init_with_config_override(cfg_override):
+def test_plugin_init_with_config_override(cfg_override: Config) -> None:
     app = Flask(__name__)
     CognitoAuth(app, cfg=cfg_override)
     assert (
@@ -20,13 +22,13 @@ def test_plugin_init_with_config_override(cfg_override):
     )
 
 
-def test_plugin_lazy_init(cfg):
+def test_plugin_lazy_init(cfg: Config) -> None:
     app = Flask(__name__)
     CognitoAuth().init_app(app)
     assert cfg.APP_EXTENSION_KEY in app.extensions
 
 
-def test_plugin_lazy_init_with_config_override(cfg_override):
+def test_plugin_lazy_init_with_config_override(cfg_override: Config) -> None:
     app = Flask(__name__)
     CognitoAuth().init_app(app, cfg=cfg_override)
     assert (
@@ -35,7 +37,7 @@ def test_plugin_lazy_init_with_config_override(cfg_override):
     )
 
 
-def test_plugin_get_tokens_parameters_state(app, cfg):
+def test_plugin_get_tokens_parameters_state(app: Flask, cfg: Config) -> None:
     cls = app.extensions[cfg.APP_EXTENSION_KEY]
     with pytest.raises(CognitoError):
         cls.get_tokens(
@@ -43,7 +45,7 @@ def test_plugin_get_tokens_parameters_state(app, cfg):
         )
 
 
-def test_plugin_get_tokens_parameters_code(app, cfg):
+def test_plugin_get_tokens_parameters_code(app: Flask, cfg: Config) -> None:
     cls = app.extensions[cfg.APP_EXTENSION_KEY]
     with pytest.raises(CognitoError):
         cls.get_tokens(
@@ -51,7 +53,7 @@ def test_plugin_get_tokens_parameters_code(app, cfg):
         )
 
 
-def test_plugin_get_tokens_state_invalid(app, cfg):
+def test_plugin_get_tokens_state_invalid(app: Flask, cfg: Config) -> None:
     cls = app.extensions[cfg.APP_EXTENSION_KEY]
     with pytest.raises(CognitoError):
         cls.get_tokens(
@@ -61,7 +63,11 @@ def test_plugin_get_tokens_state_invalid(app, cfg):
         )
 
 
-def test_plugin_get_tokens(app, cfg, mocker):
+def test_plugin_get_tokens(
+    app: Flask,
+    cfg: Config,
+    mocker: MockerFixture,
+) -> None:
     cls = app.extensions[cfg.APP_EXTENSION_KEY]
     mocker.patch(
         "requests.post",
@@ -75,7 +81,11 @@ def test_plugin_get_tokens(app, cfg, mocker):
     assert tokens.access_token == "test_access_token"
 
 
-def test_plugin_exchange_refresh_token(app, cfg, mocker):
+def test_plugin_exchange_refresh_token(
+    app: Flask,
+    cfg: Config,
+    mocker: MockerFixture,
+) -> None:
     cls = app.extensions[cfg.APP_EXTENSION_KEY]
     mocker.patch(
         "requests.post",
@@ -93,7 +103,11 @@ def test_plugin_exchange_refresh_token(app, cfg, mocker):
     assert tokens.refresh_token == "new_test_refresh_token"
 
 
-def test_plugin_revoke_refresh_token(app, cfg, mocker):
+def test_plugin_revoke_refresh_token(
+    app: Flask,
+    cfg: Config,
+    mocker: MockerFixture,
+) -> None:
     cls = app.extensions[cfg.APP_EXTENSION_KEY]
     mocker.patch(
         "requests.post",

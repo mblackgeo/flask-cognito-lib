@@ -21,8 +21,8 @@ def generate_code_verifier(n_bytes: int = 32) -> str:
 def generate_code_challenge(code_verifier: str) -> str:
     """Create a code challenge (SHA256) from a code verifier"""
     code_challenge = sha256(code_verifier.encode("utf-8")).digest()
-    code_challenge = urlsafe_b64encode(code_challenge).decode("utf-8")
-    return code_challenge.replace("=", "")
+    code_challenge_decoded = urlsafe_b64encode(code_challenge).decode("utf-8")
+    return code_challenge_decoded.replace("=", "")
 
 
 @dataclass
