@@ -96,6 +96,11 @@ jobs:
       UV_PROJECT_ENVIRONMENT: .venv
 
     steps:
+      - name: Checkout repo (to get tests/)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -108,11 +113,6 @@ jobs:
           packages-dir: dist
           repository-url: https://test.pypi.org/legacy/
           # skip-existing: true   # optional safety for reruns
-
-      - name: Checkout repo (to get tests/)
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up uv and Python
         uses: astral-sh/setup-uv@v6
