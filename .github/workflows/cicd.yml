@@ -117,9 +117,11 @@ jobs:
             --index-url https://test.pypi.org/simple \
             --extra-index-url https://pypi.org/simple \
             flask-cognito-lib
+            --prerelease allow
 
+      # TODO - need a better way to get test dependencies (i.e. from pyproject.toml)
       - name: Install test deps
-        run: uv pip install -U pytest
+        run: uv pip install -U "pytest~=8.0" "pytest-mock~=3.0"
 
       - name: Run tests against installed package (isolated)
         run: |
