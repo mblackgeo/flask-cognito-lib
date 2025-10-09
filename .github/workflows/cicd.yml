@@ -133,7 +133,7 @@ jobs:
 
       # Only publish to PyPI on main and for a *final* (non-prerelease) version
       - name: Publish to PyPI (Trusted Publisher)
-        if: github.ref == 'refs/heads/main' && !contains(needs.cd.outputs.version, '-')
+        if: github.ref == 'refs/heads/main' && !contains(needs.cd.outputs.version, 'rc')
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist
