@@ -6,8 +6,11 @@ on:
     branches:
       - main
     paths:
+      - .github/workflows/docs.yml
       - "docs/**"
       - "example/**"
+      - README.md
+      - mkdocs.yml
 
 jobs:
   deploy:
