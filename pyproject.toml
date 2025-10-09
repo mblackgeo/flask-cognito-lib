@@ -1,6 +1,6 @@
 [project]
 name = "flask_cognito_lib"
-version = "1.9.6-rc.2"
+version = "1.9.6-rc.3"
 description = "A Flask extension that supports protecting routes with AWS Cognito following OAuth 2.1 best practices"
 authors = [
     { name = "mblackgeo", email = "18327836+mblackgeo@users.noreply.github.com" },
