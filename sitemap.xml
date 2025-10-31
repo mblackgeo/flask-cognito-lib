@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://mblackgeo.github.io/flask-cognito-lib/</loc>
+         <lastmod>2025-10-31</lastmod>
+    </url>
+    <url>
+         <loc>https://mblackgeo.github.io/flask-cognito-lib/cognito/</loc>
+         <lastmod>2025-10-31</lastmod>
+    </url>
+    <url>
+         <loc>https://mblackgeo.github.io/flask-cognito-lib/config/</loc>
+         <lastmod>2025-10-31</lastmod>
+    </url>
+    <url>
+         <loc>https://mblackgeo.github.io/flask-cognito-lib/example/</loc>
+         <lastmod>2025-10-31</lastmod>
+    </url>
+</urlset>
