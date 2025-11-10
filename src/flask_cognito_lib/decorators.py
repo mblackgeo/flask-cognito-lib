@@ -288,6 +288,8 @@ def cognito_logout(fn: Callable[P, Any]) -> Callable[P, Response]:
                     domain=cognito_auth.cfg.cookie_domain,
                 )
 
+            remove_from_session(("claims", "user_info"))
+
         # Cognito will redirect to the sign-out URL (if set) or else use
         # the callback URL
         return resp  # type: ignore[return-value]
@@ -333,6 +335,11 @@ def auth_required(
                         token=access_token,
                         leeway=cognito_auth.cfg.cognito_expiration_leeway,
                     )
+
+                    # Check for token consistency
+                    if claims["sub"] != session["claims"]["sub"]:
+                        raise TokenVerifyError
+
                     # Check for required group membership
                     if groups:
                         req_groups = cast(Iterable[str], groups)
