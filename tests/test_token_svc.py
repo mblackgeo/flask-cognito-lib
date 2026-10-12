@@ -1,5 +1,13 @@
+import time
+import warnings
+from types import SimpleNamespace
+from typing import Any, Dict
+
+import jwt
 import pytest
+from cryptography.hazmat.primitives.asymmetric import rsa
 from flask import Flask
+from pytest_mock import MockerFixture
 
 from flask_cognito_lib.config import Config
 from flask_cognito_lib.exceptions import CognitoError, TokenVerifyError
@@ -94,3 +102,59 @@ def test_decrypt_token_error(app: Flask, cfg: Config, refresh_token: str) -> Non
     with pytest.raises(CognitoError, match="Error decrypting token"):
         serv = TokenService(cfg=cfg)
         serv.decrypt_token(refresh_token)
+
+
+def test_verify_tokens_no_pyjwt_deprecation_warning(
+    cfg: Config, access_token: str, id_token: str
+) -> None:
+    serv = TokenService(cfg=cfg)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        serv.verify_access_token(access_token, leeway=1e9)
+        serv.verify_id_token(id_token, leeway=1e9)
+
+
+def _sign_and_patch(
+    mocker: MockerFixture, serv: TokenService, claims: Dict[str, Any]
+) -> str:
+    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    mocker.patch.object(
+        serv, "get_public_key", return_value=SimpleNamespace(key=key.public_key())
+    )
+    return jwt.encode(claims, key, algorithm="RS256")
+
+
+@pytest.mark.parametrize("missing", ["client_id", "iss", "exp", "iat"])
+def test_verify_access_token_missing_required_claim(
+    mocker: MockerFixture, cfg: Config, missing: str
+) -> None:
+    serv = TokenService(cfg=cfg)
+    now = int(time.time())
+    claims = {
+        "client_id": cfg.user_pool_client_id,
+        "iss": cfg.issuer,
+        "exp": now + 60,
+        "iat": now,
+    }
+    del claims[missing]
+    token = _sign_and_patch(mocker, serv, claims)
+    with pytest.raises(TokenVerifyError):
+        serv.verify_access_token(token)
+
+
+@pytest.mark.parametrize("missing", ["aud", "iss", "exp", "iat"])
+def test_verify_id_token_missing_required_claim(
+    mocker: MockerFixture, cfg: Config, missing: str
+) -> None:
+    serv = TokenService(cfg=cfg)
+    now = int(time.time())
+    claims = {
+        "aud": cfg.user_pool_client_id,
+        "iss": cfg.issuer,
+        "exp": now + 60,
+        "iat": now,
+    }
+    del claims[missing]
+    token = _sign_and_patch(mocker, serv, claims)
+    with pytest.raises(TokenVerifyError):
+        serv.verify_id_token(token)

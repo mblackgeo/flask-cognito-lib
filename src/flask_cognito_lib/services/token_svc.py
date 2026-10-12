@@ -55,7 +55,7 @@ class TokenService:
     def _jwt_validate(
         self,
         token: str,
-        options: Dict[str, bool],
+        options: Dict[str, Any],
         leeway: float = 0,
         required: Optional[Iterable[str]] = None,
     ) -> Dict[str, Any]:
@@ -72,7 +72,7 @@ class TokenService:
             See ``pyjwt.jwt.decode`` for options.
         required : Iterable[str], optional
             List of claims that must be present.
-            Will set "aud", "iss", "exp", "iat" by default.
+            Will set "iss", "exp", "iat" by default.
 
         Returns
         -------
@@ -92,8 +92,10 @@ class TokenService:
                 audience=self.cfg.user_pool_client_id,
                 issuer=self.cfg.issuer,
                 leeway=leeway,
-                options=options,
-                required=required or ["aud", "iss", "exp", "iat"],
+                options={
+                    **options,
+                    "require": list(required or ["iss", "exp", "iat"]),
+                },
             )
 
         except jwt.PyJWTError as err:
@@ -143,6 +145,8 @@ class TokenService:
                 "verify_iat": True,
                 "verify_nbf": False,  # Not issued
             },
+            # Access tokens have no "aud" claim, Cognito sets "client_id" instead
+            required=["client_id", "iss", "exp", "iat"],
         )
 
         # Cognito does not set an audience, but should populate client_id
@@ -196,6 +200,7 @@ class TokenService:
                 "verify_iat": True,
                 "verify_nbf": False,  # Not issued
             },
+            required=["aud", "iss", "exp", "iat"],
         )
 
         # Check nonce value to prevent replay attacks
